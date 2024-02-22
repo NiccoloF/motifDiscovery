@@ -1,1 +1,1 @@
-# mtfd
+# Motif Discovery
