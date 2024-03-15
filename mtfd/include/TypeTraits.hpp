@@ -14,7 +14,6 @@ namespace KMA
   
   using Vfield = arma::field<arma::vec>;
   using Mfield = arma::field<arma::mat>;
-
 }
 
 

@@ -13,7 +13,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // initialChecks
 Rcpp::List initialChecks(const Rcpp::List& Y0, const Rcpp::List& Y1, const Rcpp::NumericMatrix& P0, const Rcpp::NumericMatrix& S0, const Rcpp::List& params, const Rcpp::String& diss, long long seed);
-RcppExport SEXP _ProbKMAcpp_initialChecks(SEXP Y0SEXP, SEXP Y1SEXP, SEXP P0SEXP, SEXP S0SEXP, SEXP paramsSEXP, SEXP dissSEXP, SEXP seedSEXP) {
+RcppExport SEXP _mtfd_initialChecks(SEXP Y0SEXP, SEXP Y1SEXP, SEXP P0SEXP, SEXP S0SEXP, SEXP paramsSEXP, SEXP dissSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -29,15 +29,17 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport SEXP _rcpp_module_boot_FunBialignModule();
 RcppExport SEXP _rcpp_module_boot_ProbKMAModule();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ProbKMAcpp_initialChecks", (DL_FUNC) &_ProbKMAcpp_initialChecks, 7},
+    {"_mtfd_initialChecks", (DL_FUNC) &_mtfd_initialChecks, 7},
+    {"_rcpp_module_boot_FunBialignModule", (DL_FUNC) &_rcpp_module_boot_FunBialignModule, 0},
     {"_rcpp_module_boot_ProbKMAModule", (DL_FUNC) &_rcpp_module_boot_ProbKMAModule, 0},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_ProbKMAcpp(DllInfo *dll) {
+RcppExport void R_init_mtfd(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
