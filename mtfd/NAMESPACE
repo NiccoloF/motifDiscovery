@@ -4,3 +4,4 @@ import(methods)
 ## export all regularly named functions
 ## (but allow for private functions whose name starts with a dot).name <- function(...)
 exportPattern("^[[:alpha:]]+")
+export('clusterMotif')

@@ -20,6 +20,7 @@
 #' @param names_var vector of length d, with names of the variables in the different dimensions.
 #' @param probKMA_options list with options for probKMA (see the help of probKMA).
 #' @param silhouette_align True or False. If True, try all possible alignments between the curve pieces
+#' @param criterium reorder the results based on fMRS or Variance.
 #' when calculating the adapted silhouette index on the results of probKMA
 #' @param plot if TRUE, summary plots are drawn.
 #' @return A list containing: K, c, n_init and name;...
@@ -27,9 +28,11 @@
 #' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #' @export
-clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,Y1=NULL,
+
+clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium="fMRS"
+                                  ,Y1=NULL,plot=TRUE,
                                   K=NULL,c=NULL,n_init=10,name='results',names_var='',
-                                  probKMA_options=NULL,silhouette_align=FALSE,plot=TRUE,
+                                  probKMA_options=NULL,silhouette_align=FALSE,
                                   quantile = 0.25, stopCriterion = 'max', tol = 1e-8, 
                                   tol4elong = 1e-3, max_elong = 0.5, 
                                   deltaJK_elong = 0.05, iter4clean = 50, 
@@ -494,6 +497,276 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,Y1=NULL,
   }
   if(cluster=="funBiAlign")
   {
+    
+  cppFunction('Rcpp::List createWindow(const arma::mat& data,
+                                       unsigned int portion_len){
+  
+  const unsigned int totdim = data.n_cols;
+  const unsigned int totobs = data.n_rows;
+  const unsigned int totrows = (totdim - portion_len + 1) * totobs;
+  const unsigned int totportion = totdim - portion_len + 1;
+  
+  // set the size for data structure
+  arma::mat windowData(totrows,portion_len);
+  std::vector<std::string> window_rownames(totrows);
+  
+  if(totobs <= 1) // we have a single curve
+  {
+    // fill in my data 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(arma::uword i = 0; i < totrows; ++i)
+    {
+      windowData.row(i) = data.cols(i,i + portion_len - 1); //Each peace of curve is stored in a row
+      window_rownames[i] = "1_" + std::to_string(totrows) + "_" +
+                            std::to_string(i + 1) + "_" + std::to_string(i + portion_len);         
+    }
+  }
+  else // we have multiple curves
+  {
+    // fill in my data
+#ifdef _OPENMP
+#pragma omp parallel for collapse(2)
+#endif
+      for(arma::uword k = 0; k < totobs; ++k)
+      {
+        for (arma::uword i = 0; i < totportion; ++i)
+        {
+          windowData.row(totportion * k + i) = data(k,arma::span(i,i + portion_len - 1));
+          window_rownames[i + k * totportion] = std::to_string(k+1) + "_" + std::to_string(i + 1) + "_" + std::to_string(i + portion_len); 
+        }
+                
+      }
+  }
+  
+  return Rcpp::List::create(windowData,window_rownames);
+}',depends="RcppArmadillo")
+    # step 1
+    window_data_list <- createWindow(Y0,portion_len)
+    window_data <- window_data_list[[1]]
+    rownames(window_data) <- window_data_list[[2]]
+
+    # set it as a matrix and omit rows with NAs
+    window_data <- na.omit(window_data)
+    
+    # compute numerosity 
+    numerosity <- rep(dim(Y0)[2] - portion_len + 1,times = dim(Y0)[1])
+    removed_rows <- setdiff(window_data_list[[2]],rownames(window_data))
+    curve_indices <- as.numeric(gsub("^(\\d+)_.*", "\\1", removed_rows))
+    tab <- table(curve_indices)
+    numerosity[as.numeric(names(tab))] <- numerosity[as.numeric(names(tab))] - tab
+    
+    rm(window_data_list)
+    rm(removed_rows)
+    rm(tab)
+    
+  cppFunction('Rcpp::NumericMatrix createDistance(const arma::mat& windowData,
+                                                  const arma::vec& numerosity){
+  
+  int outrows = windowData.n_rows;
+  int outcols = windowData.n_cols;
+  
+  double outcols_inv = 1.0 / static_cast<double>(outcols);
+  const arma::colvec& vsum = arma::sum(windowData,1) * outcols_inv;
+  arma::mat scoreData(outrows,outrows);
+  
+#ifdef _OPENMP
+#pragma omp parallel for collapse(2)
+#endif
+  for (arma::uword i = 1; i < outrows; ++i) { // for any functional observation
+    const arma::rowvec& x_i = windowData.row(i); // curve i 
+    for (arma::uword j = 0; j < i; ++j) {
+      
+      // Precompute common terms
+      const arma::rowvec& crossSum = x_i + windowData.row(j);;
+      const double commonTerm = arma::accu(crossSum) * (outcols_inv * 0.5);
+    
+      
+      scoreData(i,j) = arma::accu(arma::square(
+                                  x_i - vsum[i] - crossSum/2
+                                  + commonTerm))*outcols_inv;
+    }
+  }
+  
+  // Modify accolites 
+  double M = static_cast<double>(*std::max_element(scoreData.begin(),scoreData.end())) + 1000.0; // very large distance for accolites
+  int overlap = static_cast<int>(std::floor(outcols / 2.0)); // number of right/left accolites
+  
+  // Single curve
+  if (false) {
+    for (int i = 0; i < outrows-1; ++i) {
+      // check for right accolites
+      arma::uword start = i+1;
+      arma::uword end = std::min<int>(i+overlap,outrows-1);
+      scoreData(i,arma::span(start,end)) += M;
+    }
+    
+  // Multiple curves
+  } else {
+    int until_here = 0;
+    for(int j = 0; j <numerosity.size();++j)
+    {
+      int num = numerosity[j] - 1;
+#ifdef _OPENMP
+#pragma omp parallel for 
+#endif
+      for(int i = until_here; i < until_here + numerosity[j]-1;++i)
+      {
+        arma::uword start = i+1;
+        arma::uword end = std::min<int>(std::min<int>(i+overlap ,i + (num--)),outrows);
+        scoreData(arma::span(start,end),i) += M;
+      }
+      until_here += numerosity[j];
+    }
+  }
+  return Rcpp::wrap(scoreData);
+}',depends="RcppArmadillo")
+    
+    # step 2: compute fMRS-based dissimilarity matrix
+    D_fmsr <- createDistance(window_data,numerosity)
+    rownames(D_fmsr) <- colnames(D_fmsr) <- rownames(window_data)
+
+    ## STEP 3 -----
+    # step 3: get the sub-trees (tree_s)
+    minidend  <- get_minidend(as.dist(D_fmsr), window_data)
+    # step 3: identify seeds and corresponding families
+    all_paths   <- get_path_complete(minidend, window_data, min_card = min_card)
+    all_paths   <- all_paths[!(lapply(all_paths, is.null) %>% unlist())] 
+    
+    # step 3: get recommended nodes and their info (cardinality and score)
+    # collect all recommended nodes (as an array of portion ids)
+    all_recommended_labels <- lapply(all_paths, function(x){x$recommended_node_labels})
+    list_of_recommendations <- lapply(rapply(
+      all_recommended_labels, enquote, how='unlist'),
+      eval)
+    # get recommended node cardinality
+    vec_of_card <- lapply(list_of_recommendations, length) %>% unlist()
+    
+    # get vector of adjusted fMSR
+    vec_of_scores <- lapply(all_paths, function(x){x$recommended_node_scores}) %>% unlist()
+
+    ## STEP 4 -----
+    # STEP 4: post-processing and rearranging results using different criteria
+    
+    ### CRITERION: adjusted fMSR ----
+    best_order <- vec_of_scores %>% order()
+    vec_of_scores_ordered <- vec_of_scores[best_order]
+    # ordered list_of_recommendations
+    list_of_recommendations_ordered <- list_of_recommendations[best_order]
+ 
+    #for every recommended motif, compute all its accolites
+    all_accolites <- lapply(list_of_recommendations_ordered,
+                            function(x){
+                              lapply(x, get_accolites, window_data, portion_len, FALSE) %>% unlist()
+                            })
+    
+    #Starting from the top, we compare each motif to those with higher rank. If all portions of
+    # are acolytes to portions of an higher ranking motif, we filter it out; 
+    # otherwise we retain it.
+
+    # we identify the ones to delete
+    # TODO: RENDERE PARALLELO PERCHE NON é THREAD SAFE AL MOMENTO
+    cppFunction('Rcpp::IntegerVector deleteV(const Rcpp::List& list_of_recommendations_ordered,
+                                             const Rcpp::List&  all_accolites,
+                                             const Rcpp::NumericVector& vec_of_scores_ordered){
+  int n = list_of_recommendations_ordered.size();
+  Rcpp::IntegerVector del;
+  
+#ifdef _OPENMP
+#pragma omp parallel for collapse(2)
+#endif
+  for (int i = 1; i < n; ++i) { // compare every motif (from the second one)
+    const Rcpp::CharacterVector& node_1 = list_of_recommendations_ordered[i];
+    for (int j = 0; j < i; ++j) { // to the other higher ranked nodes
+      const Rcpp::CharacterVector& node_2 = list_of_recommendations_ordered[j];
+      if (node_1.size() <= node_2.size()) {
+        const Rcpp::CharacterVector& accolites_2 = all_accolites[j];
+        if (vec_of_scores_ordered(i) > vec_of_scores_ordered(j) && 
+            Rcpp::is_true(Rcpp::all(Rcpp::in(node_1, accolites_2)))){
+          del.push_back(i+1);
+          break;
+        }
+      }
+    }
+  }
+  
+  return del;
+  
+}',depends="RcppArmadillo")
+    
+    delete <- deleteV(list_of_recommendations_ordered,
+                      all_accolites,
+                      vec_of_scores_ordered)
+    # we delete the recommended nodes and we order the remaining ones
+    list_of_recommendations_ordered <- list_of_recommendations_ordered[-delete]
+    vec_of_scores_ordered <- vec_of_scores_ordered[-delete]
+
+    # CRITERIUM: variance ----
+    # We can order the results by variance too
+    if(criterium == "Variance")
+    {
+      motif_var <- lapply(list_of_recommendations_ordered, 
+                          function(x){
+                            temp <- window_data[x,]
+                            temp_mean <- temp %>% colMeans()
+                            ((temp - temp_mean)^2 %>% sum())/(nrow(temp))
+                          }) %>% unlist()
+      
+      var_order <- motif_var %>% order(decreasing = TRUE)
+      list_of_recommendations_ordered <- list_of_recommendations_ordered[var_order]
+      vec_of_scores_ordered <- vec_of_scores_ordered[var_order]
+    }
+    
+    # Creating some plot ----
+    ## Plot the data and highlight the motif occurrences in red -----
+    if(plot)
+    {
+      pdf(paste0(name,'_funBialign.pdf'),width=7,height=5)
+      for(q in 1:length(list_of_recommendations_ordered)){
+        temp_motif <- list_of_recommendations_ordered[[q]]
+        lots_in_motif <- lapply(temp_motif,
+                                function(x){
+                                  strsplit(x, '_') %>% 
+                                    unlist() %>%
+                                    as.numeric()}) %>% 
+          unlist() %>%
+          matrix(ncol=3, byrow=T)
+        
+        title   <- paste0("Number of instances: ", dim(temp_motif)[2],
+                          " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
+        
+        matplot(t(foodinfl_loc), col = "grey40", ylab='', xlab='', axes='FALSE',
+                lty = 1, type = 'l', main = title)
+        for(k in 1:nrow(lots_in_motif)){
+          rect(lots_in_motif[k,2], min(foodinfl_loc)-10, lots_in_motif[k,3], max(foodinfl_loc) +10,
+               border = alpha("firebrick3", 0.2), col = alpha("firebrick3", 0.2))
+          matplot(lots_in_motif[k,2]:lots_in_motif[k,3],
+                  foodinfl_loc[lots_in_motif[k,1],lots_in_motif[k,2]:lots_in_motif[k,3]], type='l', add=T, col='firebrick3', lwd = 2)
+          box(col="grey40",lwd = 2)
+          axis(1, at=seq(1, length(foodinfl_loc), by=12), labels = all_time$Time[seq(1, length(foodinfl_loc), by=12)], col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
+          axis(2, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
+        }
+      }
+      
+      
+      
+      ## Plot only the motif -----
+      for(q in 1:length(list_of_recommendations_ordered)){
+        
+        temp_motif <- list_of_recommendations_ordered[[q]]
+        plot_me <- t(window_data[temp_motif,])
+        title   <- paste0("Number of occurrences: ", dim(plot_me)[2],
+                          " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
+        
+        matplot(plot_me, col = "#648a60", ylab='', xlab='', axes='FALSE',
+                lty = 1, type = 'l', lwd = 4, main = title)
+        box(col="grey40", lwd = 2)
+        axis(1, at=1:portion_len, labels = 1:portion_len, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
+        axis(2, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
+      }
+      dev.off()
+    }
     
   }
 }

@@ -54,7 +54,8 @@ FunBialign::FunBialign(const KMA::matrix& data,
   // save number of rows
   _outrows = _windowData.n_rows;
   
-  _scoreData.set_size(_outrows * (_outrows - 1)/2);
+  // da controllare se il totale di lots è pari
+  _scoreData.set_size(_outrows * (_outrows - 1)/2); 
 }
 
 
@@ -64,6 +65,7 @@ KMA::vector FunBialign::Hscore() const
 {
   double outcols_inv = 1.0 / static_cast<double>(_outcols);
   const arma::colvec& vsum = arma::sum(_windowData,1);
+  arma::uword index;
   
 #ifdef _OPENMP
 #pragma omp parallel for collapse(2)
@@ -80,7 +82,7 @@ KMA::vector FunBialign::Hscore() const
       const double& x_i_sum_term = vsum[i] * outcols_inv;
     
        // map from the lower triangular part to vector
-       arma::uword index = j*(2*_outrows - j - 1)/2 + i - j - 1;
+       index = j*(2*_outrows - j - 1)/2 + i - j - 1;
       _scoreData(index) = arma::accu(arma::square(
                                         x_i - x_i_sum_term - crossSum*0.5 
                                         + commonTerm))*outcols_inv;
@@ -107,7 +109,7 @@ double FunBialign::fMSR_adj() const
 }
 
 
-KMA::vector FunBialign::createDistance() const
+arma::sp_mat FunBialign::createDistance() const
 {
   this -> Hscore();
 
@@ -155,18 +157,58 @@ KMA::vector FunBialign::createDistance() const
       until_here += _numerosity[j];
     }
   }
-  return _scoreData;
+  
+  arma::sp_mat matrix(_outrows, _outrows);
+#ifdef _OPENMP 
+#pragma omp parallel for collapse(2)
+#endif
+  for (int j = 0; j < _outrows - 1; ++j) {
+    for (int i = j + 1; i < _outrows; ++i) {
+      arma::uword index = j*(2*_outrows - j - 1)/2 + i - j - 1; 
+      matrix(i, j) = _scoreData[index];
+    }
+  }
+ // return _scoreData;
+ return matrix;
 }
 
-
-
+/*
+Rcpp::IntegerVector FunBialign::deleteV(const Rcpp::List& list_of_recommendations_ordered,
+                               const Rcpp::List&  all_accolites,
+                               const Rcpp::NumericVector& vec_of_scores_ordered){
+    
+  int n = list_of_recommendations_ordered.size();
+  Rcpp::IntegerVector del;
+  
+#ifdef _OPENMP
+#pragma omp parallel for collapse(2)
+#endif
+  for (int i = 1; i < n; ++i) { // compare every motif (from the second one)
+    const Rcpp::CharacterVector& node_1 = list_of_recommendations_ordered[i];
+    for (int j = 0; j < i; ++j) { // to the other higher ranked nodes
+      const Rcpp::CharacterVector& node_2 = list_of_recommendations_ordered[j];
+      if (node_1.size() <= node_2.size()) {
+        const Rcpp::CharacterVector& accolites_2 = all_accolites[j];
+        if (std::includes(node_1.begin(), node_1.end(), accolites_2.begin(), accolites_2.end()) 
+            && vec_of_scores_ordered(i) > vec_of_scores_ordered(i)) {
+          del.push_back(i);
+          break;
+        }
+      }
+    }
+  }
+  
+  return del;
+  
+}
+*/
 
 RCPP_EXPOSED_CLASS(FunBialign);
 
 RCPP_MODULE(FunBialignModule) {
   Rcpp::class_<FunBialign>("FunBialign")
   .constructor<KMA::matrix,unsigned int>()
-  .method("fMSR",&FunBialign::fMSR_adj)
-  .method("createDistance",&FunBialign::createDistance);
+  .method("createDistance",&FunBialign::createDistance)
+  .field_readonly("windowData",&FunBialign::_windowData);
 }
 
