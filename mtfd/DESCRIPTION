@@ -10,5 +10,6 @@ License: GPL (>= 2)
 Suggests: tinytest
 Encoding: UTF-8
 RoxygenNote: 7.2.3
-Imports: Rcpp (>= 1.0.12)
+Imports: Rcpp (>= 1.0.12),readr,fda,tidyverse,KernSmooth,scales
 LinkingTo: Rcpp, RcppArmadillo
+SystemRequirements: C++20

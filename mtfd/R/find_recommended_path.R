@@ -100,6 +100,27 @@ find_recommended_path <- function(minidend, window_data, min_card){
   # get the list of elements for each node in the seed_path
   seed_path_list <- lapply(seed_path, function(x){node_list[x]}) # names of elements
   
+  
+  cppFunction('double fMSR_adj(NumericMatrix& mat) {
+  
+  int nrow = mat.nrow();
+  int ncol = mat.ncol();
+  const arma::mat matRef(mat.begin(), nrow, ncol,false,true);
+  if(!nrow) // degenerate case with zero curves
+    return 0.0;
+  
+  double score = arma::accu(arma::square(
+                 (matRef.each_col() - arma::mean(matRef, 1)).each_row() - arma::mean(matRef,0)
+                 + arma::mean(arma::vectorise(matRef))))/static_cast<double>(nrow * ncol);
+  if (nrow > 2) 
+  {
+    score /= arma::as_scalar(arma::prod(arma::regspace<arma::vec>(2, 1, nrow).transform(
+      [](double k){return k * k / (k * k - 1);})));
+  }
+  return score;
+}',depends="RcppArmadillo",includes="#include <ranges>",plugin="cpp20")
+  
+  browser()
   # get the list of h-score adjusted for each node in the seed_path
   score_path_list <- lapply(seed_path, function(x){
     lapply(x, function(x){window_data[node_list[[x]],] %>% fMSR_adj()})}

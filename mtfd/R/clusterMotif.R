@@ -29,7 +29,7 @@
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #' @export
 
-clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium="fMRS"
+clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium="fMRS"
                                   ,Y1=NULL,plot=TRUE,
                                   K=NULL,c=NULL,n_init=10,name='results',names_var='',
                                   probKMA_options=NULL,silhouette_align=FALSE,
@@ -43,7 +43,7 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
   
   
   
-  if(cluster == 'ProbKMA')
+  if(method == 'ProbKMA')
   {
     
     ### check input #############################################################################################
@@ -495,18 +495,24 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
     ### output ##################################################################################################
     return(list(name=name,K=K,c=c,n_init=n_init,silhouette_average_sd=silhouette_average_sd,times=times))
   }
-  if(cluster=="funBiAlign")
+  if(method=="FunBialign")
   {
-    
-  cppFunction('Rcpp::List createWindow(const arma::mat& data,
+    window_data <- NULL
+    list_of_recommendations_ordered <- NULL
+    vec_of_scores_ordered <- NULL
+    if(!file.exists(paste0(name,"_funBialign",'/resFunBi.rds')))
+    {
+      dir.create(paste0(name,"_funBialign"),showWarnings=TRUE)
+  cppFunction('Rcpp::List createWindow(Rcpp::NumericMatrix& data,
                                        unsigned int portion_len){
   
-  const unsigned int totdim = data.n_cols;
-  const unsigned int totobs = data.n_rows;
+  const unsigned int totdim = data.ncol();
+  const unsigned int totobs = data.nrow();
   const unsigned int totrows = (totdim - portion_len + 1) * totobs;
   const unsigned int totportion = totdim - portion_len + 1;
   
   // set the size for data structure
+  const arma::mat dataRef(data.begin(), totobs, totdim,false,true);
   arma::mat windowData(totrows,portion_len);
   std::vector<std::string> window_rownames(totrows);
   
@@ -518,7 +524,7 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
 #endif
     for(arma::uword i = 0; i < totrows; ++i)
     {
-      windowData.row(i) = data.cols(i,i + portion_len - 1); //Each peace of curve is stored in a row
+      windowData.row(i) = dataRef.cols(i,i + portion_len - 1); //Each peace of curve is stored in a row
       window_rownames[i] = "1_" + std::to_string(totrows) + "_" +
                             std::to_string(i + 1) + "_" + std::to_string(i + portion_len);         
     }
@@ -533,13 +539,12 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
       {
         for (arma::uword i = 0; i < totportion; ++i)
         {
-          windowData.row(totportion * k + i) = data(k,arma::span(i,i + portion_len - 1));
+          windowData.row(totportion * k + i) = dataRef(k,arma::span(i,i + portion_len - 1));
           window_rownames[i + k * totportion] = std::to_string(k+1) + "_" + std::to_string(i + 1) + "_" + std::to_string(i + portion_len); 
         }
                 
       }
   }
-  
   return Rcpp::List::create(windowData,window_rownames);
 }',depends="RcppArmadillo")
     # step 1
@@ -561,25 +566,27 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
     rm(removed_rows)
     rm(tab)
     
-  cppFunction('Rcpp::NumericMatrix createDistance(const arma::mat& windowData,
+  cppFunction('Rcpp::NumericMatrix createDistance(Rcpp::NumericMatrix& windowData,
                                                   const arma::vec& numerosity){
   
-  int outrows = windowData.n_rows;
-  int outcols = windowData.n_cols;
+  int outrows = windowData.nrow();
+  int outcols = windowData.ncol();
+  bool isSingle = (numerosity.size() == 1);
   
   double outcols_inv = 1.0 / static_cast<double>(outcols);
-  const arma::colvec& vsum = arma::sum(windowData,1) * outcols_inv;
+  const arma::mat windowDataRef(windowData.begin(),outrows,outcols,false,true);
+  const arma::colvec& vsum = arma::sum(windowDataRef,1) * outcols_inv;
   arma::mat scoreData(outrows,outrows);
   
 #ifdef _OPENMP
 #pragma omp parallel for collapse(2)
 #endif
   for (arma::uword i = 1; i < outrows; ++i) { // for any functional observation
-    const arma::rowvec& x_i = windowData.row(i); // curve i 
+    const arma::rowvec& x_i = windowDataRef.row(i); // curve i 
     for (arma::uword j = 0; j < i; ++j) {
       
       // Precompute common terms
-      const arma::rowvec& crossSum = x_i + windowData.row(j);;
+      const arma::rowvec& crossSum = x_i + windowDataRef.row(j);;
       const double commonTerm = arma::accu(crossSum) * (outcols_inv * 0.5);
     
       
@@ -594,7 +601,7 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
   int overlap = static_cast<int>(std::floor(outcols / 2.0)); // number of right/left accolites
   
   // Single curve
-  if (false) {
+  if (isSingle) {
     for (int i = 0; i < outrows-1; ++i) {
       // check for right accolites
       arma::uword start = i+1;
@@ -625,8 +632,9 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
     
     # step 2: compute fMRS-based dissimilarity matrix
     D_fmsr <- createDistance(window_data,numerosity)
+    return()
     rownames(D_fmsr) <- colnames(D_fmsr) <- rownames(window_data)
-
+    
     ## STEP 3 -----
     # step 3: get the sub-trees (tree_s)
     minidend  <- get_minidend(as.dist(D_fmsr), window_data)
@@ -701,6 +709,17 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
     # we delete the recommended nodes and we order the remaining ones
     list_of_recommendations_ordered <- list_of_recommendations_ordered[-delete]
     vec_of_scores_ordered <- vec_of_scores_ordered[-delete]
+    resFunBi = list(window_data = window_data,
+                    list_of_recommendations_ordered = list_of_recommendations_ordered,
+                    vec_of_scores_ordered = vec_of_scores_ordered)
+    }
+    else
+    {
+      resFunBi <- readRDS(paste0(name,"_funBialign",'/resFunBi.rds'))
+      window_data <- resFunBi$window_data
+      list_of_recommendations_ordered <-  resFunBi$list_of_recommendations_ordered
+      vec_of_scores_ordered <- resFunBi$vec_of_scores_ordered
+    }
 
     # CRITERIUM: variance ----
     # We can order the results by variance too
@@ -717,12 +736,14 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
       list_of_recommendations_ordered <- list_of_recommendations_ordered[var_order]
       vec_of_scores_ordered <- vec_of_scores_ordered[var_order]
     }
+    # save results 
+    saveRDS(resFunBi,file = paste0(name,"_funBialign",'/resFunBi.rds')) 
     
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
     if(plot)
     {
-      pdf(paste0(name,'_funBialign.pdf'),width=7,height=5)
+      pdf(paste0(name,"_funBialign/plot.pdf"),width=7,height=5)
       for(q in 1:length(list_of_recommendations_ordered)){
         temp_motif <- list_of_recommendations_ordered[[q]]
         lots_in_motif <- lapply(temp_motif,
@@ -736,20 +757,19 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
         title   <- paste0("Number of instances: ", dim(temp_motif)[2],
                           " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
         
-        matplot(t(foodinfl_loc), col = "grey40", ylab='', xlab='', axes='FALSE',
+        matplot(t(Y0), col = "grey40", ylab='', xlab='', axes='FALSE',
                 lty = 1, type = 'l', main = title)
-        for(k in 1:nrow(lots_in_motif)){
-          rect(lots_in_motif[k,2], min(foodinfl_loc)-10, lots_in_motif[k,3], max(foodinfl_loc) +10,
-               border = alpha("firebrick3", 0.2), col = alpha("firebrick3", 0.2))
-          matplot(lots_in_motif[k,2]:lots_in_motif[k,3],
-                  foodinfl_loc[lots_in_motif[k,1],lots_in_motif[k,2]:lots_in_motif[k,3]], type='l', add=T, col='firebrick3', lwd = 2)
-          box(col="grey40",lwd = 2)
-          axis(1, at=seq(1, length(foodinfl_loc), by=12), labels = all_time$Time[seq(1, length(foodinfl_loc), by=12)], col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
-          axis(2, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
-        }
+        rect(lots_in_motif[,2], min(Y0)-10, lots_in_motif[,3], max(Y0) +10,
+             border = alpha("firebrick3", 0.2), col = alpha("firebrick3", 0.2))
+      
+        lapply(1:nrow(lots_in_motif), function(k) {
+          matplot(lots_in_motif[k, 2]:lots_in_motif[k, 3],
+                  Y0[lots_in_motif[k, 1], lots_in_motif[k, 2]:lots_in_motif[k, 3]], type = 'l', add = TRUE, col = 'firebrick3', lwd = 2)
+          box(col = "grey40", lwd = 2)
+          axis(1, at = seq(1, length(Y0), by = 12), labels = all_time$Time[seq(1, length(Y0), by = 12)], col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
+          axis(2, col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
+        })
       }
-      
-      
       
       ## Plot only the motif -----
       for(q in 1:length(list_of_recommendations_ordered)){
@@ -767,6 +787,7 @@ clusterMotif <- function(Y0,cluster,portion_len = NULL,min_card = NULL,criterium
       }
       dev.off()
     }
-    
+    return(list(list_of_recommendations_ordered = list_of_recommendations_ordered,
+                vec_of_scores_ordered = vec_of_scores_ordered))
   }
 }
