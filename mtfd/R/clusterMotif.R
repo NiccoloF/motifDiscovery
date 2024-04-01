@@ -503,7 +503,8 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     if(!file.exists(paste0(name,"_funBialign",'/resFunBi.rds')))
     {
       dir.create(paste0(name,"_funBialign"),showWarnings=TRUE)
-  cppFunction('Rcpp::List createWindow(Rcpp::NumericMatrix& data,
+  cppFunction('
+  Rcpp::List createWindow(Rcpp::NumericMatrix& data,
                                        unsigned int portion_len){
   
   const unsigned int totdim = data.ncol();
@@ -546,7 +547,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       }
   }
   return Rcpp::List::create(windowData,window_rownames);
-}',depends="RcppArmadillo")
+}',depends = "RcppArmadillo")
     # step 1
     window_data_list <- createWindow(Y0,portion_len)
     window_data <- window_data_list[[1]]
@@ -566,7 +567,8 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     rm(removed_rows)
     rm(tab)
     
-  cppFunction('Rcpp::NumericMatrix createDistance(Rcpp::NumericMatrix& windowData,
+  cppFunction('
+  Rcpp::NumericMatrix createDistance(Rcpp::NumericMatrix& windowData,
                                                   const arma::vec& numerosity){
   
   int outrows = windowData.nrow();
@@ -577,7 +579,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
   const arma::mat windowDataRef(windowData.begin(),outrows,outcols,false,true);
   const arma::colvec& vsum = arma::sum(windowDataRef,1) * outcols_inv;
   arma::mat scoreData(outrows,outrows);
-  
+ 
 #ifdef _OPENMP
 #pragma omp parallel for collapse(2)
 #endif
@@ -628,8 +630,8 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
   }
   return Rcpp::wrap(scoreData);
-}',depends="RcppArmadillo")
-    
+}',depends = "RcppArmadillo")
+
     # step 2: compute fMRS-based dissimilarity matrix
     D_fmsr <- createDistance(window_data,numerosity)
     return()
