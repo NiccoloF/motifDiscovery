@@ -26,7 +26,7 @@
 #' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
 #' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
-#' @export
+
 find_recommended_path <- function(minidend, window_data, min_card){
   # get leaves for each node
   node_list <- minidend %>% partition_leaves()
@@ -44,11 +44,10 @@ find_recommended_path <- function(minidend, window_data, min_card){
     setnames(c('x','y'))
   
   node_heights <- node_heights[,'y']
-  
+
   # bind together on a dataframe with deep-first search order
   temp <- cbind(node_leaves, node_heights) %>%
     mutate(depth_order = 1:length(node_leaves)) # deep-first search order
-  setnames(temp,old = 'node_heights',new = 'y')
   
   # generate for each nodes (using function get_parents)
   node_parents <- lapply(node_list, get_parents, node_list = node_list )
@@ -120,7 +119,6 @@ find_recommended_path <- function(minidend, window_data, min_card){
   return score;
 }',depends="RcppArmadillo",includes="#include <ranges>",plugin="cpp20")
   
-  browser()
   # get the list of h-score adjusted for each node in the seed_path
   score_path_list <- lapply(seed_path, function(x){
     lapply(x, function(x){window_data[node_list[[x]],] %>% fMSR_adj()})}

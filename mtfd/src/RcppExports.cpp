@@ -29,12 +29,10 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP _rcpp_module_boot_FunBialignModule();
 RcppExport SEXP _rcpp_module_boot_ProbKMAModule();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mtfd_initialChecks", (DL_FUNC) &_mtfd_initialChecks, 7},
-    {"_rcpp_module_boot_FunBialignModule", (DL_FUNC) &_rcpp_module_boot_FunBialignModule, 0},
     {"_rcpp_module_boot_ProbKMAModule", (DL_FUNC) &_rcpp_module_boot_ProbKMAModule, 0},
     {NULL, NULL, 0}
 };

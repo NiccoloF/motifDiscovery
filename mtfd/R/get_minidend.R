@@ -26,8 +26,8 @@
 #' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
 #' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
-#' @export
-get_minidend <- function(adj_fMSR, window_data){
+
+get_minidend <- function(adj_fMSR){
   # generate dendrogram
   total_hc <- fastcluster::hclust(adj_fMSR, method = "complete")
   total_dend <- as.dendrogram(total_hc) # transform in dendrogram

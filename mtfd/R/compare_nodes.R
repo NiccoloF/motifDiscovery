@@ -26,7 +26,7 @@
 #' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
 #' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
-#' @export
+
 compare_nodes <- function(node_1, node_2){
   accolites_1    <- lapply(node_1, get_accolites, window_data, 50) %>% unlist()
   common_elements <- (node_2 %in% accolites_1) %>% sum()

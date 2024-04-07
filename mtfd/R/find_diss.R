@@ -10,7 +10,6 @@
 #' @param aligned if TRUE, curves are already aligned. Else, the shortest curve is aligned inside the longest.
 #' @return shift and dissimilarity
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
-#' @export
 .find_diss <- function(y,v,alpha,w,aligned,d,use0,use1){
   v_dom=.domain(v,use0)
   v=.select_domain(v,v_dom,use0,use1)

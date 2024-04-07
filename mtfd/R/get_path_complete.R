@@ -26,7 +26,7 @@
 #' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
 #' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
-#' @export
+
 get_path_complete <- function(minidend, window_data, min_card){
   all_paths <- lapply(minidend,
                       find_recommended_path,

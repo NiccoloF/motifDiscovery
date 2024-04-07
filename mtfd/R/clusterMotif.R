@@ -26,26 +26,27 @@
 #' @return A list containing: K, c, n_init and name;...
 #' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
 #' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
-#' @author Marzia Angela Cremona & Francesca Chiaromonte
+#' @author Niccolò Feresini
 #' @export
 
-clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium="fMRS"
-                                  ,Y1=NULL,plot=TRUE,
-                                  K=NULL,c=NULL,n_init=10,name='results',names_var='',
-                                  probKMA_options=NULL,silhouette_align=FALSE,
-                                  quantile = 0.25, stopCriterion = 'max', tol = 1e-8, 
-                                  tol4elong = 1e-3, max_elong = 0.5, 
-                                  deltaJK_elong = 0.05, iter4clean = 50, 
-                                  tol4clean = 1e-4, quantile4clean = 1/2, 
-                                  m = 2, w = 1, seed = 1,exe_print = FALSE,
-                                  set_seed = FALSE, 
-                                  n_threads = 7, worker_number = NULL){
-  
+clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium="fMRS",
+                         Y1=NULL,plot=TRUE,K=NULL,c=NULL,n_init=10,diss="d0_L2",alpha=0,
+                         stopCriterion="max",return_options=TRUE,name='results',names_var='',
+                         probKMA_options=list(standardize=TRUE,c_max=Inf,
+                                              iter_max=1e3,iter4elong=10,
+                                              trials_elong=10,max_gap=0.2,
+                                              quantile=0.25,tol=1e-8,
+                                              tol4elong=1e-3,max_elong=0.5,
+                                              deltaJK_elong=0.05,iter4clean=50,
+                                              tol4clean=1e-4,quantile4clean=0.5,
+                                              m=2,w=1),
+                         silhouette_align=FALSE,
+                         seed = 1,exe_print = FALSE,set_seed = FALSE,
+                         worker_number = NULL){
   
   
   if(method == 'ProbKMA')
   {
-    
     ### check input #############################################################################################
     # check required input
     if(missing(K) || is.null(K))
@@ -95,35 +96,35 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                        Y1 = Y1,
                        P0 = matrix(), 
                        S0 = matrix(),
+                       alpha = alpha,
+                       diss = diss,
+                       seed = seed, 
+                       K = K, 
+                       c = c,
+                       return_options = return_options,
+                       exe_print = exe_print,
+                       set_seed = set_seed,
                        standardize=probKMA_options$standardize,
                        c_max = probKMA_options$c_max,
                        iter_max = probKMA_options$iter_max,
                        iter4elong = probKMA_options$iter4elong,
                        trials_elong = probKMA_options$trials_elong,
-                       return_options = probKMA_options$return_options,
-                       alpha = probKMA_options$alpha,
                        max_gap = probKMA_options$max_gap,
-                       diss = probKMA_options$diss,
-                       quantile = quantile, 
+                       quantile = probKMA_options$quantile, 
                        stopCriterion = stopCriterion, 
-                       tol = tol, 
-                       tol4elong = tol4elong, 
-                       max_elong = max_elong, 
-                       deltaJK_elong = deltaJK_elong, 
-                       iter4clean = iter4clean, 
-                       tol4clean = tol4clean,
-                       quantile4clean = quantile4clean, 
-                       m = m,
-                       w = w, 
-                       seed = seed, 
-                       K = 2, 
-                       c = 40,
-                       exe_print = exe_print,
-                       set_seed = set_seed,
-                       n_threads = n_threads)
+                       tol = probKMA_options$tol, 
+                       tol4elong = probKMA_options$tol4elong, 
+                       max_elong = probKMA_options$max_elong, 
+                       deltaJK_elong = probKMA_options$deltaJK_elong, 
+                       iter4clean = probKMA_options$iter4clean, 
+                       tol4clean = probKMA_options$tol4clean,
+                       quantile4clean = probKMA_options$quantile4clean, 
+                       m = probKMA_options$m,
+                       w = probKMA_options$w)
     
     ### set parallel jobs #############################################################################
     core_number <- detectCores()
+    n_threads <- worker_number
     # check worker number
     if(!is.null(worker_number)){
       if(!is.numeric(worker_number)){
@@ -137,7 +138,11 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       }
     }
     if(is.null(worker_number))
+    {
       worker_number <- core_number-1
+      n_threads <- worker_number
+    }
+    arguments$n_threads <- n_threads
     rm(core_number)
     len_mean=mean(unlist(lapply(Y0,nrow)))
     c_mean=mean(c)
@@ -160,12 +165,10 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
         cl_find=NULL
       }
     }
-    
     ### run probKMA ##########################################################################################
     i_c_K=expand.grid(seq_len(n_init),c,K)
     vector_seed = seq(1,length(i_c_K$Var1))
-    
-    results=.mapply_custom(cl_find, function(K,c,i,small_seed){ 
+    results=.mapply_custom(cl_find, function(K,c,i,small_seed){
       dir.create(paste0(name,"_K",K,"_c",c),showWarnings=TRUE,recursive = TRUE)
       files=list.files(paste0(name,"_K",K,"_c",c))
       message("K",K,"_c",c,'_random',i)
@@ -175,13 +178,13 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                     time=time,silhouette=silhouette))
       }else{
         iter=iter_max=1
+
         while(iter==iter_max){
-          start=proc.time()
+          start=proc.time() 
           set.seed(small_seed)
           small_seed = small_seed + 1
           arguments$K = K
           arguments$c = c
-          arguments$quantile4clean = 1/K
           probKMA_results = do.call(probKMA_wrap,arguments)
           end=proc.time()
           time=end-start
@@ -191,13 +194,13 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
             warning('Maximum number of iteration reached. Re-starting.')
         }
         pdf(paste0(name,"_K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-        probKMA_plot(probKMA_results,ylab=names_var,cleaned=FALSE) 
+        mtfd:::probKMA_plot(probKMA_results,ylab=names_var,cleaned=FALSE) 
         dev.off()
         pdf(paste0(name,"_K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-        probKMA_plot(probKMA_results,ylab=names_var,cleaned=TRUE) 
+        mtfd:::probKMA_plot(probKMA_results,ylab=names_var,cleaned=TRUE) 
         dev.off()
         pdf(paste0(name,"_K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-        silhouette=probKMA_silhouette(probKMA_results,
+        silhouette=mtfd:::probKMA_silhouette(probKMA_results,
                                       align=silhouette_align,
                                       plot=TRUE) 
         dev.off()
@@ -497,15 +500,28 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
   }
   if(method=="FunBialign")
   {
+    # check required input
+    if(missing(portion_len) || is.null(portion_len))
+      stop('portion_len attribute must be specified')
+    if(missing(min_card) || is.null(min_card))
+      stop('min_card attribute must be specified')
+    
+    #compute maximum length
+    maxLen <- max(sapply(Y0, nrow))
+    full_data <- sapply(Y0, mtfd:::pooling, maxLen,simplify = FALSE)
+    
+    # transform list into a matrix where each curve is on a row
+    full_data <- t(sapply(full_data,cbind))
+
     window_data <- NULL
     list_of_recommendations_ordered <- NULL
     vec_of_scores_ordered <- NULL
-    if(!file.exists(paste0(name,"_funBialign",'/resFunBi.rds')))
+    if(!file.exists(paste0(name,'/resFunBi.rds')))
     {
-      dir.create(paste0(name,"_funBialign"),showWarnings=TRUE)
+      dir.create(paste0(name),showWarnings=TRUE)
   cppFunction('
   Rcpp::List createWindow(Rcpp::NumericMatrix& data,
-                                       unsigned int portion_len){
+                          unsigned int portion_len){
   
   const unsigned int totdim = data.ncol();
   const unsigned int totobs = data.nrow();
@@ -514,7 +530,8 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
   
   // set the size for data structure
   const arma::mat dataRef(data.begin(), totobs, totdim,false,true);
-  arma::mat windowData(totrows,portion_len);
+  Rcpp::NumericMatrix windowData(totrows,portion_len);
+  arma::mat windowDataRef(windowData.begin(),totrows,portion_len,false,true);
   std::vector<std::string> window_rownames(totrows);
   
   if(totobs <= 1) // we have a single curve
@@ -525,9 +542,8 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
 #endif
     for(arma::uword i = 0; i < totrows; ++i)
     {
-      windowData.row(i) = dataRef.cols(i,i + portion_len - 1); //Each peace of curve is stored in a row
-      window_rownames[i] = "1_" + std::to_string(totrows) + "_" +
-                            std::to_string(i + 1) + "_" + std::to_string(i + portion_len);         
+      windowDataRef.row(i) = dataRef.cols(i,i + portion_len - 1); //Each peace of curve is stored in a row
+      window_rownames[i] = "1_" + std::to_string(i + 1) + "_" + std::to_string(i + portion_len);         
     }
   }
   else // we have multiple curves
@@ -540,7 +556,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       {
         for (arma::uword i = 0; i < totportion; ++i)
         {
-          windowData.row(totportion * k + i) = dataRef(k,arma::span(i,i + portion_len - 1));
+          windowDataRef.row(totportion * k + i) = dataRef(k,arma::span(i,i + portion_len - 1));
           window_rownames[i + k * totportion] = std::to_string(k+1) + "_" + std::to_string(i + 1) + "_" + std::to_string(i + portion_len); 
         }
                 
@@ -549,7 +565,8 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
   return Rcpp::List::create(windowData,window_rownames);
 }',depends = "RcppArmadillo")
     # step 1
-    window_data_list <- createWindow(Y0,portion_len)
+    
+    window_data_list <- createWindow(full_data,portion_len)
     window_data <- window_data_list[[1]]
     rownames(window_data) <- window_data_list[[2]]
 
@@ -569,7 +586,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     
   cppFunction('
   Rcpp::NumericMatrix createDistance(Rcpp::NumericMatrix& windowData,
-                                                  const arma::vec& numerosity){
+                                     const arma::vec& numerosity){
   
   int outrows = windowData.nrow();
   int outcols = windowData.ncol();
@@ -578,8 +595,9 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
   double outcols_inv = 1.0 / static_cast<double>(outcols);
   const arma::mat windowDataRef(windowData.begin(),outrows,outcols,false,true);
   const arma::colvec& vsum = arma::sum(windowDataRef,1) * outcols_inv;
-  arma::mat scoreData(outrows,outrows);
- 
+  Rcpp::NumericMatrix result(outrows,outrows);
+  arma::mat scoreData(result.begin(),outrows,outrows,false,true);
+  
 #ifdef _OPENMP
 #pragma omp parallel for collapse(2)
 #endif
@@ -590,11 +608,11 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       // Precompute common terms
       const arma::rowvec& crossSum = x_i + windowDataRef.row(j);;
       const double commonTerm = arma::accu(crossSum) * (outcols_inv * 0.5);
-    
       
+      // fill the lower part
       scoreData(i,j) = arma::accu(arma::square(
-                                  x_i - vsum[i] - crossSum/2
-                                  + commonTerm))*outcols_inv;
+                                   x_i - vsum[i] - crossSum/2
+                                   + commonTerm))*outcols_inv;
     }
   }
   
@@ -611,10 +629,11 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       scoreData(i,arma::span(start,end)) += M;
     }
     
-  // Multiple curves
+    // Multiple curves
   } else {
     int until_here = 0;
-    for(int j = 0; j <numerosity.size();++j)
+    int numerosity_size = numerosity.size();
+    for(int j = 0; j <numerosity_size;++j)
     {
       int num = numerosity[j] - 1;
 #ifdef _OPENMP
@@ -629,19 +648,17 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       until_here += numerosity[j];
     }
   }
-  return Rcpp::wrap(scoreData);
+  return Rcpp::wrap(result);
 }',depends = "RcppArmadillo")
-
-    # step 2: compute fMRS-based dissimilarity matrix
+# step 2: compute fMRS-based dissimilarity matrix
     D_fmsr <- createDistance(window_data,numerosity)
-    return()
     rownames(D_fmsr) <- colnames(D_fmsr) <- rownames(window_data)
-    
     ## STEP 3 -----
     # step 3: get the sub-trees (tree_s)
-    minidend  <- get_minidend(as.dist(D_fmsr), window_data)
+    minidend  <- mtfd:::get_minidend(as.dist(D_fmsr))
     # step 3: identify seeds and corresponding families
-    all_paths   <- get_path_complete(minidend, window_data, min_card = min_card)
+
+    all_paths   <- mtfd:::get_path_complete(minidend, window_data, min_card = min_card)
     all_paths   <- all_paths[!(lapply(all_paths, is.null) %>% unlist())] 
     
     # step 3: get recommended nodes and their info (cardinality and score)
@@ -668,7 +685,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     #for every recommended motif, compute all its accolites
     all_accolites <- lapply(list_of_recommendations_ordered,
                             function(x){
-                              lapply(x, get_accolites, window_data, portion_len, FALSE) %>% unlist()
+                              lapply(x, mtfd:::get_accolites, window_data, portion_len, FALSE) %>% unlist()
                             })
     
     #Starting from the top, we compare each motif to those with higher rank. If all portions of
@@ -676,16 +693,12 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     # otherwise we retain it.
 
     # we identify the ones to delete
-    # TODO: RENDERE PARALLELO PERCHE NON é THREAD SAFE AL MOMENTO
     cppFunction('Rcpp::IntegerVector deleteV(const Rcpp::List& list_of_recommendations_ordered,
                                              const Rcpp::List&  all_accolites,
                                              const Rcpp::NumericVector& vec_of_scores_ordered){
   int n = list_of_recommendations_ordered.size();
   Rcpp::IntegerVector del;
   
-#ifdef _OPENMP
-#pragma omp parallel for collapse(2)
-#endif
   for (int i = 1; i < n; ++i) { // compare every motif (from the second one)
     const Rcpp::CharacterVector& node_1 = list_of_recommendations_ordered[i];
     for (int j = 0; j < i; ++j) { // to the other higher ranked nodes
@@ -704,7 +717,6 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
   return del;
   
 }',depends="RcppArmadillo")
-    
     delete <- deleteV(list_of_recommendations_ordered,
                       all_accolites,
                       vec_of_scores_ordered)
@@ -717,7 +729,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
     else
     {
-      resFunBi <- readRDS(paste0(name,"_funBialign",'/resFunBi.rds'))
+      resFunBi <- readRDS(paste0(name,'/resFunBi.rds'))
       window_data <- resFunBi$window_data
       list_of_recommendations_ordered <-  resFunBi$list_of_recommendations_ordered
       vec_of_scores_ordered <- resFunBi$vec_of_scores_ordered
@@ -739,13 +751,13 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       vec_of_scores_ordered <- vec_of_scores_ordered[var_order]
     }
     # save results 
-    saveRDS(resFunBi,file = paste0(name,"_funBialign",'/resFunBi.rds')) 
-    
+    saveRDS(resFunBi,file = paste0(name,'/resFunBi.rds')) 
+
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
     if(plot)
     {
-      pdf(paste0(name,"_funBialign/plot.pdf"),width=7,height=5)
+      pdf(paste0(name,"/plot_",criterium,".pdf"),width=7,height=5)
       for(q in 1:length(list_of_recommendations_ordered)){
         temp_motif <- list_of_recommendations_ordered[[q]]
         lots_in_motif <- lapply(temp_motif,
@@ -759,16 +771,16 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
         title   <- paste0("Number of instances: ", dim(temp_motif)[2],
                           " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
         
-        matplot(t(Y0), col = "grey40", ylab='', xlab='', axes='FALSE',
+        matplot(t(full_data), col = "grey40", ylab='', xlab='', axes='FALSE',
                 lty = 1, type = 'l', main = title)
-        rect(lots_in_motif[,2], min(Y0)-10, lots_in_motif[,3], max(Y0) +10,
+        rect(lots_in_motif[,2], min(full_data,na.rm = TRUE)-10, lots_in_motif[,3], max(full_data,na.rm = TRUE) +10,
              border = alpha("firebrick3", 0.2), col = alpha("firebrick3", 0.2))
       
         lapply(1:nrow(lots_in_motif), function(k) {
           matplot(lots_in_motif[k, 2]:lots_in_motif[k, 3],
-                  Y0[lots_in_motif[k, 1], lots_in_motif[k, 2]:lots_in_motif[k, 3]], type = 'l', add = TRUE, col = 'firebrick3', lwd = 2)
+                  full_data[lots_in_motif[k, 1], lots_in_motif[k, 2]:lots_in_motif[k, 3]], type = 'l', add = TRUE, col = 'firebrick3', lwd = 2)
           box(col = "grey40", lwd = 2)
-          axis(1, at = seq(1, length(Y0), by = 12), labels = all_time$Time[seq(1, length(Y0), by = 12)], col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
+          axis(1, at = seq(1, length(Y0), by = 12), col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
           axis(2, col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
         })
       }
