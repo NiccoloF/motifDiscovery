@@ -29,8 +29,8 @@
 #' @author Niccolò Feresini
 #' @export
 
-clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium="fMRS",
-                         Y1=NULL,plot=TRUE,K=NULL,c=NULL,n_init=10,diss="d0_L2",alpha=0,
+clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium="fMRS",cut_off=NULL,
+                         Y1=NULL,P0=matrix(),S0=matrix(),plot=TRUE,K=NULL,c=NULL,n_init=10,diss="d0_L2",alpha=0,
                          stopCriterion="max",return_options=TRUE,name='results',names_var='',
                          probKMA_options=list(standardize=TRUE,c_max=Inf,
                                               iter_max=1e3,iter4elong=10,
@@ -165,7 +165,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
         probKMA_options$return_options=TRUE
       }
     }
-    
+   
     arguments =   list(Y0 = Y0, 
                        Y1 = Y1,
                        P0 = matrix(), 
@@ -351,7 +351,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
         }
       },i_c_K[,3],i_c_K[,2],i_c_K[,1],vector_seed,SIMPLIFY=FALSE)
     }
-    
+
     results=split(results,list(factor(i_c_K[,2],c),factor(i_c_K[,3],K)))
     results=split(results,rep(K,each=length(c)))
     
@@ -649,7 +649,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     
     #compute maximum length
     maxLen <- max(sapply(Y0, nrow))
-    full_data <- sapply(Y0, mtfd:::pooling, maxLen,simplify = FALSE)
+    full_data <- sapply(Y0, mtfd:::padding, maxLen,simplify = FALSE)
     
     # transform list into a matrix where each curve is on a row
     full_data <- t(sapply(full_data,cbind))
@@ -893,13 +893,13 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
     # save results 
     saveRDS(resFunBi,file = paste0(name,'/resFunBi.rds')) 
-
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
     if(plot)
     {
-      pdf(paste0(name,"/plot_",criterium,".pdf"),width=7,height=5)
-      for(q in 1:length(list_of_recommendations_ordered)){
+      pdf(paste0(name,"/plot_",criterium,".pdf"),width=10,height=5)
+      layout(matrix(1:2,ncol=2,byrow=TRUE),widths=c(8.5,1))
+      for(q in 1:min(length(list_of_recommendations_ordered),cut_off,na.rm=TRUE)){
         temp_motif <- list_of_recommendations_ordered[[q]]
         lots_in_motif <- lapply(temp_motif,
                                 function(x){
@@ -908,37 +908,54 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                                     as.numeric()}) %>% 
           unlist() %>%
           matrix(ncol=3, byrow=T)
-        
-        title   <- paste0("Number of instances: ", dim(temp_motif)[2],
+        current_curves <- unique(as.numeric(gsub("[^0-9]", "", substr(temp_motif, 1, 2))))
+        title   <- paste0("Number of instances: ", length(temp_motif),
                           " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
-        
-        matplot(t(full_data), col = "grey40", ylab='', xlab='', axes='FALSE',
-                lty = 1, type = 'l', main = title)
+        par(mar = c(5, 4, 2, 2) + 0.1)
+        matplot(t(full_data), ylab='', xlab='',
+                lwd=1.5,lty = 1, type = 'l', main = title,col=alpha('gray30',0.15))
+        matplot(matrix(full_data[current_curves,],ncol=length(current_curves),byrow = TRUE), ylab='', xlab='',
+                lwd=1.5,lty = 5, type = 'l', main = title,col=rainbow(length(current_curves)),add=TRUE)
         rect(lots_in_motif[,2], min(full_data,na.rm = TRUE)-10, lots_in_motif[,3], max(full_data,na.rm = TRUE) +10,
-             border = alpha("firebrick3", 0.2), col = alpha("firebrick3", 0.2))
+             border = alpha("firebrick3", 0.05), col = alpha("firebrick3", 0.05))
       
         lapply(1:nrow(lots_in_motif), function(k) {
           matplot(lots_in_motif[k, 2]:lots_in_motif[k, 3],
-                  full_data[lots_in_motif[k, 1], lots_in_motif[k, 2]:lots_in_motif[k, 3]], type = 'l', add = TRUE, col = 'firebrick3', lwd = 2)
-          box(col = "grey40", lwd = 2)
-          axis(1, at = seq(1, length(Y0), by = 12), col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
-          axis(2, col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
+                  full_data[lots_in_motif[k, 1], lots_in_motif[k, 2]:lots_in_motif[k, 3]],
+                  type = 'l', add = TRUE, col = 'red', lwd = 2.5)
+          #box(col = "grey40", lwd = 2)
+          #axis(1, at = seq(1, length(Y0), by = 12), col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
+          #axis(2, col = "grey40", col.ticks = "grey40", col.axis = "grey60", cex.axis = 1.5)
         })
+        par(mar=c(0,0,0,0))
+        plot.new()
+        legend("topright", 
+               legend = c(paste0("c",current_curves),paste0('motif_',q)),
+               col = c(rainbow(length(current_curves)),'red'),lwd=c(rep(1,length(current_curves)),4), lty = 1,cex=0.75)
       }
-      
+      layout(matrix(1:2,ncol=2,byrow=TRUE),widths=c(5,1))
       ## Plot only the motif -----
-      for(q in 1:length(list_of_recommendations_ordered)){
-        
+      for(q in 1:min(length(list_of_recommendations_ordered),cut_off,na.rm = TRUE)){
+        par(mar = c(5, 4, 2, 2) + 0.1)
         temp_motif <- list_of_recommendations_ordered[[q]]
+        current_curves <- as.numeric(gsub("[^0-9]", "", substr(temp_motif, 1, 2)))
         plot_me <- t(window_data[temp_motif,])
+        motifMean <- rowMeans(plot_me)
         title   <- paste0("Number of occurrences: ", dim(plot_me)[2],
                           " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
         
-        matplot(plot_me, col = "#648a60", ylab='', xlab='', axes='FALSE',
-                lty = 1, type = 'l', lwd = 4, main = title)
-        box(col="grey40", lwd = 2)
-        axis(1, at=1:portion_len, labels = 1:portion_len, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
-        axis(2, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
+        matplot(plot_me, ylab='', xlab='',type='l',
+                col=seq_len(length(temp_motif))+1,lwd=2,lty=5, main = title)
+        lines(motifMean,col='black',lwd=5,lty=1)
+        par(mar=c(0,0,0,0))
+        plot.new()
+        legend('topright',
+               legend=c(paste0('c',current_curves),'motif center'),
+               col=c(seq_len(length(temp_motif))+1,'black'),lwd=c(rep(2,length(temp_motif)),5),lty=c(rep(5,length(temp_motif)),1),
+               xpd=TRUE,cex=0.75)
+        #box(col="grey40", lwd = 2)
+        #axis(1, at=1:portion_len, labels = 1:portion_len, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
+        #axis(2, col="grey40", col.ticks="grey40", col.axis="grey60", cex.axis=1.5)
       }
       dev.off()
     }

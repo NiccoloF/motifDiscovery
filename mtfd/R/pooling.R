@@ -5,7 +5,7 @@
 #' @param maxLen extension length
 #' @return matrix extended up to maxLen
 #' @author Niccolò Feresini 
-pooling <- function(dataMatrix, maxLen) 
+padding <- function(dataMatrix, maxLen) 
 {
   actual_len <- nrow(dataMatrix)
   if (actual_len < maxLen) 
