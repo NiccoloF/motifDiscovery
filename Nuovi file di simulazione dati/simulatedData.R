@@ -1,0 +1,328 @@
+library(fda)
+library(tidyverse)
+library(ggplot2)
+
+#
+#mot_details <- list("mot_len" = mot_len, #length
+#                    "mot_order" = mot_order, # order of the bspline
+#                    "weight" = rbeta(300, 1, 3), # weights for the motif
+#                    "appearance" = motif_str %>% filter(motif_id == 1)) #pattern
+#                    "distr" = NULL
+
+#motif_str <- rbind.data.frame(c(1, 1, 10),
+#                              c(1, 1, 35),
+#                              c(1, 1, 89),
+#                              c(1, 2, 15),
+#                              c(1, 2, 30))
+
+norder <- 3
+mot_len <- 100
+mot_order <-  norder
+mot_weights <- rbeta(300, 1, 3) #runif(300, -15, 15)
+
+# Generate multiple curves with a motif structure imposed
+N <- 20
+
+#motif_str <- rbind.data.frame(c(1, 1, 10),
+#                              c(1, 1, 35),
+#                              c(1, 1, 89),
+#                              c(1, 2, 15),
+#                              c(1, 2, 30),
+#                              c(1, 4, 5),
+#                              c(1, 4, 60),
+#                              c(1, 5, 89),
+#                              c(1, 7, 70),
+#                              c(1,10, 18),
+#                              c(1,10, 32),
+#                              c(1,12, 40),
+#                              c(1,12, 21),
+#                              c(1,15, 17),
+#                              c(1,17, 81),
+#                              c(1,17, 20),
+#                              c(1,18, 3),
+#                              c(1,20, 20),
+#                              c(1,20, 69),
+#                              c(2,17,1),
+#                              c(2,17,55))
+
+motif_str <- rbind.data.frame(c(1, 1, 20),
+                              c(1, 9, 1),
+                              c(1, 3, 1),
+                              c(1, 2, 1),
+                              c(1, 2, 13),
+                              c(1, 4, 1),
+                              c(1, 5, 1),
+                              c(1, 7, 1),
+                              c(2,17,1))
+
+nbasis = m + L - 1 = m + internal_knots
+knots = 31
+
+names(motif_str) <- c("motif_id", "curve", "start_break_pos")
+dim(motif_str)
+
+mot1 <- list("len" = mot_len, #length
+             "weights" = NULL, # weights for the motif
+             "appearance" = 5) #pattern motif_str %>% filter(motif_id == 1)
+
+mot2 <- list("len" = mot_len,
+             "weights" = NULL,
+             "appearance" =6 )
+
+mot_details <- list(mot1,mot2)
+
+setClass("motifSimulation",
+         slots = list(
+           N = "numeric",            # Number of curves
+           mot_details = "list",     # Details of motifs 
+           motifs_in_curves = "list",# Details of curves
+           distribution = "character",  # distribution of the weights
+           dist_knots = "numeric",   # Distance between knots 
+           len = "numeric",          # Length of the curve or curves
+           norder = "numeric",       # Order of spline 
+           coeff_min = "numeric",    # Minimum coefficient value
+           coeff_max = "numeric",    # Maximum coefficient value
+           min_dist_motifs = "numeric" # Minimum distance between motifs
+         ))
+
+motifSimulationBuilder <- function(N,mot_details,distribution = 'unif',
+                                   dist_knots=10,len=300,norder=4,
+                                   coeff_min=-15,coeff_max=15,
+                                   min_dist_motifs=norder*dist_knots) {
+  
+  # Function to generate coefficients based on the distribution
+  .generate_coefficients <- function(motif_i, distrib, dist_knots, norder, coeff_min, coeff_max) {
+    # Calculate the length of the coefficients vector
+    l <- motif_i$len / dist_knots + norder - 1
+    if (distrib == "unif") {
+      # Generate coefficients from a uniform distribution
+      motif_i$weights <- runif(l, min = coeff_min, max = coeff_max)
+    } else if (distrib == "beta") {
+      # Generate coefficients from a beta distribution and scale to the desired range
+      motif_i$weights <- coeff_min + rbeta(l, shape1 = 0.45, shape2 = 0.45) * (coeff_max - coeff_min)
+    } else {
+      stop("Wrong 'distrib': ", distrib)
+    }
+    return(motif_i)
+  }
+  
+  .resample <- function(x, ...) x[sample.int(length(x), ...)]
+  
+  # check N, dist_knots and len
+  if((N%%1!=0)|(N<1))
+    stop('Invalid \'N\'.')
+  if((dist_knots%%1!=0)|(dist_knots<1))
+    stop('Invalid \'dist_knots\'.')
+  if(TRUE %in% ((len%%1!=0)|(len<1)|(sum(len%%dist_knots)>0)))
+    stop('Invalid \'len\'.')
+  if(length(mot_details) == 0)
+    stop('Invalid \'mot_details\'.')
+  
+  weights_defined <- sapply(mot_details, function(x) !is.null(x$weights))
+  if (!(all(weights_defined) || all(!weights_defined))) {
+    stop("Inconsistent weights field: some elements have it defined, others do not.")
+  }
+  
+  len_motifs <- sapply(mot_details,function(x){x$len},simplify = TRUE)
+  nmotifs <- length(mot_details)
+  if(TRUE %in% weights_defined) {
+    for(i in 1:nmotifs){
+      nbasis <- len_motifs[i]/dist_knots + norder - 1
+      mot_details[[i]]$weights <- mot_details[[i]]$weights[1:nbasis]
+      
+    }
+  }
+  # check nmotifs and len_motifs
+  if((nmotifs%%1!=0)|(nmotifs<1))
+    stop('Invalid \'nmotifs\'.')
+  if(TRUE %in% ((len_motifs%%1!=0)|(len_motifs<1)|(sum(len_motifs%%dist_knots)>0)|(TRUE %in% (len_motifs>len))))
+    stop('Invalid \'len_motifs\'.')
+  
+  if (FALSE %in% unlist(lapply(mot_details, function(x) {
+    if (all(weights_defined)) {
+      x$len == (length(x$weights)-norder+1)*dist_knots
+    } else {
+      TRUE
+    }
+  }))) {
+    stop("The length of the motifs is incompatible ")
+  }
+  
+  # check min_dist_motifs
+  if((min_dist_motifs < norder*dist_knots)|(min_dist_motifs%%dist_knots>0))
+    stop('Invalid \'min_dist_motifs\'.')
+  # check freq_motifs and convert it into a list with the frequencies for the different motifs in the different curves
+  
+  freq_motifs_vector <- sapply(mot_details,function(mot_i){ifelse(is.data.frame(mot_i$appearance),dim(mot_i$appearance['curve'])[1],NA)})
+  is_appearance_defined <- !(NA %in% freq_motifs_vector)
+  if(sum(is.na(freq_motifs_vector)) != 0 && sum(is.na(freq_motifs_vector)) != nmotifs) {
+    stop("Inconsistent appearance field: some elements have it defined, others do not.")
+  }
+  if(is_appearance_defined) {
+    freq_motifs_vector <- freq_motifs_vector[!is.na(freq_motifs_vector)]
+    if(TRUE %in% ((freq_motifs_vector%%1!=0)|(freq_motifs_vector<1)|(sum(norder-1+rep(len/dist_knots,length.out=N)-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_vector,length.out=nmotifs))+max(0,sum(rep(freq_motifs_vector,length.out=nmotifs))/N-1)*(min_dist_motifs/dist_knots-norder+1)))))
+      stop('Invalid \'freq_motifs\'.')
+  }
+  
+  freq_check=1
+  it=0
+  
+  # Compute the frequency(if not defined) of the motifs inside the curves 
+  if(!is_appearance_defined) {
+    while((sum(freq_check)>0)&&(it<10000)){
+      it=it+1
+      freq_motifs <- matrix(data = 0,nrow = N,ncol = nmotifs)
+      for(motif_j in 1:nmotifs) {
+          curves <- as.vector(sample(N,mot_details[[motif_j]]$appearance,replace=TRUE))
+          for (curve in curves) {
+            freq_motifs[curve, motif_j] <- freq_motifs[curve, motif_j] + 1
+            }
+        }
+        freq_motifs=split(freq_motifs,rep(1:N,nmotifs))# construct N list(for each curve). Each list_j contains how many times the motif_i appears in the curve j
+        freq_check=mapply(function(freq_motifs_i,len_i) ((len_i-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_i,length.out=nmotifs))+(sum(freq_motifs_i)-1)*(min_dist_motifs/dist_knots-norder+1))),
+                        freq_motifs,norder-1+rep(len/dist_knots,length.out=N))
+    }
+  if(it==10000)
+    stop('Tried 10.000 random configurations of motif frequencies in the different curves, unable to find a valid configuration. Please select lower \'freq_motifs\'.')
+  }else {
+    freq_motifs <- matrix(data = 0,nrow = N,ncol = nmotifs)
+    for(motif_j in 1:nmotifs) {
+      for(curve_i in 1:N){
+        count <- sum(mot_details[[motif_j]]$appearance$curve == curve_i)
+        freq_motifs[curve_i, motif_j] <-  freq_motifs[curve_i, motif_j] + count
+      }
+    }
+    ifelse(TRUE %in% mapply(function(freq_motifs_i,len_i) ((len_i-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_i,length.out=nmotifs))+(sum(freq_motifs_i)-1)*(min_dist_motifs/dist_knots-norder+1))),
+                            freq_motifs,norder-1+rep(len/dist_knots,length.out=N)),"",stop('Please select lower \'freq_motifs\'.'))
+  }
+  
+  # randomly assign motif positions in curves if they are not already assigned
+  # At this point we only have the coefficients of the motifs
+  motifs_in_curves <- vector("list", N)
+  if (!is_appearance_defined) {
+    # Initialize appearance for each motif
+    for (mot in 1:nmotifs) {
+      mot_details[[mot]]$appearance <- data.frame(motif_id = integer(0),
+                                                  curve = integer(0),
+                                                  start_break = integer(0),
+                                                  coeff_pos = integer(0))
+    }
+    
+    motifs_in_curves <- mapply(function(freq_motifs_i, len_i, curve_i) {
+      if (sum(freq_motifs_i) == 0) {
+        return(NULL) # No motifs embedded in this curve
+      }
+      
+      id_motifs <- .resample(rep(seq_along(freq_motifs_i), freq_motifs_i))
+      len_elements <- c(norder - 1, rep(len_motifs / dist_knots + norder - 1, length.out = nmotifs)[id_motifs] + c(rep((min_dist_motifs / dist_knots - norder + 1), sum(freq_motifs_i) - 1), 0), norder - 1)
+      gaps_tot <- len_i - sum(len_elements)
+      gaps <- diff(c(0, sort(sample(gaps_tot + sum(freq_motifs_i), sum(freq_motifs_i))))) - 1
+      coeff_pos <- cumsum(len_elements[seq_along(id_motifs)]) + 1 + cumsum(gaps) # Starting coefficient
+      pos_motifs <- coeff_pos * norder # starting breaks
+
+      for (mot in unique(id_motifs)) {
+        indices <- which(id_motifs == mot)
+        df <- data.frame(
+          motif_id = mot,
+          curve = rep(curve_i, length(indices)),
+          start_break_pos = pos_motifs[indices],
+          coeff_pos = coeff_pos[indices]
+        )
+        mot_details[[mot]]$appearance <<- rbind(mot_details[[mot]]$appearance, df)
+      }
+      
+      return(list(motif_ids=id_motifs,starting_coeff_pos=coeff_pos)) # returns N list(one for each curve) with the id of the motif embedded and the starting position
+    }, freq_motifs, norder - 1 + rep(len / dist_knots, length.out = N), 1:N,SIMPLIFY = FALSE)
+  }else {
+    for (i in seq_along(mot_details)) {
+      df <- mot_details[[i]]$appearance
+      df$start_break_pos <- coeff_pos * norder
+      split_curves <- split(df$start_break_pos, df$curve)
+      
+      for (curve_id in names(split_curves)) {
+        curve_idx <- as.numeric(curve_id)
+        if (is.null(motifs_in_curves[[curve_idx]])) {
+          motifs_in_curves[[curve_idx]] <- list(motif_ids = NULL, starting_coeff_pos = NULL)
+        }
+        motifs_in_curves[[curve_idx]]$motif_ids <- c(motifs_in_curves[[curve_idx]]$motif_ids, rep(i, length(split_curves[[curve_id]])))
+        motifs_in_curves[[curve_idx]]$starting_coeff_pos <- c(motifs_in_curves[[curve_idx]]$starting_coeff_pos, split_curves[[curve_id]])
+      }
+    }
+  }
+  
+  # if weights are not provided, randomly generate them according to the distribution
+  if(all(!weights_defined)) {
+    mot_details <- mapply(.generate_coefficients,mot_details,
+                           MoreArgs = list(distrib = distribution,
+                                           dist_knots = dist_knots,
+                                           norder = norder, 
+                                           coeff_min = coeff_min,
+                                           coeff_max = coeff_max),
+                          SIMPLIFY = FALSE)
+  }
+  return(new("motifSimulation",N = N,
+             mot_details = mot_details,
+             motifs_in_curves = motifs_in_curves,
+             distribution = distribution,
+             dist_knots=dist_knots,len=len,norder=norder,
+             coeff_min=coeff_min,coeff_max=coeff_max,
+             min_dist_motifs=min_dist_motifs))
+}
+
+dist_knots = 10
+b <- motifSimulationBuilder(N,mot_details,distribution = 'unif',
+                            dist_knots=10,len=300,norder=norder,
+                            coeff_min=-15,coeff_max=15,
+                            min_dist_motifs = norder*dist_knots)
+
+setGeneric("generateCurves", function(object,sd_noise) {
+  standardGeneric("generateCurves")
+})
+
+setMethod("generateCurves", "motifSimulation", function(object,sd_noise) {
+  breaks=lapply(rep(object@len,length.out=object@N),seq,from=0,by=object@dist_knots) # generate N lists with equally spaced nodes 'dist_knots' from 0 to 'len'
+  basis=lapply(breaks,function(breaks_i) create.bspline.basis(norder=object@norder,breaks=breaks_i)) # nbasis = norder + nbreaks - 2 = norder + interior_knots,
+  len_motifs <- unlist(lapply(object@mot_details,function(x){x$len}))
+  # loop for each curve
+  fd_curves <- mapply(function(motifs_in_curves_i,len_i,basis_i,len_motifs){
+    coeff=rep(NA,len_i) # coefficients of the curve = degree of freedom are initialized null
+    if(object@distribution=='unif'){
+      if(is.null(motifs_in_curves_i)){
+        coeff=runif(len_i,min=object@coeff_min,max=object@coeff_max) # If we don't have motifs we sample len_i coefficients uniformely
+      }else{
+        browser()
+        pos_coeff_motifs=unlist(mapply(
+          function(a,b) seq(a)+b,
+          rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_ids]/object@dist_knots+norder-1, # number of motifs coefficients for each selected motif
+          motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
+          coeff[pos_coeff_motifs]= unlist(lapply(motifs_in_curves_i$motif_ids, function(id) {
+                                      object@mot_details[[id]]$weights})) +
+                                    rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_ids],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_ids]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
+          # For each chosen coefficient add a uniform number and a gaussian noise
+          coeff[-pos_coeff_motifs]=runif(len_i-length(pos_coeff_motifs),min=object@coeff_min,max=object@coeff_max) # All other curve coefficients are randomly generated
+      }
+      # Same as before but sampling from a beta
+    }else if(object@distribution=='beta'){
+      if(is.null(motifs_in_curves_i)){
+        coeff=object@coeff_min+rbeta(len_i,0.45,0.45)*(object@coeff_max-object@coeff_min)
+      }else{
+        pos_coeff_motifs=unlist(mapply(
+          function(a,b) seq(a)+b,
+          rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_ids]/object@dist_knots+norder-1, # number of motifs coefficients for each selected motif
+          motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
+        coeff[pos_coeff_motifs]=unlist(lapply(motifs_in_curves_i$motif_ids, function(id) {
+                                           object@mot_details[[id]]$weights})) +
+                                rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_ids],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_ids]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
+        # For each chosen coefficient add a uniform number and a gaussian noise
+        coeff[-pos_coeff_motifs]=runif(len_i-length(pos_coeff_motifs),min=object@coeff_min,max=object@coeff_max) # All other curve coefficients are randomly generated
+      }
+    }else{
+      stop('Wrong \'distrib\'')
+    }
+    curve=fd(coef=coeff,basisobj=basis_i) # Fitting curves using such coefficients and basis
+    return(curve)
+  },object@motifs_in_curves,object@norder-1+rep(object@len/object@dist_knots,length.out=object@N),basis,MoreArgs = list(len_motifs),SIMPLIFY=FALSE)
+  return(fd_curves=fd_curves)
+})
+
+c <- generateCurves(b,0.1)
