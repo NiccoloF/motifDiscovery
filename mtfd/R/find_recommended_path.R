@@ -28,6 +28,7 @@
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 
 find_recommended_path <- function(minidend, window_data, min_card){
+  
   # get leaves for each node
   node_list <- minidend %>% partition_leaves()
   # get number of leaves in each node as a vector
@@ -44,7 +45,7 @@ find_recommended_path <- function(minidend, window_data, min_card){
     setnames(c('x','y'))
   
   node_heights <- node_heights[,'y']
-
+  
   # bind together on a dataframe with deep-first search order
   temp <- cbind(node_leaves, node_heights) %>%
     mutate(depth_order = 1:length(node_leaves)) # deep-first search order
@@ -54,10 +55,11 @@ find_recommended_path <- function(minidend, window_data, min_card){
   
   # minimum cardinality (minimum number of node leaves - selected by the user)
   min_card <- min_card
+  colnames(temp) <- c('node_leaves','y','depth_order')
   # add column interesting according to the number of leaves and the min_card
   temp <- temp %>%
     filter(node_leaves >= min_card) %>%
-    arrange(node_leaves, y)
+    dplyr::arrange(node_leaves, y)
   
   # no node with at least min_card branches -> EXIT (return list with NULL)
   if(dim(temp)[1] == 0){

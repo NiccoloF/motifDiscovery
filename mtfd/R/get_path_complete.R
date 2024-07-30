@@ -28,9 +28,27 @@
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 
 get_path_complete <- function(minidend, window_data, min_card){
-  all_paths <- lapply(minidend,
-                      find_recommended_path,
-                      window_data = window_data,
-                      min_card = min_card)
+  # Determine the number of cores
+  num_cores <- detectCores() - 1
+  # Set up a cluster
+  cl <- makeCluster(num_cores)
+  
+  # Load necessary libraries on each worker
+  clusterEvalQ(cl, {
+    library(dplyr) 
+    library(data.table)
+  })
+  
+  # Export necessary variables and functions to the cluster
+  clusterExport(cl, c("find_recommended_path", "window_data", "min_card","partition_leaves", "get_nodes_xy")
+                ,envir = environment())
+  
+  # Use parLapply to run in parallel
+  all_paths <- parLapply(cl, minidend, find_recommended_path, 
+                         window_data = window_data, min_card = min_card)
+  
+  # Stop the cluster
+  stopCluster(cl)
+  
   return(all_paths)
 }
