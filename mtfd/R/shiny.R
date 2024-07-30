@@ -1,60 +1,131 @@
 library(shiny)
 library(ggplot2)
 library(dplyr)
+library(shinyjs)
+
 
 ui <- fluidPage(
-  useShinyjs(),
+  useShinyjs(),  # Initialize shinyjs
+  
+  tags$head(
+    tags$style(HTML("
+      body {
+        background-color: #001f3f;
+        color: white;
+      }
+      .well {
+        background-color: #003366;
+        color: white;
+      }
+      #pagination_controls {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .pagination-buttons {
+        margin: 0 10px;
+      }
+      .collapsible {
+        cursor: pointer;
+        padding: 10px;
+        background-color: #003366;
+        border: none;
+        color: white;
+        text-align: left;
+        outline: none;
+        font-size: 16px;
+        width: 100%;
+        display: block;
+        margin-bottom: 5px;
+      }
+      .active, .collapsible:hover {
+        background-color: #00509e;
+      }
+      .content {
+        display: none;
+        padding: 10px;
+        background-color: #002244;
+      }
+      .plot-container {
+        margin-bottom: 20px;
+      }
+      .plot-title {
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    "))
+  ),
+  
   titlePanel("Motif Simulation Plotter"),
-  sidebarLayout(
-    sidebarPanel(
-      numericInput("N", "Number of Curves (N)", value = 20),
-      numericInput("len", "Curve Length (len)", value = 300),
-      numericInput("norder", "Order of Basis (norder)", value = 3),
-      numericInput("coeff_min", "Minimum Coefficient (coeff_min)", value = -15),
-      numericInput("coeff_max", "Maximum Coefficient (coeff_max)", value = 15),
-      numericInput("dist_knots", "Distance Between Knots (dist_knots)", value = 10),
-      numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30),
-      selectInput("distribution", "Coefficient Distribution", choices = c("unif", "norm"), selected = "unif"),
-      
-      h4("Motif 1"),
-      numericInput("mot1_len", "Motif 1 Length", value = 100),
-      textInput("mot1_weights", "Motif 1 Weights (comma-separated)", value = ""),
-      numericInput("mot1_appearance", "Motif 1 Appearance", value = 10),
-      
-      h4("Motif 2"),
-      numericInput("mot2_len", "Motif 2 Length", value = 100),
-      textInput("mot2_weights", "Motif 2 Weights (comma-separated)", value = ""),
-      numericInput("mot2_appearance", "Motif 2 Appearance", value = 10),
-      
-      h4("Motif 3"),
-      numericInput("mot3_len", "Motif 3 Length", value = 100),
-      textInput("mot3_weights", "Motif 3 Weights (comma-separated)", value = ""),
-      numericInput("mot3_appearance", "Motif 3 Appearance", value = 10),
-      
-      h4("Motif 4"),
-      numericInput("mot4_len", "Motif 4 Length", value = 100),
-      textInput("mot4_weights", "Motif 4 Weights (comma-separated)", value = ""),
-      numericInput("mot4_appearance", "Motif 4 Appearance", value = 10),
-      
-      h4("Motif 5"),
-      numericInput("mot5_len", "Motif 5 Length", value = 100),
-      textInput("mot5_weights", "Motif 5 Weights (comma-separated)", value = ""),
-      numericInput("mot5_appearance", "Motif 5 Appearance", value = 10),
-      
-      textInput("path", "Output Directory", value = tempdir()),
-      actionButton("plotBtn", "Generate Plots"),
-      div(
-        id = "pagination_controls",
-        actionButton("prevPage", "Previous", disabled = TRUE),
-        actionButton("nextPage", "Next", disabled = TRUE)
+  
+  mainPanel(
+    uiOutput("plots_ui"),
+    fluidRow(
+      column(width = 12, 
+             actionButton("plotBtn", "Generate Plots", class = "btn btn-primary"),
+             tags$div(
+               id = "pagination_controls",
+               actionButton("prevPage", "Previous", class = "pagination-buttons", disabled = TRUE),
+               actionButton("nextPage", "Next", class = "pagination-buttons", disabled = TRUE)
+             )
       )
     ),
-    mainPanel(
-      uiOutput("plots_ui"),
-      downloadButton("downloadPdf", "Download PDF")
+    downloadButton("downloadPdf", "Download PDF")
+  ),
+  
+  fluidRow(
+    column(width = 12,
+           wellPanel(
+             numericInput("N", "Number of Curves (N)", value = 20, min = 1),
+             numericInput("len", "Curve Length (len)", value = 300, min = 1),
+             numericInput("norder", "Order of Basis (norder)", value = 3, min = 1),
+             numericInput("coeff_min", "Minimum Coefficient (coeff_min)", value = -15),
+             numericInput("coeff_max", "Maximum Coefficient (coeff_max)", value = 15),
+             numericInput("dist_knots", "Distance Between Knots (dist_knots)", value = 10, min = 1),
+             numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30, min = 1),
+             selectInput("distribution", "Coefficient Distribution", choices = c("unif", "norm"), selected = "unif"),
+             
+             actionButton("toggleMotif1", "Motif 1", class = "collapsible", onclick = "shinyjs.toggle('motif1Content')"),
+             div(id = "motif1Content", class = "content",
+                 numericInput("mot1_len", "Motif 1 Length", value = 100, min = 1),
+                 textInput("mot1_weights", "Motif 1 Weights (comma-separated)", value = ""),
+                 numericInput("mot1_appearance", "Motif 1 Appearance", value = 10, min = 0)
+             ),
+             
+             actionButton("toggleMotif2", "Motif 2", class = "collapsible", onclick = "shinyjs.toggle('motif2Content')"),
+             div(id = "motif2Content", class = "content",
+                 numericInput("mot2_len", "Motif 2 Length", value = 100, min = 1),
+                 textInput("mot2_weights", "Motif 2 Weights (comma-separated)", value = ""),
+                 numericInput("mot2_appearance", "Motif 2 Appearance", value = 10, min = 0)
+             ),
+             
+             actionButton("toggleMotif3", "Motif 3", class = "collapsible", onclick = "shinyjs.toggle('motif3Content')"),
+             div(id = "motif3Content", class = "content",
+                 numericInput("mot3_len", "Motif 3 Length", value = 100, min = 1),
+                 textInput("mot3_weights", "Motif 3 Weights (comma-separated)", value = ""),
+                 numericInput("mot3_appearance", "Motif 3 Appearance", value = 10, min = 0)
+             ),
+             
+             actionButton("toggleMotif4", "Motif 4", class = "collapsible", onclick = "shinyjs.toggle('motif4Content')"),
+             div(id = "motif4Content", class = "content",
+                 numericInput("mot4_len", "Motif 4 Length", value = 100, min = 1),
+                 textInput("mot4_weights", "Motif 4 Weights (comma-separated)", value = ""),
+                 numericInput("mot4_appearance", "Motif 4 Appearance", value = 10, min = 0)
+             ),
+             
+             actionButton("toggleMotif5", "Motif 5", class = "collapsible", onclick = "shinyjs.toggle('motif5Content')"),
+             div(id = "motif5Content", class = "content",
+                 numericInput("mot5_len", "Motif 5 Length", value = 100, min = 1),
+                 textInput("mot5_weights", "Motif 5 Weights (comma-separated)", value = ""),
+                 numericInput("mot5_appearance", "Motif 5 Appearance", value = 10, min = 0)
+             ),
+             
+             textInput("path", "Output Directory", value = tempdir())
+           )
     )
   )
 )
+
 
 server <- function(input, output, session) {
   observeEvent(input$plotBtn, {
@@ -157,6 +228,8 @@ server <- function(input, output, session) {
           scale_fill_manual(values = motif_colors) +
           labs(title = paste('Random curve', i), x = 't', y = 'x(t)') +
           theme_minimal(base_size = 15) +
+          theme(plot.margin = margin(0, 0, 0, 0, "pt")) +  # Remove margins
+          coord_cartesian(expand = FALSE) +  # Remove extra space around plot
           ylim(-20, 20) +
           guides(color = guide_legend(title = "Motif ID"), fill = guide_legend(title = "Motif ID"))
         return(p)
@@ -166,7 +239,7 @@ server <- function(input, output, session) {
     plots <- Filter(Negate(is.null), plots)
     
     # Pagination settings
-    plots_per_page <- 3
+    plots_per_page <- 2
     num_pages <- ceiling(length(plots) / plots_per_page)
     current_page <- reactiveVal(1)
     
@@ -177,10 +250,18 @@ server <- function(input, output, session) {
       
       plot_output_list <- lapply(start:end, function(i) {
         plotname <- paste0("plot", i)
-        plotOutput(outputId = plotname, height = "600px")
+        fluidRow(
+          column(
+            width = 12,
+            div(class = "plot-container",
+                div(class = "plot-title"),
+                plotOutput(outputId = plotname, height = "350px", width = "150%")
+            )
+          )
+        )
       })
       
-      tagList(plot_output_list)
+      do.call(tagList, plot_output_list)
     })
     
     lapply(seq_along(plots), function(i) {
@@ -215,13 +296,36 @@ server <- function(input, output, session) {
         "plots.pdf"
       },
       content = function(file) {
-        pdf(file = file, width = 8, height = 6)
+        pdf(file = file, width = 12, height = 14)
         for (plot in plots) {
           print(plot)
         }
         dev.off()
       }
     )
+    
+    # Custom JavaScript to handle collapsible sections
+    shinyjs::extendShinyjs(
+      functions = c("toggleVisibility"),  # Updated to use the new function name
+      text = "
+        shinyjs.toggleVisibility = function(id) {
+          var content = document.getElementById(id);
+          if (content.style.display === 'block') {
+            content.style.display = 'none';
+          } else {
+            content.style.display = 'block';
+          }
+        };
+      "
+    )
+    
+    observe({
+      lapply(1:5, function(i) {
+        observeEvent(input[[paste0("toggleMotif", i)]], {
+          shinyjs::runjs(paste0("shinyjs.toggleVisibility('motif", i, "Content')"))
+        })
+      })
+    })
   })
 }
 
