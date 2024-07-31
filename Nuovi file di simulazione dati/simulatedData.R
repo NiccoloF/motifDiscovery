@@ -46,7 +46,7 @@ N <- 20
 #                              c(2,17,55))
 
 motif_str <- rbind.data.frame(c(1, 1, 20),
-                              c(1, 1, 7), #9 
+                              c(1, 1, 2), #9 
                               c(1, 3, 1),
                               c(1, 2, 1),
                               c(1, 2, 15),
@@ -55,16 +55,16 @@ motif_str <- rbind.data.frame(c(1, 1, 20),
                               c(1, 7, 1),
                               c(2,17,1))
 
-names(motif_str) <- c("motif_id", "curve", "start_break_pos")
+names(motif_str) <- c("motif_id", "curve","start_break_pos")
 dim(motif_str)
 
 mot1 <- list("len" = mot_len, #length
              "weights" = NULL, # weights for the motif
-             "appearance" = 15) #pattern motif_str %>% filter(motif_id == 1)
+             "appearance" = motif_str %>% filter(motif_id == 1)) #pattern motif_str %>% filter(motif_id == 1)
 
 mot2 <- list("len" = mot_len,
              "weights" = NULL,
-             "appearance" = 15)
+             "appearance" = motif_str %>% filter(motif_id == 2))
 
 mot_details <- list(mot1,mot2)
 
@@ -225,7 +225,7 @@ motifSimulationBuilder <- function(curve_details = list(N = 20,
   }
   if(is_appearance_defined) {
     freq_motifs_vector <- freq_motifs_vector[!is.na(freq_motifs_vector)]
-    if(TRUE %in% ((freq_motifs_vector%%1!=0)|(freq_motifs_vector<1)|(sum(norder-1+rep(len/dist_knots,length.out=N)-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_vector,length.out=nmotifs))+max(0,sum(rep(freq_motifs_vector,length.out=nmotifs))/N-1)*(min_dist_motifs/dist_knots-norder+1)))))
+    if(TRUE %in% ((freq_motifs_vector%%1!=0)|(freq_motifs_vector<1)|(sum(norder-1+rep(len/dist_knots,length.out=N)-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_vector,length.out=nmotifs))+max(0,sum(rep(freq_motifs_vector, length.out = nmotifs))-N)*(min_dist_motifs/dist_knots-norder+1)))))
       stop('Invalid \'freq_motifs\'.')
     motif_str_list <- lapply(mot_details, function(x) {
       df <- x$appearance
@@ -295,7 +295,7 @@ motifSimulationBuilder <- function(curve_details = list(N = 20,
     for (mot in 1:nmotifs) {
       mot_details[[mot]]$appearance <- data.frame(motif_id = integer(0),
                                                   curve = integer(0),
-                                                  start_break = integer(0),
+                                                  start_break_pos = integer(0),
                                                   coeff_pos = integer(0))
     }
     
@@ -396,7 +396,7 @@ setMethod("generateCurves", "motifSimulation", function(object,sd_noise) {
             function(a,b) seq(a)+b,
             rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+objectnorder-1, # number of motifs coefficients for each selected motif
             motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
-          coeff[pos_coeff_motifs]=unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
+            coeff[pos_coeff_motifs]=unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
                                              object@mot_details[[id]]$weights})) +
                                   rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
           # For each chosen coefficient add a uniform number and a gaussian noise
@@ -409,10 +409,250 @@ setMethod("generateCurves", "motifSimulation", function(object,sd_noise) {
       return(curve)
     },object@motifs_in_curves,object@norder-1+rep(object@len/object@dist_knots,length.out=object@N),basis,MoreArgs = list(len_motifs),SIMPLIFY=FALSE)
   }
+  else{
+    fd_curves <- lapply(1:object@N, function(x){
+      coeff <- NULL
+      len_i <- object@norder-1+object@len/object@dist_knots
+      if(object@distribution=='unif'){
+        coeff=runif(len_i,min=object@coeff_min,max=object@coeff_max) # If we don't have motifs we sample len_i coefficients uniformely
+      }else{
+        coeff=object@coeff_min+rbeta(len_i,0.45,0.45)*(object@coeff_max-object@coeff_min) 
+      }
+      generate_background_curve(object@len, object@dist_knots, object@norder,coeff, add_noise = TRUE)
+    })
+ #############   
+    error_str <- rbind(
+      rep(2, 100), # constant and identical
+      c(rep(0.1,50), rep(2, 50)), # sd 0.1 first, sd 1 later
+      c(rep(2, 50), rep(0.1, 50)), # sd 1 first, 0.1 later
+      c(seq(2, 0.1, len = 50), rep(0.1, 50)) # decreasing first, constant later
+    )
+ ##############   
+    for(i in 1:length(object@mot_details)){
+      
+      print(paste("Dealing with motif", i))
+      temp_mot <- object@mot_details[[i]]
+      curve_ids <- unique(temp_mot$appearance$curve)
+      
+      for(j in curve_ids){
+        print(paste(" --- Adding motif", i, "to curve", j))
+        temp_curve <- fd_curves[[j]]
+        temp_pattern <- (temp_mot$appearance %>% filter(curve == j)) %>% dplyr::select(motif_id, start_break_pos)
+        fd_curves[[j]] <- add_motif(base_curve  = temp_curve,
+                                    mot_pattern = temp_pattern,
+                                    mot_len     = temp_mot$len,
+                                    dist_knots  = object@dist_knots,
+                                    mot_order   = object@norder,
+                                    mot_weights = temp_mot$weight,
+                                    error_str   = error_str)
+      }
+    }
+  }
   return(fd_curves = fd_curves)
 })
-
+#mi piace
 curves <- generateCurves(b,0.1)
+
+
+
+
+generate_curve_vector <- function(fd_curve, step_by = 1, Lfdobj = 0){
+  # from an fd object generate the curve as a vector of len fixed by the fd_obj
+  # with step equal to step_by. It generates the derivative Lfdobj
+  x <- seq(0, fd_curve$basis$rangeval[2] - 1, by = step_by)
+  y <- eval.fd(x, fd_curve, Lfdobj = Lfdobj)  # return the evaluation of the Lfdobj derivative
+  return(y)
+}
+
+# add an additive noise to the final curve(motif)
+add_error_to_motif <- function(or_y, error_str, start_point, end_point){
+  
+  # --- additive noise
+  # noise to be added as a percentage of sd(motif) with mean 0
+  noise_coeff <- rnorm(length(start_point:end_point) - 1,
+                       mean = 0,
+                       sd = sd(or_y[start_point:end_point])*error_str)
+  # add noise
+  err_y <- or_y
+  err_y[(start_point+1):end_point] <- err_y[(start_point+1):end_point] + noise_coeff
+  
+  return(err_y)
+}
+
+# generate a background curve with length (len) using b-spline with knots at (dist_knots)
+# one from the other, order (norder) and weights sampled from (weights). User can 
+# decide to add noise (add_noise = TRUE) sampled from a Gaussian distribution
+# with mu = 0 and sd = 0.01 (useful for additive noise in motifs)
+generate_background_curve <- function(len, dist_knots, norder, weights, add_noise){
+  
+  # create knots and generate the corresponding b-spline basis for every curve
+  breaks <- seq(from = 0, len, by = dist_knots)
+  basis  <- create.bspline.basis(norder = norder, breaks = breaks)
+  
+  if(length(weights) >= basis$nbasis){
+    or_coeff <- weights[1:(basis$nbasis)]
+  } else {
+    print('A longer vector of "weights" is required')
+    break
+  }
+  
+  # create fd object
+  fd_curve <- fd(or_coeff, basis)
+  # create the curve vector with no noise
+  or_y <- generate_curve_vector(fd_curve = fd_curve)
+  
+  if(add_noise == TRUE){
+    or_y <- or_y + rnorm(n = length(or_y), mean = 0, sd = 0.01)
+  }
+  
+  # create list with:
+  res <- list("or_coeff" = or_coeff,
+              "basis" = basis,
+              "no_error_y" = or_y, # curve as vector with no error
+              "sd_noise_level" = 0,
+              "motif_info" = NULL) # level of error used
+  return(res)
+}
+
+
+
+add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, mot_weights, error_str){
+  
+  # create knots and generate the corresponding b-spline basis for every curve
+  mot_breaks <- seq(from = 0, mot_len, by = dist_knots)
+  mot_basis  <- create.bspline.basis(norder = mot_order, breaks = mot_breaks)
+  
+  if(length(mot_weights) >= mot_basis$nbasis){
+    mot_coeff <- mot_weights[1:(mot_basis$nbasis)]
+  } else {
+    print('A longer vector of "weights" is required')
+    break
+  }
+  
+  # add info about motif: id, starting break or point, ending break or point
+  motif_info <- base_curve$motif_info
+  base_curve_coeff <- base_curve$or_coeff
+  motif_recap <- cbind.data.frame()
+  err_y_list <- list()
+  add_err_y_list <- list()
+  for(i in 1:nrow(mot_pattern)){
+    start_break <- mot_pattern[i, "start_break_pos"] # select the first coefficient 
+    start_point <- (start_break-1)*dist_knots # select the first knots
+    end_break   <- start_break + mot_basis$nbasis - mot_order + 2 # select the last coefficient  DA CAMBIARE
+    end_point   <- start_point + mot_len # select the last knots
+    motif_recap[i, "motif_id"]   <- mot_pattern[i, "motif_id"]
+    motif_recap[i,"start_break_pos"] <- start_break
+    motif_recap[i,"start_point"] <- start_point
+    motif_recap[i,"end_break_pos"]   <- end_break
+    motif_recap[i,"end_point"]   <- end_point
+    motif_info <- rbind.data.frame(motif_info, motif_recap) %>% distinct() #(!!!) find a way to avoid distinct(). Keeo unique rows
+    base_curve_coeff[start_break:end_break] <- mot_coeff
+  }
+  
+  # Errorless curve
+  # create fd object
+  # Convert base_curve_coeff and basis to fd object
+  fd_curve <- fd(base_curve_coeff, base_curve$basis)
+  
+  # Generate curve vector with no noise
+  or_y <- generate_curve_vector(fd_curve = fd_curve)
+  
+  # Create a data frame for plotting
+  df <- data.frame(x = 1:length(or_y), 
+                   or_y = or_y,
+                   no_error_y = base_curve$no_error_y)
+  colnames(df) <- c("x","or_y","no_error_y")
+  
+  # Plot using ggplot2
+  p <- ggplot(df, aes(x = x)) +
+    geom_line(aes(y = no_error_y, color = "Original Curve"), linetype = "solid") +
+    geom_line(aes(y = or_y, color = "Curve with Motif"), linetype = "solid") +
+    labs(title = 'Original vs Curve with Motif without noise', x = 'X-axis', y = 'Y-axis') +
+    theme_minimal() +
+    scale_color_manual(values = c("Original Curve" = "black", "Curve with Motif" = "grey60")) +
+    guides(color = guide_legend(override.aes = list(linetype = "solid"))) +
+    theme(legend.position = "top") +
+    theme(legend.key = element_blank(),  # Remove legend key (box)
+          legend.title = element_blank(),  # Remove legend title
+          legend.text = element_text(size = 12)) +  # Adjust legend text size
+    labs(color = NULL)  # Remove color legend title
+  no_error_res <- list("or_coeff" = base_curve_coeff,
+                       "basis" = base_curve$basis,
+                       "no_error_y" = or_y, # curve as vector with no error
+                       "sd_noise_level" = 0,
+                       "motif_info" = motif_info) 
+  
+  print(p)
+  
+  # Error curve
+  # add extra error on motif
+  if(!is.null(error_str)){
+    err_y_mat <- list()
+    for(k in 1:nrow(error_str)){
+      err_y <- or_y
+      error_str_k <- error_str[k,]
+      for(i in 1:nrow(mot_pattern)){
+        start_break <- mot_pattern[i, "start_break_pos"]
+        start_point <- (start_break-1)*dist_knots
+        end_break   <- start_break + mot_basis$nbasis - mot_order + 2 # mot_basis$nbasis - order + 2 
+        end_point   <- start_point + mot_len
+        err_y <- add_error_to_motif(err_y, error_str_k, start_point, end_point)
+      }
+      
+      # and then smooth it again
+      mot_breaks <- seq(from = 0, length(err_y), by = dist_knots)
+      basisobj = create.bspline.basis(norder = mot_order, breaks = mot_breaks)
+      #plot(basisobj)
+      ys = smooth.basis(argvals = 1:(length(err_y)),
+                        y = err_y,
+                        fdParobj = basisobj) # smooth again given the error on data(pointwise)
+      # smoothed again after adding error
+      yy <- eval.fd(1:(length(err_y)), ys$fd)
+      err_y_mat[[k]] <- yy
+    }
+    #lines(yy, col='blue')
+    
+    error_res <- list("error_structure" = error_str,
+                      "error_y" = err_y_mat)
+    
+    res <- list("no_error" = no_error_res,
+                "with_error" = error_res)
+  }
+  #
+  #  plot curves without noise
+  x <- seq_along(or_y)
+  
+  # Create a data frame for ggplot2
+  df <- data.frame(x = x, or_y = or_y)
+  
+  # Plot using ggplot2
+  p <- ggplot(df, aes(x = x, y = or_y)) +
+    geom_line(aes(color = "Curva"), size = 1) +
+    labs(title = "Curves with Motifs Embedded", x = "X-axis", y = "Y-axis") +
+    theme_minimal() +
+    theme(legend.position = "top") +  # Posizione della legenda in alto
+    scale_color_manual(values = c("Curva" = "black", "Motif" = "red"), 
+                       labels = c("Curva", "Motif"))  # Personalizzazione dei colori e delle etichette
+  
+  # Add motifs embedded
+  for (i in 1:nrow(motif_recap)) {
+    motif_df <- data.frame(x = x[motif_recap[i, "start_point"]:motif_recap[i, "end_point"]],
+                           y = or_y[motif_recap[i, "start_point"]:motif_recap[i, "end_point"]])
+    
+    p <- p + geom_line(data = motif_df, aes(x = x, y = y, color = "Motif"), size = 1.5)
+  }
+  browser()
+  # Display the plot
+  print(p)
+  
+  # create list with 
+  return(res)
+  
+}
+
+
+
+
 
 
 setGeneric("plot", function(object,curves,path) 
@@ -449,8 +689,13 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
     motif_data <- bind_rows(motif_lines)
     names(motif_data) <- c("t","x","motif_id","initial_number","xmin","xmax")
     
-    motif_colors <- c("1" = "red", "2" = "green", "3" = "blue", "4" = "orange", "5" = "purple", "6" = "cyan", "7" = "magenta")
-
+    motif_colors <- c( "1" = "red", "2" = "green", "3" = "blue", "4" = "orange",
+                       "5" = "purple", "6" = "cyan", "7" = "magenta", "8" = "brown",
+                       "9" = "pink", "10" = "grey")
+    motif_colors <- rep(motif_colors,length.out = length(object@mot_details))
+    if(length(object@mot_details) > 10 )
+      attr(motif_colors,"names")[11:length(object@mot_details)] <- as.character(as.integer(attr(motif_colors,"names")[11:length(object@mot_details)]) + 10)
+    
     if (nrow(motif_data) > 0) {
       p <- ggplot() +
         # Plot the main curve in black
@@ -458,7 +703,7 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
         # Add shaded rectangles for motif positions with transparency
         geom_rect(data = motif_data, aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = initial_number), alpha = 0.01) +
         # Plot motifs with distinct colors
-        geom_line(data = motif_data, aes(x = t, y = x, color = factor(initial_number,levels = 1:7), group = motif_id), size = 1.5) + 
+        geom_line(data = motif_data, aes(x = t, y = x, color = factor(initial_number), group = motif_id), size = 1.5) + 
         scale_color_manual(values = motif_colors) +
         scale_fill_manual(values = motif_colors) +
         labs(title = paste('Random curve', i), x = 't', y = 'x(t)') +

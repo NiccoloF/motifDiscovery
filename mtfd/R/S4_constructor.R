@@ -147,7 +147,7 @@ motifSimulationBuilder <- function(curve_details = list(N,
   }
   if(is_appearance_defined) {
     freq_motifs_vector <- freq_motifs_vector[!is.na(freq_motifs_vector)]
-    if(TRUE %in% ((freq_motifs_vector%%1!=0)|(freq_motifs_vector<1)|(sum(norder-1+rep(len/dist_knots,length.out=N)-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_vector,length.out=nmotifs))+max(0,sum(rep(freq_motifs_vector,length.out=nmotifs))/N-1)*(min_dist_motifs/dist_knots-norder+1)))))
+    if(TRUE %in% ((freq_motifs_vector%%1!=0)|(freq_motifs_vector<1)|(sum(norder-1+rep(len/dist_knots,length.out=N)-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_vector,length.out=nmotifs))+max(0,sum(rep(freq_motifs_vector, length.out = nmotifs))-N)*(min_dist_motifs/dist_knots-norder+1)))))
       stop('Invalid \'freq_motifs\'.')
     motif_str_list <- lapply(mot_details, function(x) {
       df <- x$appearance
