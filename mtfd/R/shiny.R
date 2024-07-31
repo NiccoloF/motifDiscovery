@@ -52,6 +52,17 @@ ui <- fluidPage(
         text-align: center;
         margin-bottom: 10px;
       }
+      .input-row {
+        display: flex;
+        justify-content: space-between;
+      }
+      .input-group {
+        flex: 1;
+        margin-right: 10px;
+      }
+      .input-group:last-child {
+        margin-right: 0;
+      }
     ")),
     tags$script(HTML("
       $(document).on('click', '.collapsible', function() {
@@ -81,24 +92,29 @@ ui <- fluidPage(
   fluidRow(
     column(width = 12,
            wellPanel(
-             numericInput("N", "Number of Curves (N)", value = 20, min = 1),
-             numericInput("len", "Curve Length (len)", value = 300, min = 1),
-             numericInput("norder", "Order of Basis (norder)", value = 3, min = 1),
-             numericInput("coeff_min", "Minimum Coefficient (coeff_min)", value = -15),
-             numericInput("coeff_max", "Maximum Coefficient (coeff_max)", value = 15),
-             numericInput("dist_knots", "Distance Between Knots (dist_knots)", value = 10, min = 1),
-             numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30, min = 1),
-             selectInput("distribution", "Coefficient Distribution", choices = c("unif", "norm"), selected = "unif"),
-             
+             div(class = "input-row",
+                 div(class = "input-group", numericInput("N", "Number of Curves (N)", value = 20, min = 1)),
+                 div(class = "input-group", numericInput("len", "Curve Length (len)", value = 300, min = 1))
+             ),
+             div(class = "input-row",
+                 div(class = "input-group", numericInput("norder", "Order of Basis (norder)", value = 3, min = 1)),
+                 div(class = "input-group", numericInput("coeff_min", "Minimum Coefficient (coeff_min)", value = -15))
+             ),
+             div(class = "input-row",
+                 div(class = "input-group", numericInput("coeff_max", "Maximum Coefficient (coeff_max)", value = 15)),
+                 div(class = "input-group", numericInput("dist_knots", "Distance Between Knots (dist_knots)", value = 10, min = 1))
+             ),
+             div(class = "input-row",
+                 div(class = "input-group", numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30, min = 1)),
+                 div(class = "input-group", selectInput("distribution", "Coefficient Distribution", choices = c("unif", "norm"), selected = "unif"))
+             ),
              numericInput("numMotifs", "Number of Motifs", value = 5, min = 1),
              uiOutput("motifInputs"),
-             
              textInput("path", "Output Directory", value = tempdir())
            )
     )
   )
 )
-
 
 server <- function(input, output, session) {
   
@@ -148,7 +164,7 @@ server <- function(input, output, session) {
     
     distribution <- input$distribution
     path <- input$path
-
+    
     # Run the motifSimulationBuilder algorithm
     builder <- motifSimulationBuilder(curve_details, mot_details, distribution)
     
@@ -185,28 +201,27 @@ server <- function(input, output, session) {
       motif_colors <- c( "1" = "red", "2" = "green", "3" = "blue", "4" = "orange",
                          "5" = "purple", "6" = "cyan", "7" = "magenta", "8" = "brown",
                          "9" = "pink", "10" = "grey")
-      motif_colors <- rep(motif_colors,length.out = length(object@mot_details))
-      if(length(object@mot_details) > 10 )
-        attr(motif_colors,"names")[11:length(object@mot_details)] <- as.character(as.integer(attr(motif_colors,"names")[11:length(object@mot_details)]) + 10)
+      motif_colors <- rep(motif_colors,length.out = length(mot_details))
+      if(length(mot_details) > 10 )
+        attr(motif_colors,"names")[11:length(mot_details)] <- as.character(as.integer(attr(motif_colors,"names")[11:length(mot_details)]) + 10)
       
       if (nrow(motif_data) > 0) {
         p <- ggplot() +
+          # Plot the main curve in black
           geom_line(data = curve_data, aes(x = t, y = x), color = "black", size = 0.5) +
+          # Add shaded rectangles for motif positions with transparency
           geom_rect(data = motif_data, aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = initial_number), alpha = 0.01) +
-          geom_line(data = motif_data, aes(x = t, y = x, color = factor(initial_number, levels = 1:7), group = motif_id), size = 1.5) + 
+          # Plot motifs with distinct colors
+          geom_line(data = motif_data, aes(x = t, y = x, color = factor(initial_number), group = motif_id), size = 1.5) + 
           scale_color_manual(values = motif_colors) +
           scale_fill_manual(values = motif_colors) +
           labs(title = paste('Random curve', i), x = 't', y = 'x(t)') +
           theme_minimal(base_size = 15) +
-          theme(plot.margin = margin(0, 0, 0, 0, "pt")) +  # Remove margins
-          coord_cartesian(expand = FALSE) +  # Remove extra space around plot
           ylim(-20, 20) +
           guides(color = guide_legend(title = "Motif ID"), fill = guide_legend(title = "Motif ID"))
-        return(p)
       }
+      p
     })
-    
-    plots <- Filter(Negate(is.null), plots)
     
     # Pagination settings
     plots_per_page <- 2
