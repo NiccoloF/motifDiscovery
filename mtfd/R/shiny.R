@@ -3,7 +3,6 @@ library(ggplot2)
 library(dplyr)
 library(shinyjs)
 
-
 ui <- fluidPage(
   useShinyjs(),  # Initialize shinyjs
   
@@ -53,6 +52,12 @@ ui <- fluidPage(
         text-align: center;
         margin-bottom: 10px;
       }
+    ")),
+    tags$script(HTML("
+      $(document).on('click', '.collapsible', function() {
+        $(this).toggleClass('active');
+        $(this).next('.content').slideToggle('fast');
+      });
     "))
   ),
   
@@ -85,40 +90,8 @@ ui <- fluidPage(
              numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30, min = 1),
              selectInput("distribution", "Coefficient Distribution", choices = c("unif", "norm"), selected = "unif"),
              
-             actionButton("toggleMotif1", "Motif 1", class = "collapsible", onclick = "shinyjs.toggle('motif1Content')"),
-             div(id = "motif1Content", class = "content",
-                 numericInput("mot1_len", "Motif 1 Length", value = 100, min = 1),
-                 textInput("mot1_weights", "Motif 1 Weights (comma-separated)", value = ""),
-                 numericInput("mot1_appearance", "Motif 1 Appearance", value = 10, min = 0)
-             ),
-             
-             actionButton("toggleMotif2", "Motif 2", class = "collapsible", onclick = "shinyjs.toggle('motif2Content')"),
-             div(id = "motif2Content", class = "content",
-                 numericInput("mot2_len", "Motif 2 Length", value = 100, min = 1),
-                 textInput("mot2_weights", "Motif 2 Weights (comma-separated)", value = ""),
-                 numericInput("mot2_appearance", "Motif 2 Appearance", value = 10, min = 0)
-             ),
-             
-             actionButton("toggleMotif3", "Motif 3", class = "collapsible", onclick = "shinyjs.toggle('motif3Content')"),
-             div(id = "motif3Content", class = "content",
-                 numericInput("mot3_len", "Motif 3 Length", value = 100, min = 1),
-                 textInput("mot3_weights", "Motif 3 Weights (comma-separated)", value = ""),
-                 numericInput("mot3_appearance", "Motif 3 Appearance", value = 10, min = 0)
-             ),
-             
-             actionButton("toggleMotif4", "Motif 4", class = "collapsible", onclick = "shinyjs.toggle('motif4Content')"),
-             div(id = "motif4Content", class = "content",
-                 numericInput("mot4_len", "Motif 4 Length", value = 100, min = 1),
-                 textInput("mot4_weights", "Motif 4 Weights (comma-separated)", value = ""),
-                 numericInput("mot4_appearance", "Motif 4 Appearance", value = 10, min = 0)
-             ),
-             
-             actionButton("toggleMotif5", "Motif 5", class = "collapsible", onclick = "shinyjs.toggle('motif5Content')"),
-             div(id = "motif5Content", class = "content",
-                 numericInput("mot5_len", "Motif 5 Length", value = 100, min = 1),
-                 textInput("mot5_weights", "Motif 5 Weights (comma-separated)", value = ""),
-                 numericInput("mot5_appearance", "Motif 5 Appearance", value = 10, min = 0)
-             ),
+             numericInput("numMotifs", "Number of Motifs", value = 5, min = 1),
+             uiOutput("motifInputs"),
              
              textInput("path", "Output Directory", value = tempdir())
            )
@@ -128,6 +101,23 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session) {
+  
+  observeEvent(input$numMotifs, {
+    output$motifInputs <- renderUI({
+      numMotifs <- input$numMotifs
+      lapply(1:numMotifs, function(i) {
+        tagList(
+          actionButton(paste0("toggleMotif", i), paste("Motif", i), class = "collapsible"),
+          div(id = paste0("motif", i, "Content"), class = "content",
+              numericInput(paste0("mot", i, "_len"), paste("Motif", i, "Length"), value = 100, min = 1),
+              textInput(paste0("mot", i, "_weights"), paste("Motif", i, "Weights (comma-separated)"), value = ""),
+              numericInput(paste0("mot", i, "_appearance"), paste("Motif", i, "Appearance"), value = 10, min = 0)
+          )
+        )
+      })
+    })
+  })
+  
   observeEvent(input$plotBtn, {
     req(input$path)
     
@@ -148,49 +138,24 @@ server <- function(input, output, session) {
       as.numeric(unlist(strsplit(weights_input, ",")))
     }
     
-    mot1 <- list(
-      len = input$mot1_len,
-      weights = parse_weights(input$mot1_weights),
-      appearance = input$mot1_appearance
-    )
-    
-    mot2 <- list(
-      len = input$mot2_len,
-      weights = parse_weights(input$mot2_weights),
-      appearance = input$mot2_appearance
-    )
-    
-    mot3 <- list(
-      len = input$mot3_len,
-      weights = parse_weights(input$mot3_weights),
-      appearance = input$mot3_appearance
-    )
-    
-    mot4 <- list(
-      len = input$mot4_len,
-      weights = parse_weights(input$mot4_weights),
-      appearance = input$mot4_appearance
-    )
-    
-    mot5 <- list(
-      len = input$mot5_len,
-      weights = parse_weights(input$mot5_weights),
-      appearance = input$mot5_appearance
-    )
-    mot_details <- list(mot1,mot2)
-    #mot_details <- list(mot1, mot2, mot3, mot4, mot5)
-    #mot_details <- mot_details[sapply(mot_details, function(mot) !is.null(mot$weights) || mot$appearance != 0)]
+    mot_details <- lapply(1:input$numMotifs, function(i) {
+      list(
+        len = input[[paste0("mot", i, "_len")]],
+        weights = parse_weights(input[[paste0("mot", i, "_weights")]]),
+        appearance = input[[paste0("mot", i, "_appearance")]]
+      )
+    })
     
     distribution <- input$distribution
     path <- input$path
- 
+
     # Run the motifSimulationBuilder algorithm
     builder <- motifSimulationBuilder(curve_details, mot_details, distribution)
-   
+    
     curves <- generateCurves(builder,0.1)
-   
+    
     output_file <- file.path(path, "plots.pdf")
-   
+    
     # Create the directory if it does not exist
     if (!dir.exists(path)) {
       dir.create(path)
@@ -217,7 +182,12 @@ server <- function(input, output, session) {
       motif_data <- bind_rows(motif_lines)
       names(motif_data) <- c("t","x","motif_id","initial_number","xmin","xmax")
       
-      motif_colors <- c("1" = "red", "2" = "green", "3" = "blue", "4" = "orange", "5" = "purple", "6" = "cyan", "7" = "magenta")
+      motif_colors <- c( "1" = "red", "2" = "green", "3" = "blue", "4" = "orange",
+                         "5" = "purple", "6" = "cyan", "7" = "magenta", "8" = "brown",
+                         "9" = "pink", "10" = "grey")
+      motif_colors <- rep(motif_colors,length.out = length(object@mot_details))
+      if(length(object@mot_details) > 10 )
+        attr(motif_colors,"names")[11:length(object@mot_details)] <- as.character(as.integer(attr(motif_colors,"names")[11:length(object@mot_details)]) + 10)
       
       if (nrow(motif_data) > 0) {
         p <- ggplot() +
@@ -303,29 +273,6 @@ server <- function(input, output, session) {
         dev.off()
       }
     )
-    
-    # Custom JavaScript to handle collapsible sections
-    shinyjs::extendShinyjs(
-      functions = c("toggleVisibility"),  # Updated to use the new function name
-      text = "
-        shinyjs.toggleVisibility = function(id) {
-          var content = document.getElementById(id);
-          if (content.style.display === 'block') {
-            content.style.display = 'none';
-          } else {
-            content.style.display = 'block';
-          }
-        };
-      "
-    )
-    
-    observe({
-      lapply(1:5, function(i) {
-        observeEvent(input[[paste0("toggleMotif", i)]], {
-          shinyjs::runjs(paste0("shinyjs.toggleVisibility('motif", i, "Content')"))
-        })
-      })
-    })
   })
 }
 
