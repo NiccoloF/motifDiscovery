@@ -36,6 +36,7 @@ struct Parameters
     bool _exe_print;
     bool _set_seed;
     unsigned int _n_threads;
+    bool _transformed;
 };
 
 #endif // PARAMETERS_HPP

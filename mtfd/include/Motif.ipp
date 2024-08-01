@@ -32,20 +32,23 @@ MotifSobol::compute_motif_helper(const arma::urowvec& v_dom,
 
   for (arma::uword i = 0; i < p_k_pos.n_elem; ++i){
     y_len = Y(p_k_pos(i),0).n_rows; //length of the curve
-    index = std::max<int>(1,s_k(p_k_pos(i))) - 1 + arma::regspace<KMA::ivector>(1,v_len - std::max<int>(0,1 - s_k(p_k_pos(i))));
+    index = std::max(1,s_k(p_k_pos(i))) - 1 + arma::regspace<KMA::ivector>(1,v_len - std::max(0,1 - s_k(p_k_pos(i))));
     filtered_j = arma::find(index <= y_len);
     Y_inters_k(i,0).set_size(v_len,d);
     Y_inters_k(i,0).fill(arma::datum::nan);
-    Y_inters_k(i,0).rows(std::max<int>(0,1 - s_k(p_k_pos(i))),std::max<int>(0,1 - s_k(p_k_pos(i))) + filtered_j.n_elem - 1) =  Y(p_k_pos(i),0).rows(index(*(filtered_j.cbegin())) - 1, index(*(filtered_j.cend() - 1)) - 1);
+    Y_inters_k(i,0).rows(std::max(0,1 - s_k(p_k_pos(i))),std::max(0,1 - s_k(p_k_pos(i))) + filtered_j.n_elem - 1) =  Y(p_k_pos(i),0).rows(index(*(filtered_j.cbegin())) - 1, index(*(filtered_j.cend() - 1)) - 1);
     Y_inters_k(i,0).shed_rows(indeces_dom);
     Y_inters_supp.row(i) = util::findDomain(Y_inters_k(i,0));
     Y_inters_k(i,0).replace(arma::datum::nan,0);
     if constexpr(use1) {
       Y_inters_k(i,1).set_size(v_len,d);
       Y_inters_k(i,1).fill(arma::datum::nan);
-      Y_inters_k(i,1).rows(std::max<int>(0,1 - s_k(p_k_pos(i))),std::max<int>(0,1 - s_k(p_k_pos(i))) + filtered_j.n_elem - 1) =  Y(p_k_pos(i),1).rows(index(*(filtered_j.cbegin())) - 1, index(*(filtered_j.cend() - 1)) - 1);
+      Y_inters_k(i,1).rows(std::max(0,1 - s_k(p_k_pos(i))),std::max(0,1 - s_k(p_k_pos(i))) + filtered_j.n_elem - 1) =  Y(p_k_pos(i),1).rows(index(*(filtered_j.cbegin())) - 1, index(*(filtered_j.cend() - 1)) - 1);
       Y_inters_k(i,1).shed_rows(indeces_dom);
       Y_inters_k(i,1).replace(arma::datum::nan,0);
+    }
+    if (_transformed){
+      Y_inters_k.row(i) = util::transform_curves<use1>(Y_inters_k.row(i));
     }
   }
 
