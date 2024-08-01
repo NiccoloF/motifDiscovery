@@ -13,9 +13,6 @@
 #include "PerformanceIndex.hpp"
 #include "Dissimilarity.hpp"
 
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(cpp20)]]
-
 
 class MotifPure
 {
@@ -23,7 +20,7 @@ class MotifPure
     using indexField = std::pair<KMA::Mfield,arma::sword>;
     
     MotifPure() = default;
-  
+
     virtual std::variant<indexField,KMA::Mfield>
     compute_motif(const arma::urowvec& v_dom,
                   const KMA::ivector& s_k,
@@ -31,6 +28,8 @@ class MotifPure
                   const KMA::Mfield& Y,
                   double m) const = 0;
     
+    virtual void set_parameters(const Parameters & newParameters) = 0;
+
     virtual
     void elongate_motifs(KMA::Mfield& V_new,
                          std::vector<arma::urowvec>& V_dom,
@@ -50,7 +49,8 @@ class MotifSobol: public MotifPure
 {
 public:
   
-  MotifSobol() = default;
+  MotifSobol(bool transformed);
+
   virtual ~MotifSobol() override = default;
   
 protected:
@@ -94,7 +94,8 @@ protected:
                   const Parameters& param,
                   const std::shared_ptr<PerformanceIndexAB>& performance,
                   const std::shared_ptr<Dissimilarity>& diss) const;
-  
+
+  bool _transformed;
 };
 
 
@@ -102,7 +103,7 @@ class MotifL2 final: public MotifSobol
 {
 public:
   
-  MotifL2() = default;
+  MotifL2(bool transformed);
   
   virtual std::variant<indexField,KMA::Mfield>
     compute_motif(const arma::urowvec& v_dom,
@@ -110,6 +111,8 @@ public:
                   const KMA::vector& p_k,
                   const KMA::Mfield& Y,
                   double m) const override;
+
+  void set_parameters(const Parameters & newParameters) override;
   
   virtual
   void elongate_motifs(KMA::Mfield& V_new,
@@ -128,8 +131,8 @@ public:
 class MotifH1 final: public MotifSobol
 {
 public:
-  
-  MotifH1() = default;
+
+  MotifH1(bool transformed);
   
   virtual ~MotifH1() override = default;
   
@@ -139,6 +142,8 @@ public:
                   const KMA::vector& p_k,
                   const KMA::Mfield& Y,
                   double m) const override;
+
+  void set_parameters(const Parameters & newParameters) override;
   
   virtual
   void elongate_motifs(KMA::Mfield& V_new,

@@ -13,7 +13,6 @@ class PerformanceIndexAB
 {
 public:
   
-  virtual ~PerformanceIndexAB() = default;
   virtual double compute_Jk(const KMA::Mfield& v,
                             const KMA::ivector& s_k,
                             const KMA::vector& p_k,
@@ -62,9 +61,6 @@ public:
 
 class PerformanceSobol: public PerformanceIndexAB
 {
-public:
-  virtual ~PerformanceSobol() override = default;
-
 protected:
   
   template<bool use1>
@@ -78,8 +74,7 @@ protected:
 
 class PerformanceL2 final: public PerformanceSobol
 {
-public:
-  virtual ~PerformanceL2() override = default;
+  
   double compute_Jk(const KMA::Mfield& v,const KMA::ivector& s_k,
                     const KMA::vector& p_k,const KMA::Mfield& Y,
                     const KMA::vector& w,int m,double c_k, 
@@ -90,8 +85,7 @@ public:
 
 class PerformanceH1 final: public PerformanceSobol
 {
-public:
-  virtual ~PerformanceH1() override = default;
+  
   double compute_Jk(const KMA::Mfield& v,const KMA::ivector& s_k,
                     const KMA::vector& p_k,const KMA::Mfield& Y,
                     const KMA::vector& w,int m,double c_k,
