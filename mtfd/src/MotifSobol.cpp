@@ -1,5 +1,7 @@
 #include "Motif.hpp"
 
+MotifSobol::MotifSobol(bool transformed): MotifPure(), _transformed(transformed){};
+
 KMA::matrix MotifSobol::compute_v_new(const KMA::Mfield& Y_inters_k,
                                       const KMA::umatrix & Y_inters_supp,
                                       const arma::urowvec & v_dom,
