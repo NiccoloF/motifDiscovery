@@ -1,5 +1,7 @@
 #include "Motif.hpp"
 
+MotifL2::MotifL2(bool transformed): MotifSobol(transformed) {};
+
 std::variant<MotifPure::indexField,KMA::Mfield>
 MotifL2::compute_motif(const arma::urowvec& v_dom,
                        const KMA::ivector& s_k,
@@ -10,6 +12,9 @@ MotifL2::compute_motif(const arma::urowvec& v_dom,
   return compute_motif_helper<false>(v_dom,s_k,p_k,Y,m);
 }
     
+void MotifL2::set_parameters(const Parameters & newParameters){
+    _transformed = newParameters._transformed;
+}
     
 void MotifL2::elongate_motifs(KMA::Mfield& V_new,
                               std::vector<arma::urowvec>& V_dom,

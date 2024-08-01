@@ -1,6 +1,6 @@
 #include "Dissimilarity.hpp"
 
-SobolDiss::SobolDiss(const KMA::vector& w):Dissimilarity(),_w(w) {};
+SobolDiss::SobolDiss(const KMA::vector& w, bool transformed):Dissimilarity(),_w(w), _transformed(transformed){};
 
 double SobolDiss::distance(const KMA::matrix& y,
                            const KMA::matrix& v) const
