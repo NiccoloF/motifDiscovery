@@ -39,8 +39,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                                               tol4elong=1e-3,max_elong=0.5,
                                               deltaJK_elong=0.05,iter4clean=50,
                                               tol4clean=1e-4,quantile4clean=0.5,
-                                              m=2,w=1),
-                         silhouette_align=FALSE,
+                                              m=2,w=1,transformed = FALSE,silhouette_align=FALSE),
                          seed = 1,exe_print = FALSE,set_seed = FALSE,
                          worker_number = NULL,
                          V_init=NULL, n_init_motif = 0){
@@ -166,40 +165,6 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       }
     }
    
-    arguments =   list(Y0 = Y0, 
-                       Y1 = Y1,
-                       P0 = matrix(), 
-                       S0 = matrix(),
-                       standardize=probKMA_options$standardize,
-                       c_max = probKMA_options$c_max,
-                       iter_max = probKMA_options$iter_max,
-                       iter4elong = probKMA_options$iter4elong,
-                       trials_elong = probKMA_options$trials_elong,
-                       return_options = probKMA_options$return_options,
-                       alpha = probKMA_options$alpha,
-                       max_gap = probKMA_options$max_gap,
-                       diss = probKMA_options$diss,
-                       transformed = probKMA_options$transformed,
-                       quantile = quantile, 
-                       stopCriterion = stopCriterion, 
-                       tol = tol, 
-                       tol4elong = tol4elong, 
-                       max_elong = max_elong, 
-                       deltaJK_elong = deltaJK_elong, 
-                       iter4clean = iter4clean, 
-                       tol4clean = tol4clean,
-                       quantile4clean = quantile4clean, 
-                       m = m,
-                       w = w, 
-                       seed = seed, 
-                       K = 2, #any value
-                       c = 40, #any value
-                       exe_print = exe_print,
-                       set_seed = set_seed,
-                       n_threads = n_threads,
-                       silhouette = TRUE, 
-                       align = silhouette_align)
-    
     ### set parallel jobs #############################################################################
     core_number <- parallel::detectCores()
     # check worker number
@@ -216,9 +181,45 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
     if(is.null(worker_number))
       worker_number <- core_number-1
+    
     rm(core_number)
     len_mean=mean(unlist(lapply(Y0,nrow)))
     c_mean=mean(c)
+    
+    arguments = list(Y0 = Y0, 
+                     Y1 = Y1,
+                     P0 = P0, 
+                     S0 = S0,
+                     standardize=probKMA_options$standardize,
+                     c_max = probKMA_options$c_max,
+                     iter_max = probKMA_options$iter_max,
+                     iter4elong = probKMA_options$iter4elong,
+                     max_gap = probKMA_options$max_gap,
+                     quantile = probKMA_options$quantile, 
+                     tol = probKMA_options$tol,
+                     trials_elong = probKMA_options$trials_elong,
+                     tol4elong = probKMA_options$tol4elong, 
+                     max_elong = probKMA_options$max_elong, 
+                     deltaJK_elong = probKMA_options$deltaJK_elong, 
+                     iter4clean = probKMA_options$iter4clean, 
+                     tol4clean = probKMA_options$tol4clean,
+                     quantile4clean = probKMA_options$quantile4clean,
+                     m = probKMA_options$m,
+                     w = probKMA_options$w, 
+                     transformed = probKMA_options$transformed,
+                     return_options = return_options,
+                     alpha = alpha,
+                     diss = diss,
+                     stopCriterion = stopCriterion, 
+                     seed = seed, 
+                     K = NULL, #any value
+                     c = NULL, #any value
+                     exe_print = exe_print,
+                     set_seed = set_seed,
+                     align = probKMA_options$silhouette_align,
+                     n_threads = worker_number)
+    
+    
     if(((len_mean/c_mean>10)&(length(K)*length(c)*n_init<40))|(length(K)*length(c)*n_init==1)){
       if(is.null(probKMA_options$worker_number))
         probKMA_options$worker_number=worker_number
@@ -270,7 +271,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
             arguments$c = c
             arguments$quantile4clean = 1/K
             arguments$v_init = v_init
-            results = do.call(probKMA_wrap,arguments)
+            results = do.call(mtfd:::probKMA_wrap,arguments)
             probKMA_results = results[[1]]
             silhouette_results = results[[2]]
             end=proc.time()
@@ -282,14 +283,14 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
           }
           transformed=probKMA_results$transformed
           pdf(paste0(name,"_K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,cleaned=FALSE,transformed=transformed) #transformed
+          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,cleaned=FALSE,transformed=transformed) #transformed
           dev.off()
           pdf(paste0(name,"_K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,cleaned=TRUE,transformed=transformed)
+          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],cleaned=TRUE,transformed=transformed)
           dev.off()
           pdf(paste0(name,"_K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-          silhouette=probKMA_silhouette_plot(results, 
-                                             align=silhouette_align,
+          silhouette=mtfd:::probKMA_silhouette_plot(results, 
+                                             align=arguments$silhouette_align,
                                              plot=TRUE)
           dev.off()
           save(probKMA_results,time,silhouette,
@@ -301,7 +302,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
     if(n_init_motif == 0 || !V_init_bool)
     {
-      results=.mapply_custom(cl_find, function(K,c,i,small_seed){ 
+      results=tryCatch({.mapply_custom(cl_find, function(K,c,i,small_seed){ 
         dir.create(paste0(name,"_K",K,"_c",c),showWarnings=TRUE,recursive = TRUE)
         files=list.files(paste0(name,"_K",K,"_c",c))
         if(paste0('random',i,'.RData') %in% files){
@@ -312,44 +313,55 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
         }else{
           iter=iter_max=1
           message("K",K,"_c",c,'_random',i,' running')
+          if(arguments$set_seed)
+          {
+            arguments$seed = small_seed
+            set.seed(small_seed)
+          }
           while(iter==iter_max){
             start=proc.time()
-            if(arguments$set_seed)
-            {
-              arguments$seed = small_seed
-              set.seed(small_seed)
-            }
             small_seed = small_seed + 1
             arguments$K = K
             arguments$c = c
             arguments$quantile4clean = 1/K
-            results = do.call(probKMA_wrap,arguments)
+            arguments$v_init = NULL
+            results = do.call(mtfd:::probKMA_wrap,arguments)
             probKMA_results = results[[1]]
             silhouette_results = results[[2]]
             end=proc.time()
             time=end-start
             iter=probKMA_results$iter
             iter_max=arguments$iter_max
+            
             if(iter==iter_max)
               warning('Maximum number of iteration reached. Re-starting.')
           }
+          
           pdf(paste0(name,"_K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,cleaned=FALSE) 
+          mtfd:::probKMA_plot(probKMA_results,
+                              sil_avg = silhouette_results[[4]],
+                              ylab=names_var,
+                              cleaned=FALSE) 
           dev.off()
           pdf(paste0(name,"_K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,cleaned=TRUE) 
+          mtfd:::probKMA_plot(probKMA_results,
+                              sil_avg = silhouette_results[[4]],
+                              ylab=names_var,
+                              cleaned=TRUE) 
           dev.off()
+      
           pdf(paste0(name,"_K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-          silhouette = probKMA_silhouette_plot(results,
-                                               align=silhouette_align,
-                                               plot=TRUE) 
+          silhouette = mtfd:::probKMA_silhouette_plot(silhouette_results,K,plot = plot)
           dev.off()
+        
           save(probKMA_results,time,silhouette,
                file=paste0(name,"_K",K,"_c",c,'/random',i,'.RData'))
           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
         }
-      },i_c_K[,3],i_c_K[,2],i_c_K[,1],vector_seed,SIMPLIFY=FALSE)
+      },i_c_K[,3],i_c_K[,2],i_c_K[,1],vector_seed,SIMPLIFY=FALSE)},error = function(e){
+        stop(e$message)
+      })
     }
 
     results=split(results,list(factor(i_c_K[,2],c),factor(i_c_K[,3],K)))
@@ -799,7 +811,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     minidend  <- mtfd:::get_minidend(as.dist(D_fmsr))
     # step 3: identify seeds and corresponding families
 
-    all_paths   <- mtfd:::get_path_complete(minidend, window_data, min_card = min_card)
+    all_paths   <- mtfd:::get_path_complete(minidend, window_data, min_card = min_card,worker_number = worker_number)
     all_paths   <- all_paths[!(lapply(all_paths, is.null) %>% unlist())] 
     
     # step 3: get recommended nodes and their info (cardinality and score)

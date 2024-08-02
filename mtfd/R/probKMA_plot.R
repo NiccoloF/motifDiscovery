@@ -51,13 +51,13 @@ probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
                  matplot(full_mat[,seq(j,ncol(full_mat),by = d)],col=scales::alpha('gray30',0.15),lwd=1.5,lty=1,type = 'l',
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
-                                     round(sil_avg[k], digits = 3)))
+                                     ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
                  
                  univariate_mat <- full_mat[,column][,seq(j,d*length(keep),by = d)]
                  matplot(univariate_mat,type="l",col=rainbow(length(keep)),lwd=1.5,lty=5,
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
-                                     round(sil_avg[k], digits = 3)),add=TRUE)
+                                     ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))),add=TRUE)
                  for (i in 1:ncol(dom_sequence)) {
                    lines(dom_sequence[,i],univariate_mat[dom_sequence[,i],i], col = 'red',lwd=2.5)
                    rect(dom_sequence[1,i], min(univariate_mat,na.rm=TRUE)-10, tail(dom_sequence[,i], n=1), max(univariate_mat,na.rm=TRUE)+10,
@@ -166,12 +166,12 @@ probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
                  matplot(full_mat[,seq(j,ncol(full_mat),by = d)],col=scales::alpha('gray30',0.15),lwd=1.5,lty=1,type = 'l',
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
-                                     round(sil_avg[k], digits = 3)))
-                 univariate_mat <- full_mat[,column][,seq(j,d*length(keep),by = d)]
+                                     ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
+                 univariate_mat <- as.matrix(as.matrix(full_mat[,column])[,seq(j,d*length(keep),by = d)])
                  matplot(univariate_mat,type="l",col=rainbow(length(keep)),lwd=1.5,lty=5,
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
-                                     round(sil_avg[k], digits = 3)),add = TRUE)
+                                     ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))),add = TRUE)
                  for (i in 1:ncol(dom_sequence)) {
                    lines(dom_sequence[,i],univariate_mat[dom_sequence[,i],i], col = 'red',lwd=2.5)
                    rect(dom_sequence[1,i], min(univariate_mat,na.rm=TRUE)-10, tail(dom_sequence[,i], n=1), max(univariate_mat,na.rm=TRUE)+10,
@@ -190,12 +190,12 @@ probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
                  matplot(full_mat_dev[,seq(j,ncol(full_mat_dev),by = d)],col=scales::alpha('gray30',0.15),lwd=1.5,lty=1,type = 'l',
                          main=paste0('Derivatives & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
-                                     round(sil_avg[k], digits = 3)))
-                 univariate_mat <- full_mat_dev[,column][,seq(j,length(keep),by = d)]
+                                     ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
+                 univariate_mat <- as.matrix(as.matrix(full_mat_dev[,column])[,seq(j,length(keep),by = d)])
                  matplot(univariate_mat,type="l",col=rainbow(length(keep)),lwd=1.5,lty=5,
                          main=paste0('Derivatives & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
-                                     round(sil_avg[k], digits = 3)),add = TRUE)
+                                     ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))),add = TRUE)
                  for (i in 1:ncol(dom_sequence)) {
                    lines(dom_sequence[,i],univariate_mat[dom_sequence[,i],i], col = 'red',lwd=2.5)
                    rect(dom_sequence[1,i], min(univariate_mat,na.rm=TRUE)-10, tail(dom_sequence[,i], n=1), max(univariate_mat,na.rm=TRUE)+10,
@@ -315,7 +315,7 @@ probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
                y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                matplot(y_plot,type='l',col=seq_len(N)+1,lwd=2,lty=5,ylab=ylab[j],
                        main=paste('Motif',k,'-',ylab[j],'- Dimension:',j,'\n',
-                                  'Number of occurrences:',dim(y_plot)[2],' − sil_avg:',round(sil_avg[k], digits = 3) ))
+                                  'Number of occurrences:',dim(y_plot)[2],' − sil_avg:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3)) ))
                points(v0[,j],type='l',col='black',lwd=5,lty=1)
                par(mar=c(0,0,0,0))
                plot.new()
@@ -329,7 +329,7 @@ probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
                y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                matplot(y_plot,type='l',col=seq_len(N)+1,lwd=2,lty=5,ylab=ylab[j],
                        main=paste('Motif',k,'-',ylab[j],' derivative','- Dimension:',j,'\n',
-                                  'Number of occurrences:',dim(y_plot)[2],' − sil:',round(sil_avg[k], digits = 3)))
+                                  'Number of occurrences:',dim(y_plot)[2],' − sil:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
                points(v1[,j],type='l',col='black',lwd=5,lty=1)
                par(mar=c(0,0,0,0))
                plot.new()

@@ -3,48 +3,39 @@
 #' @description Compute the adapted silhouette index on the results of probKMA.
 #'
 #' @param probKMA_results output of probKMA function (with return_options=TRUE).
-#' @param align if TRUE, try all possible alignements between pieces of curves (corresponding to the
-#' same or to different motifs).
-#' @param plot if TRUE, the silhouette plot is drawn.
 #' @return A list containing:
 #' @return \item{silhouette}{ vector of silhouette indices}
 #' @return \item{motifs}{ vector of motifs numbers}
 #' @return \item{curves}{ vector of curves numbers with motifs}
 #' @return \item{silhouette_average}{ vector of average silhouette index for each cluster}
 #' @author Marzia Angela Cremona  & Francesca Chiaromonte
-#' @export
-probKMA_silhouette_plot <- function(results, align=FALSE, plot=TRUE){
-  # Compute the adapted silhouette index on the results of probKMA.
-  # probKMA_results: output of probKMA function (with return_options=TRUE).
-  # align: if TRUE, try all possible alignements between pieces of curves (corresponding to the same or to different motifs).
-  # plot: if TRUE, the silhouette plot is drawn.
-  
-  # check silhouette_results exists
-  if(length(results) != 2){
-    stop('probKMA executed without probKMA_silhouette function')
-  }
-  
-  probKMA_results = results[[1]]
-  silhouette_results = results[[2]]
-  
+probKMA_silhouette_plot <- function(silhouette_results,K,plot = TRUE){
+  # Plot the adapted silhouette index on the results of probKMA.
+
   ### plot silhouette ########################################################################################
-  if(plot){
-    K=ncol(probKMA_results$P_clean)
-    n=length(silhouette_results[[1]])
-    sil=rev(silhouette_results[[1]])
-    y=barplot(sil,space=c(0,rev(diff(silhouette_results[[2]]))),xlab='Silhouette index',names='',
-              xlim=c(min(0,min(sil)-0.05),1.2),horiz=TRUE,las=1,mgp=c(2.5,1,0),col='gray')
-    text(ifelse(sil>=0,sil+0.03,sil-0.03),ifelse(sil>0,y,y+0.2),labels=rev(unlist(silhouette_results[[3]])),cex=0.5)
-    title(main='Silhouette plot')
-    title(sub=paste("Average silhouette width:",round(mean(silhouette_results[[4]]),2)),adj=0)
-    mtext(paste("n =",n),adj=0)
-    mtext(substitute(K~~"motifs",list(K=K)),adj=1)
-    mtext(expression(paste(j," : ",n[j]," | avg ",s[i])),adj=1.04,line=-1.2)
+    if(plot) {
+    silhouette = silhouette_results[[1]]
+    Y_motifs = silhouette_results[[2]]
+    curves_in_motifs = silhouette_results[[3]]
+    silhouette_average = silhouette_results[[4]]
+    curves_in_motifs_number = silhouette_results[[5]]
+    
+    
+    n=length(silhouette)
+    sil=rev(silhouette)
+    y=barplot(sil,space=c(0,rev(diff(Y_motifs))),xlab='Silhouette index',names='',
+              xlim=c(min(0,min(sil)-0.05),1.2),horiz=TRUE,las=1,mgp=c(2.5,1,0),col='lightblue')
+    sapply(seq(0, 1, by = 0.2),function(h){abline(v = h, col = "firebrick3", lty = 2)})
+    text(ifelse(sil>=0,sil+0.03,sil-0.03),ifelse(sil>0,y,y+0.2),labels=paste0("c",rev(unlist(curves_in_motifs))),cex=0.5)
+    title(main='Silhouette plot',sub=paste("Average silhouette width:",round(mean(silhouette_average),2)),adj = 0.5)
+    title(sub=paste("Average silhouette width:",round(mean(silhouette_average),2)),adj = 0.5,col.sub='red')
+    mtext(paste("#curves =",n),adj=0,side = 3, line = 1,font=1,col=rgb(0,0.35,0))
+    mtext(substitute("#motifs:"~K,list(K=K)),side = 3, line = 2, adj = 0,col=rgb(0,0.35,0))
+    mtext(expression(paste(motif," | ",curve[j]," | avg ",s[i])),side = 3, line = 1.5, adj = 1,font=1,col=rgb(0,0.35,0))
     y=rev(y)
     for(k in seq_len(K)){
-      y_k=mean(y[silhouette_results[[2]]==k])
-      text(1,y_k,
-           paste0(k,": ",silhouette_results[[5]][k]," | ",format(silhouette_results[[4]][k],digits=1,nsmall=2)),xpd=NA,adj=0.1)
+      y_k=mean(y[Y_motifs==k])
+      text(1.1,y_k,paste0(k, " | ", curves_in_motifs_number[k], " | ", format(silhouette_average[k], digits = 1, nsmall = 2)),xpd=TRUE,srt=90,col='firebrick3')
     }
   }
   

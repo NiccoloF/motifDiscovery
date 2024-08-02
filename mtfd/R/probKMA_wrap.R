@@ -70,9 +70,8 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                          tol = 1e-8, tol4elong = 1e-3, max_elong = 0.5, deltaJK_elong = 0.05, 
                          iter4clean = 50, tol4clean = 1e-4,m = 2,w = 1, seed = 1, 
                          K = 2, c = 40, quantile4clean = 1/K, exe_print = FALSE,
-                         set_seed = FALSE,n_threads = 7,diss = 'd0_2', 
-                         transformed = FALSE, v_init = NULL,silhouette = TRUE,align = TRUE){
-  
+                         set_seed = FALSE,diss = 'd0_2', 
+                         transformed = FALSE, v_init = NULL,align = TRUE,n_threads = 1){
   params = list(standardize=standardize,c_max = c_max,iter_max = iter_max,
                 iter4elong = iter4elong,trials_elong = trials_elong,
                 return_options = return_options, alpha = alpha,
@@ -82,36 +81,21 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                 deltaJK_elong = deltaJK_elong, iter4clean = iter4clean, 
                 tol4clean = tol4clean,quantile4clean = quantile4clean, 
                 m = m, w = w, seed = seed, K = K, c = c, exe_print = exe_print,
-                set_seed = set_seed,n_threads = n_threads, 
-                transformed = transformed, v_init = v_init) 
-  
+                set_seed = set_seed, 
+                transformed = transformed, v_init = v_init,n_threads = n_threads) 
   checked_data <- initialChecks(Y0,Y1,P0,S0,params,diss,v_init)
   
   params <- checked_data$Parameters
   
   data <- checked_data$FuncData
   
-  if (alpha == 0 || alpha == 1)
-  {
-    string_diss = "L2"
-  } 
-  else 
-  {
-    string_diss = "H1"
+  string_diss <- ifelse(alpha == 0 || alpha == 1,"L2","H1")
+  prok <- NULL
+  if (!is.null(data$v_init)) {
+    prok <- new(ProbKMA, data$Y, params, data$P0, data$S0, string_diss, data$v_init)
+  } else {
+    prok <- new(ProbKMA, data$Y, params, data$P0, data$S0, string_diss)
   }
-  
-  
-  if (!is.null(data$v_init))
-  {
-    prok = new(ProbKMA,data$Y,params,data$P0,data$S0,string_diss, data$v_init)
-  }
-  else
-  {
-    prok = new(ProbKMA,data$Y,params,data$P0,data$S0,string_diss)
-  }
-  
-  rm(params)
-  
   probKMA_results_1 = list(Y0 = data$Y$Y0,
                            Y1 = data$Y$Y1,
                            diss = diss, w = w, 
@@ -119,20 +103,13 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                            v_init = data$v_init, 
                            transformed = transformed)
   
-  rm(data)
-  
   probKMA_results_2 = prok$probKMA_run() 
+  sil <- prok$compute_silhouette(align)
   
-  if(silhouette)
-  {
-    sil <- prok$compute_silhouette(align)
-    rm(prok)
-    return(list(probKMA_results = c(probKMA_results_1,probKMA_results_2), silhouette_results = sil))
-  }
-  else 
-  {
-    rm(prok)
-    return(c(probKMA_results_1,probKMA_results_2))
-  }
+  rm(params)
+  rm(data)
+  rm(prok)
   
+  return(list(probKMA_results = c(probKMA_results_1,probKMA_results_2), silhouette_results = sil))
+
 }

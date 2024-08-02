@@ -768,7 +768,11 @@ public:
 
       _dissfac->set_both(false); // per usi futuri 
 
-      return Rcpp::List::create(silhouette,Y_motifs,curves_in_motifs,silhouette_average,curves_in_motifs_number);
+      return Rcpp::List::create(Rcpp::Named("silhouette") = silhouette,
+                                Rcpp::Named("motifs") = Y_motifs,
+                                Rcpp::Named("curves") = curves_in_motifs,
+                                Rcpp::Named("silhouette_average") = silhouette_average,
+                                Rcpp::Named("curves_in_motifs_number") = curves_in_motifs_number);
 
     }
 

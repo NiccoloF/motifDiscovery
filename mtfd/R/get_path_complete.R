@@ -27,10 +27,29 @@
 #' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 
-get_path_complete <- function(minidend, window_data, min_card){
-  all_paths <- lapply(minidend,
-                      find_recommended_path,
-                      window_data = window_data,
-                      min_card = min_card)
+get_path_complete <- function(minidend, window_data, min_card,worker_number){
+  # Determine the number of cores
+  if(is.null(worker_number))
+    worker_number <- detectCores() - 1
+  # Set up a cluster
+  cl <- makeCluster(worker_number)
+  
+  # Load necessary libraries on each worker
+  clusterEvalQ(cl, {
+    library(dplyr) 
+    library(data.table)
+  })
+  
+  # Export necessary variables and functions to the cluster
+  clusterExport(cl, c("find_recommended_path", "window_data", "min_card","partition_leaves", "get_nodes_xy")
+                ,envir = environment())
+  
+  # Use parLapply to run in parallel
+  all_paths <- parLapply(cl, minidend, find_recommended_path, 
+                         window_data = window_data, min_card = min_card)
+  
+  # Stop the cluster
+  stopCluster(cl)
+  
   return(all_paths)
 }

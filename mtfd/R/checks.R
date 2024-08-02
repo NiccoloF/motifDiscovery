@@ -35,8 +35,8 @@ initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
   seed = params$seed
   exe_print = params$exe_print
   set_seed = params$set_seed
-  n_threads = params$n_threads
   transformed = params$transformed
+  n_threads = params$n_threads
   
   if(set_seed){
     set.seed(seed)
@@ -386,8 +386,8 @@ initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
                                   "return_options"=return_options,
                                   "exe_print"= exe_print,
                                   "set_seed" = set_seed,
-                                  "n_threads" = n_threads,
-                                  "transformed" = transformed) ) )
+                                  "transformed" = transformed,
+                                  "n_threads" = n_threads) ) )
 }
 
 
