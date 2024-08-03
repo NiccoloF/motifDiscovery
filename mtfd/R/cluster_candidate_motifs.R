@@ -91,7 +91,7 @@ cluster_candidate_motifs <- function(filter_candidate_motifs_results,motif_overl
     VV=array(unlist(VV,recursive=FALSE),dim=c(2,length(VV)))
     VV_lengths=as.matrix(combn(V_length,2))
     VV_motif_overlap=floor(apply(VV_lengths,2,min)*motif_overlap)
-    SD=mapply(find_min_diss,VV[1,],VV[2,],VV_motif_overlap,
+    SD=mapply(mtfd:::.find_min_diss,VV[1,],VV[2,],VV_motif_overlap,
               MoreArgs=list(alpha=alpha,w=w,d=d,use0=use0,use1=use1),SIMPLIFY=TRUE)
     VV_D=matrix(0,nrow=length(V),ncol=length(V))
     VV_D[lower.tri(VV_D)]=SD[2,]

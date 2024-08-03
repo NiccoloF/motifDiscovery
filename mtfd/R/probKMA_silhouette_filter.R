@@ -19,9 +19,8 @@
 #' @return \item{K}{ vector containing the number of motifs repeated a number of filtered motifs times}
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #' @export
-probKMA_silhouette_filter <- function(results,silhouette,sil_threshold=0.5,size_threshold=2){
-  
-  probKMA_results=results[[1]]
+probKMA_silhouette_filter <- function(probKMA_results,silhouette,sil_threshold=0.5,size_threshold=2){
+
   index_sil=which(silhouette$silhouette_average>=sil_threshold)
   index_size=which(colSums(probKMA_results$P_clean)>=size_threshold)
   index=intersect(index_sil,index_size)

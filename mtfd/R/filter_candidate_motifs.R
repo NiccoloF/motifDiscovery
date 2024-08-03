@@ -53,8 +53,8 @@ filter_candidate_motifs <- function(find_candidate_motifs_results,sil_threshold=
                          function(c){
                            lapply(seq_len(n_init),
                                   function(i){
-                                    load(paste0(name,"_K",K,"_c",c,'/random',i,'.RData'))
-                                    motifs=.probKMA_silhouette_filter(probKMA_results,silhouette,sil_threshold,size_threshold)
+                                    load(paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
+                                    motifs=mtfd:::probKMA_silhouette_filter(probKMA_results,silhouette,sil_threshold,size_threshold)
                                     return(motifs)
                                   })
                          })
@@ -73,7 +73,7 @@ filter_candidate_motifs <- function(find_candidate_motifs_results,sil_threshold=
   K=Reduce(c,lapply(motifs,function(motifs) motifs$K))[index]
   
   ### output ##################################################################################################
-  load(paste0(name,"_K",K[1],"_c",c[1],'/random',1,'.RData'))
+  load(paste0(name,"K",K[1],"_c",c[1],'/random',1,'.RData'))
   return(list(V0_clean=V0_clean,V1_clean=V1_clean,D_clean=as.matrix(D_clean),P_clean=as.matrix(P_clean),c=c,K=K,
               Y0=probKMA_results$Y0,Y1=probKMA_results$Y1,
               diss=probKMA_results$diss,alpha=probKMA_results$alpha,w=probKMA_results$w,max_gap=probKMA_results$max_gap))

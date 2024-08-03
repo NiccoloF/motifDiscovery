@@ -14,7 +14,6 @@ probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
   V_dom=lapply(probKMA_results$V0,function(v) rowSums(!is.na(v))!=0)
   S_k=split(probKMA_results$S,rep(seq_len(K),each=N))
   P_k=split(probKMA_results$P,rep(seq_len(K),each=N))
-
   ### plot motifs with matched curves #######################################################################
   if(cleaned){
     S_clean_k=split(probKMA_results$S_clean,rep(seq_len(K),each=N))

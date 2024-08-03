@@ -48,7 +48,22 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
   if(method == 'ProbKMA')
   {
     ### check input #############################################################################################
-    
+    # check name
+    if(!is.character(name))
+      stop('name should be a string.')
+    if(grepl(' ',name)){
+      warning('name contains spaces. Changing spacing in underscores.')
+      name=gsub(" ","_",name,fixed=TRUE)
+    }
+    if (substr(name, nchar(name), nchar(name)) != "/") {
+      name <- paste0(name, "/")
+    }
+    files = list.files(name)
+    if('find_candidate_motifs_results.RData' %in% files) {
+      # candidate motifs already present, load them
+      load(paste0(name,'find_candidate_motifs_results.RData'))
+    } else {
+      
     ### check on n_init_motif (to be checked) ############
     if(n_init_motif > n_init)
     {
@@ -137,14 +152,6 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
     
     ##################################
-    
-    # check name
-    if(!is.character(name))
-      stop('name should be a string.')
-    if(grepl(' ',name)){
-      warning('name contains spaces. Changing spacing in underscores.')
-      name=gsub(" ","_",name,fixed=TRUE)
-    }
     # check Y0
     if(missing(Y0))
       stop('Y0 must be specified.')
@@ -214,6 +221,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                      seed = seed, 
                      K = NULL, #any value
                      c = NULL, #any value
+                     v_init = NULL, #any value
                      exe_print = exe_print,
                      set_seed = set_seed,
                      align = probKMA_options$silhouette_align,
@@ -240,7 +248,6 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       }
     }
     
-    
     ### run probKMA ##########################################################################################
     i_c_K = expand.grid(seq_len(n_init),c,K)
     vector_seed = seq(1,length(i_c_K$Var1))
@@ -248,11 +255,11 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     if(n_init_motif > 0 && V_init_bool)
     {
       V_init_unlist=unlist(unlist(V_init,recursive=FALSE),recursive=FALSE)
-      results=.mapply_custom(cl_find,function(K,c,i,v_init,small_seed){
-        dir.create(paste0(name,"_K",K,"_c",c),showWarnings=FALSE)
-        files=list.files(paste0(name,"_K",K,"_c",c))
+      results=tryCatch({.mapply_custom(cl_find,function(K,c,i,v_init,small_seed){
+        dir.create(paste0(name,"K",K,"_c",c),showWarnings=FALSE,recursive = TRUE)
+        files=list.files(paste0(name,"K",K,"_c",c))
         if(paste0('random',i,'.RData') %in% files){
-          load(paste0(name,"_K",K,"_c",c,'/random',i,'.RData')) 
+          load(paste0(name,"K",K,"_c",c,'/random',i,'.RData')) 
           message("K",K,"_c",c,'_random',i,' loaded')
           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
@@ -282,31 +289,33 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
               warning('Maximum number of iteration reached. Re-starting.')
           }
           transformed=probKMA_results$transformed
-          pdf(paste0(name,"_K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
+          pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
           mtfd:::probKMA_plot(probKMA_results,ylab=names_var,cleaned=FALSE,transformed=transformed) #transformed
           dev.off()
-          pdf(paste0(name,"_K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
+          pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
           mtfd:::probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],cleaned=TRUE,transformed=transformed)
           dev.off()
-          pdf(paste0(name,"_K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
+          pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
           silhouette=mtfd:::probKMA_silhouette_plot(results, 
                                              align=arguments$silhouette_align,
                                              plot=TRUE)
           dev.off()
           save(probKMA_results,time,silhouette,
-               file=paste0(name,"_K",K,"_c",c,'/random',i,'.RData'))
+               file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
         }
-      },i_c_K[,3],i_c_K[,2],i_c_K[,1],V_init_unlist,vector_seed,SIMPLIFY=FALSE)
+      },i_c_K[,3],i_c_K[,2],i_c_K[,1],V_init_unlist,vector_seed,SIMPLIFY=FALSE)},error = function(e){
+        stop(e$message)
+      })
     }
     if(n_init_motif == 0 || !V_init_bool)
     {
       results=tryCatch({.mapply_custom(cl_find, function(K,c,i,small_seed){ 
-        dir.create(paste0(name,"_K",K,"_c",c),showWarnings=TRUE,recursive = TRUE)
-        files=list.files(paste0(name,"_K",K,"_c",c))
+        dir.create(paste0(name,"K",K,"_c",c),showWarnings=TRUE,recursive = TRUE)
+        files=list.files(paste0(name,"K",K,"_c",c))
         if(paste0('random',i,'.RData') %in% files){
-          load(paste0(name,"_K",K,"_c",c,'/random',i,'.RData'))
+          load(paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
           message("K",K,"_c",c,'_random',i,' loaded')
           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
@@ -324,7 +333,6 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
             arguments$K = K
             arguments$c = c
             arguments$quantile4clean = 1/K
-            arguments$v_init = NULL
             results = do.call(mtfd:::probKMA_wrap,arguments)
             probKMA_results = results[[1]]
             silhouette_results = results[[2]]
@@ -337,25 +345,26 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
               warning('Maximum number of iteration reached. Re-starting.')
           }
           
-          pdf(paste0(name,"_K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
+          pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
           mtfd:::probKMA_plot(probKMA_results,
                               sil_avg = silhouette_results[[4]],
                               ylab=names_var,
                               cleaned=FALSE) 
           dev.off()
-          pdf(paste0(name,"_K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
+          pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
           mtfd:::probKMA_plot(probKMA_results,
                               sil_avg = silhouette_results[[4]],
                               ylab=names_var,
                               cleaned=TRUE) 
           dev.off()
       
-          pdf(paste0(name,"_K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
+          pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
           silhouette = mtfd:::probKMA_silhouette_plot(silhouette_results,K,plot = plot)
           dev.off()
-        
+          
+          probKMA_results["v_init"] <- NULL # delete v_init components
           save(probKMA_results,time,silhouette,
-               file=paste0(name,"_K",K,"_c",c,'/random',i,'.RData'))
+               file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
         }
@@ -382,7 +391,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                                                              })
                                  })
     if(plot){
-      pdf(paste0(name,'_silhouette.pdf'),width=7,height=5)
+      pdf(paste0(name,'silhouette.pdf'),width=7,height=5)
       for(i in seq_along(K)){
         silhouette_average_plot=matrix(unlist(lapply(silhouette_average_sd[[i]],function(average_sd) average_sd[order(average_sd[,1],decreasing=TRUE),1])),ncol=length(c))
         silhouette_sd_plot=matrix(unlist(lapply(silhouette_average_sd[[i]],function(average_sd) average_sd[order(average_sd[,1],decreasing=TRUE),2])),ncol=length(c))
@@ -416,7 +425,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                                   times=unlist(lapply(results,function(results) results$time[3])))
                  })
     if(plot){
-      pdf(paste0(name,'_times.pdf'),width=7,height=5)
+      pdf(paste0(name,'times.pdf'),width=7,height=5)
       y_max=max(unlist(times))*1.2
       times_plot=vector('list',length(K))
       for(i in seq_along(K)){
@@ -456,7 +465,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                                      })
                           })
                })
-      pdf(paste0(name,'_dissimilarities.pdf'),width=7,height=5)
+      pdf(paste0(name,'dissimilarities.pdf'),width=7,height=5)
       y_max=max(unlist(D))
       for(i in seq_along(K)){
         D_plot=matrix(unlist(D[[i]]),ncol=length(c))
@@ -485,7 +494,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                                                        })
                                       })
                      })
-      pdf(paste0(name,'_dissimilarities_clean.pdf'),width=7,height=5)
+      pdf(paste0(name,'dissimilarities_clean.pdf'),width=7,height=5)
       y_max=max(unlist(D_clean))
       for(i in seq_along(K)){
         D_plot=matrix(unlist(D_clean[[i]]),ncol=length(c))
@@ -516,7 +525,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
           return(as.matrix(motif_length))
         },results,SIMPLIFY=FALSE)
       },results,SIMPLIFY=FALSE)
-      pdf(paste0(name,'_lengths.pdf'),width=7,height=5)
+      pdf(paste0(name,'lengths.pdf'),width=7,height=5)
       motif_length_plot=lapply(motif_length,
                                function(motif_length){
                                  lapply(motif_length,
@@ -551,7 +560,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
           return(as.matrix(motif_length))
         },results,SIMPLIFY=FALSE)
       },results,SIMPLIFY=FALSE)
-      pdf(paste0(name,'_lengths_clean.pdf'),width=7,height=5)
+      pdf(paste0(name,'lengths_clean.pdf'),width=7,height=5)
       motif_length_plot=lapply(motif_clean_length,
                                function(motif_length){
                                  lapply(motif_length,
@@ -577,7 +586,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       }
       dev.off()
       
-      pdf(paste0(name,'_lengths_perc.pdf'),width=7,height=5)
+      pdf(paste0(name,'lengths_perc.pdf'),width=7,height=5)
       motif_length_perc=mapply(function(results){
         motif_length=mapply(function(results){
           motif_length=as.matrix(Reduce(cbind,lapply(results,
@@ -612,7 +621,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
       }
       dev.off()
       
-      pdf(paste0(name,'_lengths_clean_perc.pdf'),width=7,height=5)
+      pdf(paste0(name,'lengths_clean_perc.pdf'),width=7,height=5)
       motif_clean_length_perc=mapply(function(results){
         motif_length=mapply(function(results){
           motif_length=as.matrix(Reduce(cbind,lapply(results,
@@ -649,7 +658,38 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
     
     ### output ##################################################################################################
-    return(list(name=name,K=K,c=c,n_init=n_init,silhouette_average_sd=silhouette_average_sd,times=times))
+    find_candidate_motifs_results <- list(name=name,K=K,c=c,n_init=n_init,silhouette_average_sd=silhouette_average_sd,times=times)
+    
+    save(find_candidate_motifs_results, file = paste0(name,'find_candidate_motifs_results.RData'))
+    }
+    ### filter candidate motifs based on silhouette average and size
+    silhouette_average = Reduce(rbind, Reduce(rbind, find_candidate_motifs_results$silhouette_average_sd))[ , 1] # retrieve silhouette average for all candidate motifs
+    filter_candidate_motifs_results = mtfd:::filter_candidate_motifs(find_candidate_motifs_results,
+                                                              sil_threshold = quantile(silhouette_average, 0.9),
+                                                              size_threshold = 5)
+    
+    ### cluster candidate motifs based on their distance and select radii
+    browser()
+    cluster_candidate_motifs_results = mtfd:::cluster_candidate_motifs(filter_candidate_motifs_results,
+                                                                       motif_overlap = 0.6)
+    cluster_candidate_motifs_results$transformed = probKMA_options$transformed
+    ### plot cluster candidate motifs results
+    pdf(paste0(name,'FMD_clustering_candidate_motifs.pdf'), height = 12, width = 9)
+    mtfd:::cluster_candidate_motifs_plot(cluster_candidate_motifs_results, ask = FALSE)
+    dev.off()
+    
+    ### search selected motifs
+    motifs_search_results = mtfd:::motifs_search(cluster_candidate_motifs_results,
+                                          use_real_occurrences = FALSE, length_diff = +Inf)
+    
+    ### plot FMD results (NB: no threshold of frequencies of motif found!)
+    pdf(paste0(name,'FMD_results.pdf'), height = 7, width = 17)
+    mtfd:::motifs_search_plot(motifs_search_results, ylab = 'x(t)', freq_threshold = 1)
+    dev.off()
+    
+    save(find_candidate_motifs_results, silhouette_average, filter_candidate_motifs_results,
+         cluster_candidate_motifs_results, motifs_search_results,
+         file=paste0(name,'FMD_results.RData'))
   }
   if(method=="FunBialign")
   {

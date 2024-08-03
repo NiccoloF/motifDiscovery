@@ -109,7 +109,6 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
   rm(params)
   rm(data)
   rm(prok)
-  
   return(list(probKMA_results = c(probKMA_results_1,probKMA_results_2), silhouette_results = sil))
 
 }

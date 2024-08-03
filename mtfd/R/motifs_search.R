@@ -124,7 +124,7 @@ motifs_search <- function(cluster_candidate_motifs_results,
         R_m[i_hclust]=max(dataR$D[dataR$P==1])
       }else{
         D_new=seq(0,max(V_D_i),length.out=10000)
-        pred_knn=knn(train=dataR$D,test=as.matrix(D_new),cl=dataR$P,k=cluster_candidate_motifs_results$k_knn,prob=TRUE)
+        pred_knn=class::knn(train=dataR$D,test=as.matrix(D_new),cl=dataR$P,k=cluster_candidate_motifs_results$k_knn,prob=TRUE)
         R_m[i_hclust]=D_new[which(ifelse(pred_knn==1,attributes(pred_knn)$prob,1-attributes(pred_knn)$prob)<=cluster_candidate_motifs_results$votes_knn_Rm)[1]]
       }
     }
@@ -144,7 +144,7 @@ motifs_search <- function(cluster_candidate_motifs_results,
         R_m_finding[i_hclust]=max(dataR$D[dataR$P==1])
       }else{
         D_new=seq(0,max(V_D_i),length.out=10000)
-        pred_knn=knn(train=dataR$D,test=as.matrix(D_new),cl=dataR$P,k=cluster_candidate_motifs_results$k_knn,prob=TRUE)
+        pred_knn=class::knn(train=dataR$D,test=as.matrix(D_new),cl=dataR$P,k=cluster_candidate_motifs_results$k_knn,prob=TRUE)
         R_m_finding[i_hclust]=D_new[which(ifelse(pred_knn==1,attributes(pred_knn)$prob,1-attributes(pred_knn)$prob)<=cluster_candidate_motifs_results$votes_knn_Rm_finding)[1]]
       }
     }
