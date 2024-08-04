@@ -17,8 +17,8 @@ License: GPL (>= 2)
 Suggests: tinytest
 Encoding: UTF-8
 RoxygenNote: 7.2.3
-Imports: Rcpp (>= 1.0.12),dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,zoo,ggplot2
-Depends: dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,ggplot2
+Imports: Rcpp (>= 1.0.12),dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,zoo,ggplot2,fda,tidyverse
+Depends: dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,ggplot2,fda,tidyverse
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20
 LazyData: true
