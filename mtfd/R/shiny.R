@@ -4,6 +4,7 @@ library(dplyr)
 library(shinyjs)
 library(shinyWidgets)
 library(shinybusy)
+library(data.table)
 
 ui <- fluidPage(
   useShinyjs(),  # Initialize shinyjs
@@ -165,8 +166,17 @@ ui <- fluidPage(
                  div(class = "input-group", numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30, min = 1)),
                  div(class = "input-group", selectInput("distribution", "Coefficient Distribution", choices = c("unif", "beta"), selected = "unif"))
              ),
-             numericInput("numMotifs", "Number of Motifs", value = 2, min = 1),
-             uiOutput("motifInputs"),
+             fileInput("file2", "Choose CSV File for error structure", accept = c(".csv")),
+             radioButtons("inputMethod", "Input Method", choices = c("Set Number of Motifs" = "manual", "Upload CSV" = "file"), selected = "manual"),
+             conditionalPanel(
+               condition = "input.inputMethod == 'manual'",
+               numericInput("numMotifs", "Number of Motifs", value = 2, min = 1),
+               uiOutput("motifInputs")
+             ),
+             conditionalPanel(
+               condition = "input.inputMethod == 'file'",
+               fileInput("file1", "Choose CSV File for motif's appearance", accept = c(".csv"))
+             ),
              textInput("path", "Output Directory", value = tempdir())
            )
     )
@@ -215,75 +225,115 @@ server <- function(input, output, session) {
         as.numeric(unlist(strsplit(weights_input, ",")))
       }
       
-      mot_details <- lapply(1:input$numMotifs, function(i) {
-        list(
-          len = input[[paste0("mot", i, "_len")]],
-          weights = parse_weights(input[[paste0("mot", i, "_weights")]]),
-          appearance = input[[paste0("mot", i, "_appearance")]]
-        )
-      })
-      
-      distribution <- input$distribution
-      path <- input$path
-      
-      # Run the motifSimulationBuilder algorithm
-      builder <- motifSimulationBuilder(curve_details, mot_details, distribution)
-      
-      curves <- generateCurves(builder,0.1)
-      
-      output_file <- file.path(path, "plots.pdf")
-      
-      # Create the directory if it does not exist
-      if (!dir.exists(path)) {
-        dir.create(path)
-      }
-      
-      # Generate the plots
-      plots <- lapply(seq_along(curves), function(i) {
-        curve_data <- data.frame(
-          t = seq(0, curves[[i]]$basis$rangeval[2]),
-          x = eval.fd(seq(0, curves[[i]]$basis$rangeval[2]), curves[[i]], Lfdobj = 0)
-        )
-        names(curve_data) <- c("t","x")
-        
-        motif_lines <- mapply(function(id_motif, pos_motif, instance) {
-          motif_t = seq((pos_motif - 1) * builder@dist_knots,
-                        (pos_motif - 1 + length(curves$coeff_motifs[[id_motif]]) - builder@norder + 1) * builder@dist_knots)
-          motif_x = eval.fd(motif_t, curves[[i]], Lfdobj = 0)
-          data.frame(t = motif_t, x = motif_x, motif_id = factor(paste(id_motif, instance, sep = "_")),
-                     initial_number = str_extract(as.character(id_motif), "^[^_]+"),
-                     xmin = (pos_motif - 1) * builder@dist_knots,
-                     xmax = (pos_motif - 1 + length(curves$coeff_motifs[[id_motif]]) - builder@norder + 1) * builder@dist_knots)
-        }, builder@motifs_in_curves[[i]]$motif_id, builder@motifs_in_curves[[i]]$starting_coeff_pos, seq_along(builder@motifs_in_curves[[i]]$motif_id), SIMPLIFY = FALSE)
-        
-        motif_data <- bind_rows(motif_lines)
-        names(motif_data) <- c("t","x","motif_id","initial_number","xmin","xmax")
-        
-        motif_colors <- c( "1" = "red", "2" = "green", "3" = "blue", "4" = "orange",
-                           "5" = "purple", "6" = "cyan", "7" = "magenta", "8" = "brown",
-                           "9" = "pink", "10" = "grey")
-        motif_colors <- rep(motif_colors,length.out = length(mot_details))
-        if(length(mot_details) > 10 )
-          attr(motif_colors,"names")[11:length(mot_details)] <- as.character(as.integer(attr(motif_colors,"names")[11:length(mot_details)]) + 10)
-        
-        if (nrow(motif_data) > 0) {
-          p <- ggplot() +
-            # Plot the main curve in black
-            geom_line(data = curve_data, aes(x = t, y = x), color = "black", size = 0.5) +
-            # Add shaded rectangles for motif positions with transparency
-            geom_rect(data = motif_data, aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = initial_number), alpha = 0.01) +
-            # Plot motifs with distinct colors
-            geom_line(data = motif_data, aes(x = t, y = x, color = factor(initial_number), group = motif_id), size = 1.5) + 
-            scale_color_manual(values = motif_colors) +
-            scale_fill_manual(values = motif_colors) +
-            labs(title = paste('Random curve', i), x = 't', y = 'x(t)') +
-            theme_minimal(base_size = 15) +
-            ylim(-20, 20) +
-            guides(color = guide_legend(title = "Motif ID"), fill = guide_legend(title = "Motif ID"))
+      if (input$inputMethod == "manual") {
+        mot_details <- lapply(1:input$numMotifs, function(i) {
+          list(
+            len = input[[paste0("mot", i, "_len")]],
+            weights = parse_weights(input[[paste0("mot", i, "_weights")]]),
+            appearance = input[[paste0("mot", i, "_appearance")]]
+          )
+        })
+      } else {
+        req(input$file1)
+        req(input$file2)
+        dt <- fread(input$file1$datapath)
+        if (ncol(dt) != 3) {
+          stop("CSV file must have exactly 3 columns.")
         }
+        setnames(dt, c("motif_id", "curve", "start_break_pos"))
+        unique_motif_ids <- unique(dt$motif_id)
+        mot_details <- lapply(1:length(unique_motif_ids), function(i) {
+          list(
+            len = input[[paste0("mot", i, "_len")]],
+            weights = parse_weights(input[[paste0("mot", i, "_weights")]]),
+            appearance = as.data.frame(dt[motif_id == unique_motif_ids[i]])
+          )
+        })
+      }
+      error_str <- fread(input$file2$datapath)
+      if(dim(error_str)[1] == 1) {
+        error_str <- as.vector(error_str)
+      }else {
+        error_str <- as.matrix(error_str)
+      }
+      distribution <- input$distribution
+      if (!dir.exists(input$path)) {
+        stop("Invalid directory path.")
+      }
+
+      builder <- mtfd::motifSimulationBuilder(curve_details, mot_details, distribution)
+      curves <- mtfd::generateCurves(builder,error_str)
+      
+      output_file <- file.path(input$path, "plots.pdf")
+      
+      if (!dir.exists(input$path)) {
+        dir.create(input$path)
+      }
+      plots <- lapply(seq_along(curves),function(k){
+          if(!is.null(curves[[k]]$with_error$error_y)) {
+            curve_data_no_error <- data.frame(
+              t = seq(0, curves[[k]]$no_error$basis$rangeval[2]-1),
+              x = curves[[k]]$no_error$no_error_y)
+            names(curve_data_no_error) <- c("t","x")
+            
+            curve_data_error <- NULL
+            curve_data_error <- data.frame(
+              t = seq(0, curves[[k]]$no_error$basis$rangeval[2]-1),
+              x = curves[[k]]$with_error$error_y)
+            names(curve_data_error) <- c("t",paste0("x",seq(length(curves[[k]]$with_error$error_y))))
+            
+            motif_lines <- mapply(function(id_motif, pos_motif, instance) {
+              motif_t = seq((pos_motif - 1) * builder@dist_knots,
+                            (pos_motif - 1) * builder@dist_knots + builder@mot_details[[id_motif]]$len)
+              motif_x = lapply(curves[[k]]$with_error$error_y,function(curve){return(curve[motif_t + 1])})
+              
+              return(lapply(motif_x,function(motif){ data.frame(t = motif_t, x = motif, motif_id = factor(paste(id_motif, instance, sep = "_")),
+                                                                initial_number = str_extract(as.character(id_motif), "^[^_]+"),
+                                                                xmin = (pos_motif - 1) * builder@dist_knots,
+                                                                xmax = (pos_motif - 1) * builder@dist_knots + builder@mot_details[[id_motif]]$len)}))
+            }, builder@motifs_in_curves[[k]]$motif_id, builder@motifs_in_curves[[k]]$starting_coeff_pos, seq_along(builder@motifs_in_curves[[k]]$motif_id), SIMPLIFY = FALSE)
+            
+            motif_colors <- c( "1" = "red", "2" = "blue", "3" = "darkgreen", "4" = "orange",
+                               "5" = "purple", "6" = "cyan", "7" = "magenta", "8" = "brown",
+                               "9" = "pink", "10" = "grey")
+            motif_colors <- rep(motif_colors,length.out = length(builder@mot_details))
+            if(length(builder@mot_details) > 10 )
+              attr(motif_colors,"names")[11:length(builder@mot_details)] <- as.character(as.integer(attr(motif_colors,"names")[11:length(builder@mot_details)]) + 10)
+            
+            max_dataframes <- max(sapply(motif_lines, function(sublist) length(sublist)))
+            # Inizializza una lista per memorizzare i risultati
+            motif_data <- vector("list", max_dataframes)
+            # Cicla su ogni "livello" dei data frame
+            for (i in seq_len(max_dataframes)) {
+              # Estrai i data frame dal livello i-esimo
+              dataframes_at_level_i <- lapply(motif_lines, function(sublist) {
+                sublist[[i]]
+              })
+              # Fai il bind_rows sui data frame estratti
+              motif_data[[i]] <- bind_rows(dataframes_at_level_i)
+              names(motif_data[[i]]) <- c("t","x","motif_id","initial_number","xmin","xmax")
+            }
+            return(lapply(1:length(motif_data),function(j) {
+              pic <- ggplot() +
+                # Plot the main curve in black
+                geom_line(data = curve_data_no_error, aes(x = t, y = x), color = scales::alpha('gray30',0.15), linewidth = 0.5) + 
+                # Plot the error curve in black
+                geom_line(data = curve_data_error, aes_string(x = "t", y = paste0("x", j)), color = "black", linewidth = 0.5) +
+                # Add shaded rectangles for motif positions with transparency
+                geom_rect(data = motif_data[[j]], aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = initial_number), alpha = 0.005) +
+                # Plot motifs with distinct colors
+                geom_line(data = motif_data[[j]], aes(x = t, y = x, color = factor(initial_number), group = motif_id), linewidth = 1.0) + 
+                scale_color_manual(values = motif_colors) +
+                scale_fill_manual(values = motif_colors) +
+                labs(title = paste('Random curve', k), aes_string(x = "t", y = paste0("x", j))) +
+                theme_minimal(base_size = 15) +
+                guides(color = guide_legend(title = "Motif ID"), fill = guide_legend(title = "Motif ID"))
+              return(pic)
+            }))
+          }
       })
-      plots <- Filter(function(plot){!is.null(plot)},plots)
-      # Pagination settings
+      plots <- unlist(plots,recursive = FALSE)
+      
       plots_per_page <- 2
       num_pages <- ceiling(length(plots) / plots_per_page)
       current_page <- reactiveVal(1)
@@ -349,18 +399,14 @@ server <- function(input, output, session) {
         }
       )
       
-      # Clear any previous error message
       shinyjs::html("error_message", "")
       
     }, error = function(e) {
-      # Display error message in UI
       shinyjs::html("error_message", paste("Error: ", e$message))
     }, finally = {
-      # Hide progress bar
       remove_modal_spinner()
     })
   })
 }
 
-# Run the app
 shinyApp(ui = ui, server = server)

@@ -4,13 +4,13 @@
 #' @param value A numeric value.
 #' @return An object of class MyS4Class.
 #' @export
-motifSimulationBuilder <- function(curve_details = list(N,
-                                                        len,
-                                                        norder = 4,
+motifSimulationBuilder <- function(curve_details = list(N=20,
+                                                        len = 300,
+                                                        norder = 3,
                                                         coeff_min=-15,
                                                         coeff_max=15,
                                                         dist_knots=10,
-                                                        min_dist_motifs=norder*dist_knots),
+                                                        min_dist_motifs=norder * dist_knots),
                                    mot_details,
                                    distribution = 'unif') {
   ########################## UNPACKING #################################
@@ -57,43 +57,6 @@ motifSimulationBuilder <- function(curve_details = list(N,
   }else{
     min_dist_motifs <- curve_details[[7]]
   }
-  
-  ########################## AUXILIARY FUNCTIONS #################################
-  # Function to generate coefficients based on the distribution
-  .generate_coefficients <- function(motif_i, distrib, dist_knots, norder, coeff_min, coeff_max) {
-    # Calculate the length of the coefficients vector
-    l <- motif_i$len / dist_knots + norder - 1
-    if (distrib == "unif") {
-      # Generate coefficients from a uniform distribution
-      motif_i$weights <- runif(l, min = coeff_min, max = coeff_max)
-    } else if (distrib == "beta") {
-      # Generate coefficients from a beta distribution and scale to the desired range
-      motif_i$weights <- coeff_min + rbeta(l, shape1 = 0.45, shape2 = 0.45) * (coeff_max - coeff_min)
-    } else {
-      stop("Wrong 'distrib': ", distrib)
-    }
-    return(motif_i)
-  }
-  
-  # Check for overlaps and fitting within each curve
-  .check_fits <- function(df) {
-    df <- df[order(df$start), ]
-    # Check for overlaps
-    for (i in seq_len(nrow(df) - 1)) {
-      if (df$end[i] + min_dist_motifs > df$start[i + 1]) {
-        return(FALSE)
-      }
-    }
-    
-    # Check if the last motif fits within the curve length
-    if (nrow(df) > 0 && df$end[nrow(df)] > 300) {
-      return(FALSE)
-    }
-    
-    return(TRUE)
-  }
-  
-  .resample <- function(x, ...) x[sample.int(length(x), ...)]
   
   ########################## CHECKS #################################
   # check N, dist_knots and len
@@ -167,7 +130,11 @@ motifSimulationBuilder <- function(curve_details = list(N,
         end = start + len
       )
     # Apply the check for each curve
-    valid_curves <- sapply(split(motif_str_new, motif_str_new$curve), .check_fits)
+    valid_curves <- mapply(function(sub_data) {
+                            mtfd:::.check_fits(sub_data, min_dist_motifs = min_dist_motifs)
+                          },
+                          split(motif_str_new, motif_str_new$curve), 
+                          SIMPLIFY = TRUE)
     
     # Check if all curves have valid motifs
     if(FALSE %in% valid_curves) {
@@ -217,7 +184,7 @@ motifSimulationBuilder <- function(curve_details = list(N,
     for (mot in 1:nmotifs) {
       mot_details[[mot]]$appearance <- data.frame(motif_id = integer(0),
                                                   curve = integer(0),
-                                                  start_break = integer(0),
+                                                  start_break_pos = integer(0),
                                                   coeff_pos = integer(0))
     }
     
@@ -226,7 +193,7 @@ motifSimulationBuilder <- function(curve_details = list(N,
         return(NULL) # No motifs embedded in this curve
       }
       
-      id_motifs <- .resample(rep(seq_along(freq_motifs_i), freq_motifs_i))
+      id_motifs <- mtfd:::.resample(rep(seq_along(freq_motifs_i), freq_motifs_i))
       len_elements <- c(norder - 1, rep(len_motifs / dist_knots + norder - 1, length.out = nmotifs)[id_motifs] + c(rep((min_dist_motifs / dist_knots - norder + 1), sum(freq_motifs_i) - 1), 0), norder - 1)
       gaps_tot <- len_i - sum(len_elements) # number of free coefficients
       gaps <- diff(c(0, sort(sample(gaps_tot + sum(freq_motifs_i), sum(freq_motifs_i))))) - 1
@@ -242,14 +209,22 @@ motifSimulationBuilder <- function(curve_details = list(N,
         mot_details[[mot]]$appearance <<- rbind(mot_details[[mot]]$appearance, df)
       }
       
-      return(list(motif_ids=id_motifs,starting_coeff_pos=coeff_pos)) # returns N list(one for each curve) with the id of the motif embedded and the starting position
+      return(list(motif_id=id_motifs,starting_coeff_pos=coeff_pos)) # returns N list(one for each curve) with the id of the motif embedded and the starting position
     }, freq_motifs, norder - 1 + rep(len / dist_knots, length.out = N), 1:N,SIMPLIFY = FALSE)
+  } else {
+    splited_curves <- split(motif_str_new, motif_str_new$curve)
+    names(motifs_in_curves) <- as.character(1:N)
+    for (name in as.character(1:N)) {
+      if (name %in% names(splited_curves)) {
+        motifs_in_curves[[name]] <- list(motif_id = splited_curves[[name]]$motif_id,starting_coeff_pos = splited_curves[[name]]$start_break_pos)
+      }
+    }
   }
   
   ########################## WEIGHTS GENERATION #################################
   # if weights are not provided, randomly generate them according to the distribution
   if(all(!weights_defined)) {
-    mot_details <- mapply(.generate_coefficients,mot_details,
+    mot_details <- mapply(mtfd:::.generate_coefficients,mot_details,
                           MoreArgs = list(distrib = distribution,
                                           dist_knots = dist_knots,
                                           norder = norder, 
@@ -265,5 +240,6 @@ motifSimulationBuilder <- function(curve_details = list(N,
              distribution = distribution,
              dist_knots=dist_knots,len=len,norder=norder,
              coeff_min=coeff_min,coeff_max=coeff_max,
-             min_dist_motifs=min_dist_motifs))
+             min_dist_motifs=min_dist_motifs,
+             is_appearance_defined = is_appearance_defined))
 }

@@ -3,7 +3,7 @@
 #' @slot name A character string representing the name.
 #' @slot value A numeric value.
 #' @export
-motifSimulation <- setClass("motifSimulation",
+setClass("motifSimulation",
          slots = list(
            N = "numeric",            # Number of curves
            mot_details = "list",     # Details of motifs 
@@ -14,5 +14,6 @@ motifSimulation <- setClass("motifSimulation",
            norder = "numeric",       # Order of spline 
            coeff_min = "numeric",    # Minimum coefficient value
            coeff_max = "numeric",    # Maximum coefficient value
-           min_dist_motifs = "numeric" # Minimum distance between motifs
+           min_dist_motifs = "numeric", # Minimum distance between motifs
+           is_appearance_defined = "logical" # boolean
          ))
