@@ -252,7 +252,7 @@ server <- function(input, output, session) {
       }
       error_str <- fread(input$file2$datapath)
       if(dim(error_str)[1] == 1) {
-        error_str <- as.vector(error_str)
+        error_str <- as.numeric(error_str)
       }else {
         error_str <- as.matrix(error_str)
       }
