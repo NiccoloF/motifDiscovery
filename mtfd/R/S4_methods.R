@@ -50,7 +50,7 @@ setMethod("generateCurves", "motifSimulation", function(object,error_str) {
         if(!is.null(motifs_in_curves_i)) {
           pos_coeff_motifs=unlist(mapply(
             function(a,b) seq(a)+b,
-            rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+objectnorder-1, # number of motifs coefficients for each selected motif
+            rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
             motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
           list_coeff <- lapply(error_str,function(sd_noise){
             coeff[pos_coeff_motifs]=unlist(lapply(motifs_in_curves_i$motif_id, function(id) {

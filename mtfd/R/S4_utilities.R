@@ -118,7 +118,6 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
     print('A longer vector of "weights" is required')
     break
   }
-  
   # add info about motif: id, starting break or point, ending break or point
   base_curve_coeff <- base_curve$or_coeff
   motif_recap <- cbind.data.frame()
@@ -149,22 +148,24 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
                        "basis" = base_curve$basis,
                        "no_error_y" = or_y # curve as vector with no error
   )
-  
   # Error curve
   # add extra error on motif
+  SNR <- list()
   err_y_mat <- list()
   error_str <- .transform_to_matrix(error_str)
   for(k in 1:nrow(error_str)) {
     err_y <- or_y
     error_str_k <- error_str[k,]
+    SNR_num <- c()
+    SNR_den <- c()
     for(i in 1:nrow(mot_pattern)){
       start_break <- mot_pattern[i, "start_break_pos"]
       start_point <- (start_break-1)*dist_knots
-      end_break   <- start_break + mot_basis$nbasis - mot_order + 2 # mot_basis$nbasis - order + 2 
       end_point   <- start_point + mot_len
       err_y <- mtfd:::add_error_to_motif(err_y, error_str_k, start_point, end_point,k)
+      SNR_num <- c(SNR_num,var(no_error_res$no_error_y[start_point:end_point]))
     }
-    
+  
     # and then smooth it again
     mot_breaks <- seq(from = 0, length(err_y), by = dist_knots)
     basisobj = create.bspline.basis(norder = mot_order, breaks = mot_breaks)
@@ -174,14 +175,21 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
                       fdParobj = basisobj) # smooth again given the error on data(pointwise)
     # smoothed again after adding error
     yy <- eval.fd(1:(length(err_y)), ys$fd)
+    for(i in 1:nrow(mot_pattern)) {
+      start_break <- mot_pattern[i, "start_break_pos"]
+      start_point <- (start_break-1)*dist_knots
+      end_point   <- start_point + mot_len
+      SNR_den <- c(SNR_den,var(yy[start_point:end_point] - no_error_res$no_error_y[start_point:end_point]))
+    }
+    SNR[[k]] <- 10 * log10(sum(SNR_num) / sum(SNR_den)) #transform SNR in decibel
     err_y_mat[[k]] <- yy
-    #lines(yy, col='blue')
   }
 
   error_res <- list("error_structure" = error_str,
                     "error_y" = err_y_mat) 
   res <- list("no_error" = no_error_res,
-              "with_error" = error_res)
+              "with_error" = error_res,
+              "SNR" = SNR)
   # create list with 
   return(res)
 }

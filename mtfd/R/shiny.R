@@ -263,7 +263,7 @@ server <- function(input, output, session) {
 
       builder <- mtfd::motifSimulationBuilder(curve_details, mot_details, distribution)
       curves <- mtfd::generateCurves(builder,error_str)
-      
+
       output_file <- file.path(input$path, "plots.pdf")
       
       if (!dir.exists(input$path)) {

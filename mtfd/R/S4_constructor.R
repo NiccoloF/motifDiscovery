@@ -21,7 +21,7 @@ motifSimulationBuilder <- function(curve_details = list(N=20,
   coeff_max <- NULL
   dist_knots <- NULL
   min_dist_motifs <- NULL
-  
+
   if('N' %in% names(curve_details)) {
     N <- curve_details[['N']]
   }else{
