@@ -150,7 +150,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   )
   # Error curve
   # add extra error on motif
-  SNR <- list()
+  SNR <- numeric(nrow(error_str))
   err_y_mat <- list()
   error_str <- .transform_to_matrix(error_str)
   for(k in 1:nrow(error_str)) {
@@ -181,7 +181,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
       end_point   <- start_point + mot_len
       SNR_den <- c(SNR_den,var(yy[start_point:end_point] - no_error_res$no_error_y[start_point:end_point]))
     }
-    SNR[[k]] <- 10 * log10(sum(SNR_num) / sum(SNR_den)) #transform SNR in decibel
+    SNR[k] <- 10 * log10(mean(SNR_num / SNR_den)) #transform SNR in decibel
     err_y_mat[[k]] <- yy
   }
 
@@ -197,7 +197,10 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
 .generate_coefficients <- function(motif_i, distrib, dist_knots, norder, coeff_min, coeff_max) {
   # Calculate the length of the coefficients vector
   l <- motif_i$len / dist_knots + norder - 1
-  if (distrib == "unif") {
+  if(is.numeric(distrib)) {
+    motif_i$weights <- sample(distrib,size = l,replace = TRUE)
+  }
+  else if (distrib == "unif") {
     # Generate coefficients from a uniform distribution
     motif_i$weights <- runif(l, min = coeff_min, max = coeff_max)
   } else if (distrib == "beta") {
@@ -210,7 +213,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
 }
 
 # Check for overlaps and fitting within each curve
-.check_fits <- function(df,min_dist_motifs) {
+.check_fits <- function(df,min_dist_motifs,len) {
   df <- df[order(df$start), ]
   # Check for overlaps
   for (i in seq_len(nrow(df) - 1)) {
@@ -220,7 +223,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   }
   
   # Check if the last motif fits within the curve length
-  if (nrow(df) > 0 && df$end[nrow(df)] > 300) {
+  if (nrow(df) > 0 && df$end[nrow(df)] > len) {
     return(FALSE)
   }
   

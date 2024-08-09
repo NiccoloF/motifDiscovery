@@ -16,60 +16,66 @@ setMethod("generateCurves", "motifSimulation", function(object,error_str) {
   # loop for each curve
   fd_curves <- NULL
   if(!object@is_appearance_defined) {
-    if(is.data.frame(error_str) || is.matrix(error_str)) {
-      stop("error_str must be a single number or a vector")
-    }
+    tryCatch({
+      # Attempt to coerce the input to a numeric vector
+      error_str <- as.numeric(error_str)
+    }, error = function(e) {
+      stop("Input cannot be vectorized.")
+    })
     fd_curves <- mapply(function(motifs_in_curves_i,len_i,basis_i,j,len_motifs){
       list_coeff <- NULL
-      if(object@distribution=='unif'){
+      if(is.numeric(object@distribution)) {
+        or_coeff=sample(object@distribution,size = len_i,replace = TRUE)
+      } else if(object@distribution=='unif'){
         or_coeff=runif(len_i,min=object@coeff_min,max=object@coeff_max) # coefficients of the curve = degree of freedom are initialized uniformly
-        coeff <- or_coeff
-        fda_no_error=fda::fd(coef=coeff,basisobj=basis_i)
-        or_y_no_error <- mtfd:::generate_curve_vector(fda_no_error)
-        if(!is.null(motifs_in_curves_i)) {
-          pos_coeff_motifs=unlist(mapply(
-            function(a,b) seq(a)+b,
-            rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
-            motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
-          list_coeff <- lapply(error_str,function(sd_noise) {
-            coeff[pos_coeff_motifs]= unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
-              print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
-              object@mot_details[[id]]$weights})) +
-              rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
-            # For each chosen coefficient add a uniform number and a gaussian noise
-            coeff[-pos_coeff_motifs]=runif(len_i-length(pos_coeff_motifs),min=object@coeff_min,max=object@coeff_max) # All other curve coefficients are randomly generated
-            return(coeff)
-          })
-        }
-        # Same as before but sampling from a beta
-      }else if(object@distribution=='beta'){
+      } else if(object@distribution=='beta') {  
         or_coeff=object@coeff_min+rbeta(len_i,0.45,0.45)*(object@coeff_max-object@coeff_min) # coefficients of the curve = degree of freedom are initialized uniformly
-        coeff <- or_coeff
-        fda_no_error=fda::fd(coef=coeff,basisobj=basis_i)
-        or_y_no_error <- mtfd:::generate_curve_vector(fda_no_error)
-        if(!is.null(motifs_in_curves_i)) {
-          pos_coeff_motifs=unlist(mapply(
-            function(a,b) seq(a)+b,
-            rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
-            motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
-          list_coeff <- lapply(error_str,function(sd_noise){
-            coeff[pos_coeff_motifs]=unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
-              print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
-              object@mot_details[[id]]$weights})) +
-              rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
-            # For each chosen coefficient add a uniform number and a gaussian noise
-            coeff[-pos_coeff_motifs]=object@coeff_min+rbeta(len_i-length(pos_coeff_motifs),0.45,0.45)*(object@coeff_max-object@coeff_min) # All other curve coefficients are randomly generated
-            return(coeff)
-          })
-        }
-      }else{
+      } else {
         stop('Wrong \'distrib\'')
+      }
+      coeff <- or_coeff
+      fda_no_error=fda::fd(coef=coeff,basisobj=basis_i)
+      or_y_no_error <- mtfd:::generate_curve_vector(fda_no_error)
+      if(!is.null(motifs_in_curves_i)) {
+        pos_coeff_motifs=unlist(mapply(
+          function(a,b) seq(a)+b,
+          rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
+          motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
+        list_coeff <- lapply(error_str,function(sd_noise) {
+          coeff[pos_coeff_motifs]= unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
+            print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
+            object@mot_details[[id]]$weights})) +
+            rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
+          # For each chosen coefficient add a uniform number and a gaussian noise
+          return(coeff)
+        })
       }
       fda_with_error <- NULL
       or_y <- NULL
       if(!is.null(motifs_in_curves_i)) {
         fda_with_error= Map(fda::fd,list_coeff,MoreArgs = list(basisobj=basis_i)) # Fitting curves using such coefficients and basis
         or_y <- Map(mtfd:::generate_curve_vector,fda_with_error)
+        num_motifs <- length(motifs_in_curves_i$motif_id)
+        SNR <- numeric(length(error_str))
+        for (k in seq_along(error_str)) {
+          SNR_num <- numeric(num_motifs)
+          SNR_den <- numeric(num_motifs)
+          
+          # Loop over each motif
+          for (n in seq_along(motifs_in_curves_i$motif_id)) {
+            start_break <- motifs_in_curves_i$starting_coeff_pos[n]
+            start_point <- (start_break - 1) * object@dist_knots
+            end_point   <- start_point + len_motifs[n]
+            
+            # Calculate variance for SNR numerator and denominator
+            SNR_num[n] <- var(or_y_no_error[start_point:end_point])
+            SNR_den[n] <- var(or_y[[k]][start_point:end_point] - or_y_no_error[start_point:end_point])
+          }
+          # Calculate SNR in decibels for the k-th error
+          SNR[k] <- 10 * log10(mean(SNR_num / SNR_den))
+        }
+        return(list(no_error = list(or_coeff = or_coeff,basis = basis_i,no_error_y = or_y_no_error),
+                    with_error = list(error_structure = error_str,error_y = or_y),SNR = SNR))
       }
       return(list(no_error = list(or_coeff = or_coeff,basis = basis_i,no_error_y = or_y_no_error),
                   with_error = list(error_structure = error_str,error_y = or_y)))
@@ -79,10 +85,15 @@ setMethod("generateCurves", "motifSimulation", function(object,error_str) {
     fd_curves <- lapply(1:object@N, function(x){
       coeff <- NULL
       len_i <- object@norder-1+object@len/object@dist_knots
-      if(object@distribution=='unif'){
+      if(is.numeric(object@distribution)) {
+        coeff=sample(object@distribution,size = len_i,replace = TRUE)
+      }
+      else if(object@distribution=='unif'){
         coeff=runif(len_i,min=object@coeff_min,max=object@coeff_max) # If we don't have motifs we sample len_i coefficients uniformely
-      }else{
+      }else if(object@distribution=='beta'){
         coeff=object@coeff_min+rbeta(len_i,0.45,0.45)*(object@coeff_max-object@coeff_min) 
+      }else {
+        stop('Wrong \'distrib\'')
       }
       mtfd:::generate_background_curve(object@len, object@dist_knots, object@norder,coeff, add_noise = TRUE)
     })
@@ -129,12 +140,13 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
         t = seq(0, curves[[k]]$no_error$basis$rangeval[2]-1),
         x = curves[[k]]$no_error$no_error_y)
       names(curve_data_no_error) <- c("t","x")
-      
+ 
       curve_data_error <- NULL
       curve_data_error <- data.frame(
         t = seq(0, curves[[k]]$no_error$basis$rangeval[2]-1),
-        x = curves[[k]]$with_error$error_y)
-      names(curve_data_error) <- c("t",paste0("x",seq(length(curves[[k]]$with_error$error_y))))
+        x = curves[[k]]$with_error$error_y,
+        SNR = unlist(rep(curves[[k]]$SNR[1:length(curves[[k]]$SNR)],len = curves[[k]]$no_error$basis$rangeval[2])))
+      names(curve_data_error) <- c("t",paste0("x",seq(length(curves[[k]]$with_error$error_y))),"SNR")
       
       motif_lines <- mapply(function(id_motif, pos_motif, instance) {
         motif_t = seq((pos_motif - 1) * object@dist_knots,
@@ -170,7 +182,7 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
       p <- lapply(1:length(motif_data),function(j) {
         pic <- ggplot() +
           # Plot the main curve in black
-          geom_line(data = curve_data_no_error, aes(x = t, y = x), color = scales::alpha('gray30',0.15), linewidth = 0.5) + 
+          geom_line(data = curve_data_no_error, aes(x = t, y = x), color = scales::alpha('gray30', 0.15), linewidth = 0.5) + 
           # Plot the error curve in black
           geom_line(data = curve_data_error, aes_string(x = "t", y = paste0("x", j)), color = "black", linewidth = 0.5) +
           # Add shaded rectangles for motif positions with transparency
@@ -179,9 +191,15 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
           geom_line(data = motif_data[[j]], aes(x = t, y = x, color = factor(initial_number), group = motif_id), linewidth = 1.0) + 
           scale_color_manual(values = motif_colors) +
           scale_fill_manual(values = motif_colors) +
-          labs(title = paste('Random curve', k), aes_string(x = "t", y = paste0("x", j))) +
+          # Add SNR to the title
+          labs(
+            title = paste('Random curve', k, '- SNR:', round(curve_data_error$SNR[j],3)), 
+            x = "t", 
+            y = paste0("x", j)
+          ) +
           theme_minimal(base_size = 15) +
           guides(color = guide_legend(title = "Motif ID"), fill = guide_legend(title = "Motif ID"))
+        
         return(pic)
       }) 
       Map(print,p)

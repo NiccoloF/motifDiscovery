@@ -131,7 +131,7 @@ motifSimulationBuilder <- function(curve_details = list(N=20,
       )
     # Apply the check for each curve
     valid_curves <- mapply(function(sub_data) {
-                            mtfd:::.check_fits(sub_data, min_dist_motifs = min_dist_motifs)
+                            mtfd:::.check_fits(sub_data, min_dist_motifs = min_dist_motifs,len = len)
                           },
                           split(motif_str_new, motif_str_new$curve), 
                           SIMPLIFY = TRUE)
@@ -171,8 +171,9 @@ motifSimulationBuilder <- function(curve_details = list(N=20,
         freq_motifs[curve_i, motif_j] <-  freq_motifs[curve_i, motif_j] + count
       }
     }
+    freq_motifs=split(freq_motifs,rep(1:N,nmotifs))
     ifelse(TRUE %in% mapply(function(freq_motifs_i,len_i) ((len_i-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_i,length.out=nmotifs))+(sum(freq_motifs_i)-1)*(min_dist_motifs/dist_knots-norder+1))),
-                            freq_motifs,norder-1+rep(len/dist_knots,length.out=N)),"",stop('Please select lower \'freq_motifs\'.'))
+                            freq_motifs,norder-1+rep(len/dist_knots,length.out=N)),stop('Please select lower \'freq_motifs\'.'),"")
   }
   
   ########################## POSITION ASSIGNMENT ###############################
