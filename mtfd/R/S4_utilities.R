@@ -23,8 +23,12 @@
     # check"with_error" field
     if (!"with_error" %in% names(lst[[i]])) {
       # Create a new sub-list
+      background <- list(or_coeff = lst[[i]]$or_coeff,    
+                    no_error_y = lst[[i]]$no_error_y)
       lst[[i]] <- list(
-        no_error = lst[[i]],
+        basis = lst[[i]]$basis,
+        background = background,
+        no_noise = lst[[i]]$no_noise,
         with_error = list(
           error_structure = mtfd:::.transform_to_matrix(error_str),
           error_y = NULL)
@@ -99,15 +103,14 @@ generate_background_curve <- function(len, dist_knots, norder, weights, add_nois
   }
   
   # create list with:
-  res <- list("or_coeff" = or_coeff,
-              "basis" = basis,
+  res <- list("basis" = basis,
+              "or_coeff" = or_coeff,
               "no_error_y" = or_y # curve as vector with no error
   ) 
   return(res)
 }
 
 add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, mot_weights, error_str){
-  
   # create knots and generate the corresponding b-spline basis for every curve
   mot_breaks <- seq(from = 0, mot_len, by = dist_knots)
   mot_basis  <- create.bspline.basis(norder = mot_order, breaks = mot_breaks)
@@ -120,6 +123,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   }
   # add info about motif: id, starting break or point, ending break or point
   base_curve_coeff <- base_curve$or_coeff
+  base_y <- generate_curve_vector(fd_curve = fd(base_curve_coeff, base_curve$basis))
   motif_recap <- cbind.data.frame()
   err_y_list <- list()
   add_err_y_list <- list()
@@ -144,13 +148,13 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   # Generate curve vector with no noise
   or_y <- generate_curve_vector(fd_curve = fd_curve)
   
+  background <- list("or_coeff" = base_curve$or_coeff,
+                     "no_error_y" = base_y)
   no_error_res <- list("or_coeff" = base_curve_coeff,
-                       "basis" = base_curve$basis,
-                       "no_error_y" = or_y # curve as vector with no error
-  )
+                       "motif_y" = or_y)
   # Error curve
   # add extra error on motif
-  SNR <- numeric(nrow(error_str))
+  SNR <- c()
   err_y_mat <- list()
   error_str <- .transform_to_matrix(error_str)
   for(k in 1:nrow(error_str)) {
@@ -163,7 +167,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
       start_point <- (start_break-1)*dist_knots
       end_point   <- start_point + mot_len
       err_y <- mtfd:::add_error_to_motif(err_y, error_str_k, start_point, end_point,k)
-      SNR_num <- c(SNR_num,var(no_error_res$no_error_y[start_point:end_point]))
+      SNR_num <- c(SNR_num,var(no_error_res$motif_y[start_point:end_point]))
     }
   
     # and then smooth it again
@@ -179,15 +183,17 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
       start_break <- mot_pattern[i, "start_break_pos"]
       start_point <- (start_break-1)*dist_knots
       end_point   <- start_point + mot_len
-      SNR_den <- c(SNR_den,var(yy[start_point:end_point] - no_error_res$no_error_y[start_point:end_point]))
+      SNR_den <- c(SNR_den,var(yy[start_point:end_point] - no_error_res$motif_y[start_point:end_point]))
     }
-    SNR[k] <- 10 * log10(mean(SNR_num / SNR_den)) #transform SNR in decibel
+    SNR <- c(SNR,10 * log10(mean(SNR_num / SNR_den))) #transform SNR in decibel
     err_y_mat[[k]] <- yy
   }
 
   error_res <- list("error_structure" = error_str,
                     "error_y" = err_y_mat) 
-  res <- list("no_error" = no_error_res,
+  res <- list("basis" = base_curve$basis,
+              "background" = background,
+              "no_noise" = no_error_res,
               "with_error" = error_res,
               "SNR" = SNR)
   # create list with 

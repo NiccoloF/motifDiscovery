@@ -4,61 +4,15 @@
 #' @param value A numeric value.
 #' @return An object of class MyS4Class.
 #' @export
-motifSimulationBuilder <- function(curve_details = list(N=20,
-                                                        len = 300,
-                                                        norder = 3,
-                                                        coeff_min=-15,
-                                                        coeff_max=15,
-                                                        dist_knots=10,
-                                                        min_dist_motifs=norder * dist_knots),
-                                   mot_details,
+motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
+                                   coeff_min=-15,coeff_max=15,
+                                   dist_knots=10,min_dist_motifs=NULL,
                                    distribution = 'unif') {
-  ########################## UNPACKING #################################
-  N <- NULL
-  len <- NULL
-  norder <- NULL
-  coeff_min <- NULL
-  coeff_max <- NULL
-  dist_knots <- NULL
-  min_dist_motifs <- NULL
-
-  if('N' %in% names(curve_details)) {
-    N <- curve_details[['N']]
-  }else{
-    N <- curve_details[[1]]
-  }
-  if('len' %in% names(curve_details)) {
-    len <- curve_details[['len']]
-  }else{
-    len <- curve_details[[2]]
-  }
-  if('norder' %in% names(curve_details)) {
-    norder <- curve_details[['norder']]
-  }else{
-    norder <- curve_details[[3]]
-  }
-  if('coeff_min' %in% names(curve_details)) {
-    coeff_min <- curve_details[['coeff_min']]
-  }else{
-    coeff_min <- curve_details[[4]]
-  }
-  if('coeff_max' %in% names(curve_details)) {
-    coeff_max <- curve_details[['coeff_max']]
-  }else{
-    coeff_max <- curve_details[[5]]
-  }
-  if('dist_knots' %in% names(curve_details)) {
-    dist_knots <- curve_details[['dist_knots']]
-  }else{
-    dist_knots <- curve_details[[6]]
-  }
-  if('min_dist_motifs' %in% names(curve_details)) {
-    min_dist_motifs <- curve_details[['min_dist_motifs']]
-  }else{
-    min_dist_motifs <- curve_details[[7]]
+  ########################## CHECKS #################################
+  if(is.null(min_dist_motifs)) {
+    min_dist_motifs <- norder * dist_knots
   }
   
-  ########################## CHECKS #################################
   # check N, dist_knots and len
   if((N%%1!=0)|(N<1))
     stop('Invalid \'N\'.')

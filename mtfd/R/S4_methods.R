@@ -3,19 +3,19 @@
 #' @param object An object of class MyS4Class.
 #' @export
 # error_str can be a vector or a matrix with n_cols = motif_len
-setGeneric("generateCurves", function(object,error_str) {
+setGeneric("generateCurves", function(object,error_type,error_str) {
   standardGeneric("generateCurves")
 })
 
 #' @rdname showDetails
 #' @export
-setMethod("generateCurves", "motifSimulation", function(object,error_str) {
+setMethod("generateCurves", "motifSimulation", function(object,error_type,error_str) {
   breaks=lapply(rep(object@len,length.out=object@N),seq,from=0,by=object@dist_knots) # generate N lists with equally spaced nodes 'dist_knots' from 0 to 'len'
   basis=lapply(breaks,function(breaks_i) create.bspline.basis(norder=object@norder,breaks=breaks_i)) # nbasis = norder + nbreaks - 2 = norder + interior_knots,
   len_motifs <- unlist(lapply(object@mot_details,function(x){x$len}))
   # loop for each curve
   fd_curves <- NULL
-  if(!object@is_appearance_defined) {
+  if(error_type == 'coeff') {
     tryCatch({
       # Attempt to coerce the input to a numeric vector
       error_str <- as.numeric(error_str)
@@ -42,7 +42,7 @@ setMethod("generateCurves", "motifSimulation", function(object,error_str) {
           rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
           motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
         list_coeff <- lapply(error_str,function(sd_noise) {
-          coeff[pos_coeff_motifs]= unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
+          coeff[pos_coeff_motifs] = unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
             print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
             object@mot_details[[id]]$weights})) +
             rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
@@ -52,11 +52,21 @@ setMethod("generateCurves", "motifSimulation", function(object,error_str) {
       }
       fda_with_error <- NULL
       or_y <- NULL
+      
       if(!is.null(motifs_in_curves_i)) {
+        pos_coeff_motifs=unlist(mapply(
+          function(a,b) seq(a)+b,
+          rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
+          motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE))
+        coeff[pos_coeff_motifs] <- unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
+                                                 object@mot_details[[id]]$weights}))
+        fda_with_motif <- fda::fd(coef=coeff,basisobj=basis_i)
+        or_y_motif <- mtfd:::generate_curve_vector(fda_with_motif)
+        
         fda_with_error= Map(fda::fd,list_coeff,MoreArgs = list(basisobj=basis_i)) # Fitting curves using such coefficients and basis
         or_y <- Map(mtfd:::generate_curve_vector,fda_with_error)
         num_motifs <- length(motifs_in_curves_i$motif_id)
-        SNR <- numeric(length(error_str))
+        SNR <- c()
         for (k in seq_along(error_str)) {
           SNR_num <- numeric(num_motifs)
           SNR_den <- numeric(num_motifs)
@@ -72,16 +82,19 @@ setMethod("generateCurves", "motifSimulation", function(object,error_str) {
             SNR_den[n] <- var(or_y[[k]][start_point:end_point] - or_y_no_error[start_point:end_point])
           }
           # Calculate SNR in decibels for the k-th error
-          SNR[k] <- 10 * log10(mean(SNR_num / SNR_den))
+          SNR <- c(SNR,10 * log10(SNR_num / SNR_den))
         }
-        return(list(no_error = list(or_coeff = or_coeff,basis = basis_i,no_error_y = or_y_no_error),
+        return(list(basis = basis_i,
+                    background = list(or_coeff = or_coeff,no_error_y = or_y_no_error),
+                    no_noise = list(or_coeff = coeff,motif_y = or_y_motif),
                     with_error = list(error_structure = error_str,error_y = or_y),SNR = SNR))
       }
-      return(list(no_error = list(or_coeff = or_coeff,basis = basis_i,no_error_y = or_y_no_error),
+      return(list(basis = basis_i,
+                  background = list(or_coeff = or_coeff,no_error_y = or_y_no_error),
                   with_error = list(error_structure = error_str,error_y = or_y)))
     },object@motifs_in_curves,object@norder-1+rep(object@len/object@dist_knots,length.out=object@N),basis,1:object@N,MoreArgs = list(len_motifs),SIMPLIFY=FALSE)
     
-  }else{
+  }else if(error_type == 'pointwise'){
     fd_curves <- lapply(1:object@N, function(x){
       coeff <- NULL
       len_i <- object@norder-1+object@len/object@dist_knots
@@ -115,6 +128,8 @@ setMethod("generateCurves", "motifSimulation", function(object,error_str) {
       }
     }
     fd_curves <- mtfd:::.transform_list(fd_curves,error_str)
+  } else {
+    stop("\'error_type\' must be choosen between \'coeff\' and \'pointwise\'")
   }
   return(fd_curves = fd_curves)
 })
@@ -137,15 +152,16 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
   for (k in seq_along(curves)) {
     if(!is.null(curves[[k]]$with_error$error_y)) {
       curve_data_no_error <- data.frame(
-        t = seq(0, curves[[k]]$no_error$basis$rangeval[2]-1),
-        x = curves[[k]]$no_error$no_error_y)
-      names(curve_data_no_error) <- c("t","x")
+        t = seq(0, curves[[k]]$basis$rangeval[2]-1),
+        x = curves[[k]]$background$no_error_y,
+        z = curves[[k]]$no_noise$motif_y)
+      names(curve_data_no_error) <- c("t","x","z")
  
       curve_data_error <- NULL
       curve_data_error <- data.frame(
-        t = seq(0, curves[[k]]$no_error$basis$rangeval[2]-1),
+        t = seq(0, curves[[k]]$basis$rangeval[2]-1),
         x = curves[[k]]$with_error$error_y,
-        SNR = unlist(rep(curves[[k]]$SNR[1:length(curves[[k]]$SNR)],len = curves[[k]]$no_error$basis$rangeval[2])))
+        SNR = unlist(rep(curves[[k]]$SNR[1:length(curves[[k]]$SNR)],len = curves[[k]]$basis$rangeval[2])))
       names(curve_data_error) <- c("t",paste0("x",seq(length(curves[[k]]$with_error$error_y))),"SNR")
       
       motif_lines <- mapply(function(id_motif, pos_motif, instance) {
@@ -179,29 +195,68 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
         motif_data[[i]] <- bind_rows(dataframes_at_level_i)
         names(motif_data[[i]]) <- c("t","x","motif_id","initial_number","xmin","xmax")
       }
-      p <- lapply(1:length(motif_data),function(j) {
+      p <- lapply(1:length(motif_data), function(j) {
+        # Creare i label dei motif_id
+        motif_labels <- paste("motif_id:", unique(motif_data[[j]]$initial_number))
+        
         pic <- ggplot() +
-          # Plot the main curve in black
-          geom_line(data = curve_data_no_error, aes(x = t, y = x), color = scales::alpha('gray30', 0.15), linewidth = 0.5) + 
+          # Plot the main curve in gray30 and add it to the legend
+          geom_line(data = curve_data_no_error, aes(x = t, y = x, color = 'background_curve'), linewidth = 0.5) +
+          # Plot the curve with motifs in gold and add it to the legend
+          geom_line(data = curve_data_no_error, aes(x = t, y = z, color = 'with_motif'), linewidth = 0.5) +
           # Plot the error curve in black
           geom_line(data = curve_data_error, aes_string(x = "t", y = paste0("x", j)), color = "black", linewidth = 0.5) +
           # Add shaded rectangles for motif positions with transparency
-          geom_rect(data = motif_data[[j]], aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = initial_number), alpha = 0.005) +
+          geom_rect(data = motif_data[[j]], 
+                    aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = factor(initial_number)), 
+                    alpha = 0.005) +
+          # Add SNR text on top of each rectangle
+          geom_text(data = motif_data[[j]], 
+                    aes(x = (xmin + xmax) / 2, y = Inf, 
+                        label = paste("SNR:", round(curve_data_error$SNR[j], 3))), 
+                    vjust = 1.5, color = "black", size = 3.5) +  
           # Plot motifs with distinct colors
           geom_line(data = motif_data[[j]], aes(x = t, y = x, color = factor(initial_number), group = motif_id), linewidth = 1.0) + 
-          scale_color_manual(values = motif_colors) +
-          scale_fill_manual(values = motif_colors) +
-          # Add SNR to the title
+          # Add color and fill scales with custom labels for motif_id
+          scale_color_manual(
+            values = c('background_curve' = scales::alpha('gray30', 0.15), 
+                       'with_motif' = 'gold', 
+                       motif_colors),
+            labels = c('background_curve' = 'background_curve', 
+                       'with_motif' = 'with_motif', 
+                       setNames(motif_labels, unique(motif_data[[j]]$initial_number)))  # Correctly map labels to motif ids
+          ) +
+          scale_fill_manual(
+            values = motif_colors, 
+            labels = setNames(motif_labels, unique(motif_data[[j]]$initial_number))  # Correctly map labels to motif ids
+          ) +
+          # Title without SNR
           labs(
-            title = paste('Random curve', k, '- SNR:', round(curve_data_error$SNR[j],3)), 
+            title = paste0('<b><span style="color:#0073C2;">Random curve ', k,' - type_error ',ifelse(j%%length(curves[[k]]$with_error$error_y)==0,length(curves[[k]]$with_error$error_y),j%%length(curves[[k]]$with_error$error_y)),'</span></b>'), 
             x = "t", 
             y = paste0("x", j)
           ) +
+          # Apply a clean theme with a subtle grid
           theme_minimal(base_size = 15) +
-          guides(color = guide_legend(title = "Motif ID"), fill = guide_legend(title = "Motif ID"))
+          theme(
+            plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, margin = margin(b = 10)),  # Enhanced title with colors
+            axis.title = element_text(size = 14, margin = margin(t = 10)),  # Add margin to axis titles
+            axis.text = element_text(size = 12),  # Reduce axis text size
+            legend.text = element_text(size = 12),  # Adjust legend text size
+            legend.position = "right",  # Position the legend to the right
+            legend.box.margin = margin(10, 10, 10, 10),  # Add margin around the legend
+            plot.margin = margin(15, 15, 15, 15),  # Increase plot margins
+            panel.grid.major = element_line(color = "gray90"),  # Lighten the grid lines
+            panel.grid.minor = element_blank()  # Remove minor grid lines for a cleaner look
+          ) +
+          guides(
+            color = guide_legend(ncol = 1, byrow = TRUE, title = NULL),  # Remove the title from the color legend
+            fill = FALSE  # Hide the fill legend
+          )
         
         return(pic)
-      }) 
+      })
+      
       Map(print,p)
     }
   }
