@@ -17,6 +17,5 @@ setClass("motifSimulation",
            norder = "numeric",       # Order of spline 
            coeff_min = "numeric",    # Minimum coefficient value
            coeff_max = "numeric",    # Maximum coefficient value
-           min_dist_motifs = "numeric", # Minimum distance between motifs
-           is_appearance_defined = "logical" # boolean
+           min_dist_motifs = "numeric" # Minimum distance between motifs
          ))

@@ -48,31 +48,34 @@ generate_curve_vector <- function(fd_curve, step_by = 1, Lfdobj = 0){
 
 # add an additive noise to the final curve(motif)
 add_error_to_motif <- function(or_y, error_str, start_point, end_point,k){
+  err_y <- or_y
   # --- additive noise
   # noise to be added as a percentage of sd(motif) with mean 0
-  if(length(start_point:end_point) - 1 > length(error_str)) {
+  error_str_temp <- error_str
+  for(n in seq_along(start_point)) {
+    if(length(start_point[n]:end_point[n]) - 1 > length(error_str)) {
+      
+      warning(paste("error structure on row",k,"is long",length(error_str),
+                    "but the motif is long",length(start_point[n]:end_point[n]) - 1,". -- Extension"))
+      # Last value
+      last_value <- tail(error_str, 1)
+      
+      # Extention 
+      error_str_temp <- c(error_str, rep(last_value, length(start_point[n]:end_point[n]) - length(error_str)))
+    }else if(length(start_point[n]:end_point[n]) - 1 < length(error_str)) {
+      
+      warning(paste("error structure on row",k,"is long",length(error_str),
+                    "but the motif is long",length(start_point[n]:end_point[n]) - 1,". -- Truncation"))
+      #Truncation
+      error_str_temp <- error_str[1:length(start_point[n]:end_point[n])]
+    }
     
-    warning(paste("error structure on row",k,"is long",length(error_str),
-                  "but the motif is long",length(start_point:end_point) - 1,". -- Extension"))
-    # Last value
-    last_value <- tail(error_str, 1)
-    
-    # Extention 
-    error_str <- c(error_str, rep(last_value, length(start_point:end_point) - length(error_str)))
-  }else if(length(start_point:end_point) - 1 < length(error_str)) {
-    
-    warning(paste("error structure on row",k,"is long",length(error_str),
-                  "but the motif is long",length(start_point:end_point) - 1,". -- Truncation"))
-    #Truncation
-    error_str <- error_str[1:length(start_point:end_point)]
-  }
-  noise_coeff <- rnorm(length(start_point:end_point) - 1,
-                       mean = 0,
-                       sd = sd(or_y[start_point:end_point])*error_str)
+    noise_coeff <- rnorm(length(start_point[n]:end_point[n]) - 1,
+                         mean = 0,
+                         sd = sd(or_y[start_point[n]:end_point[n]])*error_str_temp)
   # add noise
-  err_y <- or_y
-  err_y[(start_point+1):end_point] <- err_y[(start_point+1):end_point] + noise_coeff
-  
+    err_y[(start_point[n]+1):end_point[n]] <- err_y[(start_point[n]+1):end_point[n]] + noise_coeff
+  }
   return(err_y)
 }
 
@@ -112,32 +115,32 @@ generate_background_curve <- function(len, dist_knots, norder, weights, add_nois
 
 add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, mot_weights, error_str){
   # create knots and generate the corresponding b-spline basis for every curve
-  mot_breaks <- seq(from = 0, mot_len, by = dist_knots)
+  max_len <- max(mot_len[2])
+  mot_breaks <- seq(from = 0,max_len,by = dist_knots)
   mot_basis  <- create.bspline.basis(norder = mot_order, breaks = mot_breaks)
   
-  if(length(mot_weights) >= mot_basis$nbasis){
-    mot_coeff <- mot_weights[1:(mot_basis$nbasis)]
-  } else {
-    print('A longer vector of "weights" is required')
-    break
+  mot_coeff <- vector("list")
+  for(j in names(mot_weights)) {
+    if(length(mot_weights[[j]]) >= floor(mot_len[mot_len[,1]==as.numeric(j),2] / dist_knots) + 1 + mot_order - 2) { #nbreaks + norder - 2
+      mot_coeff[[j]] <- mot_weights[[j]][1:(floor(mot_len[mot_len[,1]==as.numeric(j),2] / dist_knots) + 1 + mot_order - 2)]
+    }
+    else('A longer vector of "weights" is required')
   }
+  
+  #if(length(mot_weights) >= mot_basis$nbasis){
+  #  mot_coeff <- mot_weights[1:(mot_basis$nbasis)]
+  #} else {
+  #  stop('A longer vector of "weights" is required')
+  #}
   # add info about motif: id, starting break or point, ending break or point
   base_curve_coeff <- base_curve$or_coeff
   base_y <- generate_curve_vector(fd_curve = fd(base_curve_coeff, base_curve$basis))
-  motif_recap <- cbind.data.frame()
-  err_y_list <- list()
-  add_err_y_list <- list()
-  for(i in 1:nrow(mot_pattern)){
-    start_break <- mot_pattern[i, "start_break_pos"] # select the first coefficient 
-    start_point <- (start_break-1)*dist_knots # select the first knots
-    end_break   <- start_break + mot_basis$nbasis - mot_order + 2 # select the last coefficient  DA CAMBIARE
-    end_point   <- start_point + mot_len # select the last knots
-    motif_recap[i, "motif_id"]   <- mot_pattern[i, "motif_id"]
-    motif_recap[i,"start_break_pos"] <- start_break
-    motif_recap[i,"start_point"] <- start_point
-    motif_recap[i,"end_break_pos"]   <- end_break
-    motif_recap[i,"end_point"]   <- end_point
-    base_curve_coeff[start_break:end_break] <- mot_coeff
+  for(i in names(mot_weights)){
+    start_break <- mot_pattern[mot_pattern[,1]==as.numeric(i), "start_break_pos"] # select the first coefficient 
+    end_break   <- start_break + floor(mot_len[mot_len[,1]==as.numeric(i),2] / dist_knots) + mot_order - 2 
+    for (n in seq_along(start_break)) {
+      base_curve_coeff[start_break[n]:end_break[n]] <- mot_coeff[[i]] 
+    }
   }
   
   # Errorless curve
@@ -154,22 +157,23 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
                        "motif_y" = or_y)
   # Error curve
   # add extra error on motif
-  SNR <- c()
   err_y_mat <- list()
   error_str <- .transform_to_matrix(error_str)
+  SNR <- vector("list",nrow(error_str))
   for(k in 1:nrow(error_str)) {
     err_y <- or_y
     error_str_k <- error_str[k,]
-    SNR_num <- c()
-    SNR_den <- c()
-    for(i in 1:nrow(mot_pattern)){
-      start_break <- mot_pattern[i, "start_break_pos"]
+    SNR_num <- data.frame(xmin = numeric(), xmax = numeric(), SNR = numeric(), stringsAsFactors = FALSE)
+    SNR_den <- data.frame(xmin = numeric(), xmax = numeric(), SNR = numeric(), stringsAsFactors = FALSE)
+    for(i in names(mot_weights)){
+      start_break <- mot_pattern[mot_pattern[,1]==as.numeric(i), "start_break_pos"] # select the first coefficient 
       start_point <- (start_break-1)*dist_knots
-      end_point   <- start_point + mot_len
+      end_point   <- start_point + mot_len[mot_len[,1]==as.numeric(i),"len"]
       err_y <- mtfd:::add_error_to_motif(err_y, error_str_k, start_point, end_point,k)
-      SNR_num <- c(SNR_num,var(no_error_res$motif_y[start_point:end_point]))
+      for(n in seq_along(start_point)) {
+        SNR_num <- rbind(SNR_num,data.frame(xmin =start_point[n],xmax = end_point[n],SNR = var(no_error_res$motif_y[start_point[n]:end_point[n]])))
+      }
     }
-  
     # and then smooth it again
     mot_breaks <- seq(from = 0, length(err_y), by = dist_knots)
     basisobj = create.bspline.basis(norder = mot_order, breaks = mot_breaks)
@@ -179,13 +183,16 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
                       fdParobj = basisobj) # smooth again given the error on data(pointwise)
     # smoothed again after adding error
     yy <- eval.fd(1:(length(err_y)), ys$fd)
-    for(i in 1:nrow(mot_pattern)) {
-      start_break <- mot_pattern[i, "start_break_pos"]
+    for(i in names(mot_weights)) {
+      start_break <- mot_pattern[mot_pattern[,1]==as.numeric(i), "start_break_pos"] # select the first coefficient 
       start_point <- (start_break-1)*dist_knots
-      end_point   <- start_point + mot_len
-      SNR_den <- c(SNR_den,var(yy[start_point:end_point] - no_error_res$motif_y[start_point:end_point]))
+      end_point   <- start_point + mot_len[mot_len[,1]==as.numeric(i),"len"]
+      for(n in seq_along(start_point)) {
+        SNR_den <- rbind(SNR_den,data.frame(xmin=start_point[n],xmax=end_point[n],SNR=var(yy[start_point[n]:end_point[n]] - no_error_res$motif_y[start_point[n]:end_point[n]])))
+      }
     }
-    SNR <- c(SNR,10 * log10(mean(SNR_num / SNR_den))) #transform SNR in decibel
+    SNR[[k]] <- SNR_num
+    SNR[[k]]$SNR <- 10 * log10(SNR_num$SNR / SNR_den$SNR) #transform SNR in decibel
     err_y_mat[[k]] <- yy
   }
 

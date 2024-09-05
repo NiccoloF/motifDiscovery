@@ -195,6 +195,5 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
              distribution = distribution,
              dist_knots=dist_knots,len=len,norder=norder,
              coeff_min=coeff_min,coeff_max=coeff_max,
-             min_dist_motifs=min_dist_motifs,
-             is_appearance_defined = is_appearance_defined))
+             min_dist_motifs=min_dist_motifs))
 }
