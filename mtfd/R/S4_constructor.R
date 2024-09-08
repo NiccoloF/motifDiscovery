@@ -12,7 +12,10 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
   if(is.null(min_dist_motifs)) {
     min_dist_motifs <- norder * dist_knots
   }
-  
+  mot_details <- lapply(mot_details,function(mot){names(mot) <- c("len","coeffs","occurrences")
+                                                  if(is.data.frame(mot[[3]]) || is.matrix(mot[[3]])) { 
+                                                    names(mot[[3]]) <- c("motif_id", "curve","start_break_pos") }
+                                                  return(mot)})
   # check N, dist_knots and len
   if((N%%1!=0)|(N<1))
     stop('Invalid \'N\'.')
@@ -23,9 +26,9 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
   if(length(mot_details) == 0)
     stop('Invalid \'mot_details\'.')
   
-  weights_defined <- sapply(mot_details, function(x) !is.null(x$weights))
+  weights_defined <- sapply(mot_details, function(x) !is.null(x$coeffs))
   if (!(all(weights_defined) || all(!weights_defined))) {
-    stop("Inconsistent weights field: some elements have it defined, others do not.")
+    stop("Inconsistent coefficients field: some elements have it defined, others do not.")
   }
   
   len_motifs <- sapply(mot_details,function(x){x$len},simplify = TRUE)
@@ -33,7 +36,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
   if(TRUE %in% weights_defined) {
     for(i in 1:nmotifs){
       nbasis <- len_motifs[i]/dist_knots + norder - 1
-      mot_details[[i]]$weights <- mot_details[[i]]$weights[1:nbasis]
+      mot_details[[i]]$coeffs <- mot_details[[i]]$coeffs[1:nbasis]
       
     }
   }
@@ -45,19 +48,19 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
   
   if (FALSE %in% unlist(lapply(mot_details, function(x) {
     if (all(weights_defined)) {
-      x$len == (length(x$weights)-norder+1)*dist_knots
+      x$len == (length(x$coeffs)-norder+1)*dist_knots
     } else {
       TRUE
     }
   }))) {
-    stop("The length of the motifs is incompatible ")
+    stop("The length of the motifs is incompatible")
   }
   # check min_dist_motifs
   if((min_dist_motifs < norder*dist_knots)|(min_dist_motifs%%dist_knots>0))
     stop('Invalid \'min_dist_motifs\'.')
   # check freq_motifs and convert it into a list with the frequencies for the different motifs in the different curves
   
-  freq_motifs_vector <- sapply(mot_details,function(mot_i){ifelse(is.data.frame(mot_i$appearance),dim(mot_i$appearance['curve'])[1],NA)})
+  freq_motifs_vector <- sapply(mot_details,function(mot_i){ifelse(is.data.frame(mot_i$occurrences),dim(mot_i$occurrences['curve'])[1],NA)})
   is_appearance_defined <- !(NA %in% freq_motifs_vector)
   if(sum(is.na(freq_motifs_vector)) != 0 && sum(is.na(freq_motifs_vector)) != nmotifs) {
     stop("Inconsistent appearance field: some elements have it defined, others do not.")
@@ -67,7 +70,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
     if(TRUE %in% ((freq_motifs_vector%%1!=0)|(freq_motifs_vector<1)|(sum(norder-1+rep(len/dist_knots,length.out=N)-2*(norder-1))<(sum(rep(len_motifs/dist_knots+norder-1,length.out=nmotifs)*rep(freq_motifs_vector,length.out=nmotifs))+max(0,sum(rep(freq_motifs_vector, length.out = nmotifs))-N)*(min_dist_motifs/dist_knots-norder+1)))))
       stop('Invalid \'freq_motifs\'.')
     motif_str_list <- lapply(mot_details, function(x) {
-      df <- x$appearance
+      df <- x$occurrences
       len <- x$len
       df$len <- len  # Add the length to each motif dataframe
       return(df)
@@ -96,17 +99,15 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
     }
   }
   
-  
   freq_check=1
   it=0
-  
   # Compute the frequency(if not defined) of the motifs inside the curves 
   if(!is_appearance_defined) {
     while((sum(freq_check)>0)&&(it<10000)){
       it=it+1
       freq_motifs <- matrix(data = 0,nrow = N,ncol = nmotifs)
       for(motif_j in 1:nmotifs) {
-        curves <- as.vector(sample(N,mot_details[[motif_j]]$appearance,replace=TRUE))
+        curves <- as.vector(sample(N,mot_details[[motif_j]]$occurrences,replace=TRUE))
         for (curve in curves) {
           freq_motifs[curve, motif_j] <- freq_motifs[curve, motif_j] + 1
         }
@@ -121,7 +122,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
     freq_motifs <- matrix(data = 0,nrow = N,ncol = nmotifs)
     for(motif_j in 1:nmotifs) {
       for(curve_i in 1:N){
-        count <- sum(mot_details[[motif_j]]$appearance$curve == curve_i)
+        count <- sum(mot_details[[motif_j]]$occurrences$curve == curve_i)
         freq_motifs[curve_i, motif_j] <-  freq_motifs[curve_i, motif_j] + count
       }
     }
@@ -137,7 +138,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
   if (!is_appearance_defined) {
     # Initialize appearance for each motif
     for (mot in 1:nmotifs) {
-      mot_details[[mot]]$appearance <- data.frame(motif_id = integer(0),
+      mot_details[[mot]]$occurrences <- data.frame(motif_id = integer(0),
                                                   curve = integer(0),
                                                   start_break_pos = integer(0),
                                                   coeff_pos = integer(0))
@@ -161,7 +162,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
           curve = rep(curve_i, length(indices)),
           start_break_pos = coeff_pos[indices] # coincide with the coeffs position
         )
-        mot_details[[mot]]$appearance <<- rbind(mot_details[[mot]]$appearance, df)
+        mot_details[[mot]]$occurrences <<- rbind(mot_details[[mot]]$occurrences, df)
       }
       
       return(list(motif_id=id_motifs,starting_coeff_pos=coeff_pos)) # returns N list(one for each curve) with the id of the motif embedded and the starting position

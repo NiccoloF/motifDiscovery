@@ -44,7 +44,7 @@ setMethod("generateCurves", "motifSimulation", function(object,error_type,error_
         list_coeff <- lapply(error_str,function(sd_noise) {
           coeff[pos_coeff_motifs] = unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
             print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
-            object@mot_details[[id]]$weights})) +
+            object@mot_details[[id]]$coeffs})) +
             rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
           # For each chosen coefficient add a uniform number and a gaussian noise
           return(coeff)
@@ -59,7 +59,7 @@ setMethod("generateCurves", "motifSimulation", function(object,error_type,error_
           rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
           motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE))
         coeff[pos_coeff_motifs] <- unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
-                                                 object@mot_details[[id]]$weights}))
+                                                 object@mot_details[[id]]$coeffs}))
         fda_with_motif <- fda::fd(coef=coeff,basisobj=basis_i)
         or_y_motif <- mtfd:::generate_curve_vector(fda_with_motif)
         
@@ -88,11 +88,11 @@ setMethod("generateCurves", "motifSimulation", function(object,error_type,error_
         return(list(basis = basis_i,
                     background = list(or_coeff = or_coeff,no_error_y = or_y_no_error),
                     no_noise = list(or_coeff = coeff,motif_y = or_y_motif),
-                    with_error = list(error_structure = error_str,error_y = or_y),SNR = SNR))
+                    with_error = list(error_structure = error_str,error_y = or_y),
+                    SNR = SNR))
       }
       return(list(basis = basis_i,
-                  background = list(or_coeff = or_coeff,no_error_y = or_y_no_error),
-                  with_error = list(error_structure = error_str,error_y = or_y)))
+                  background = list(or_coeff = or_coeff,no_error_y = or_y_no_error)))
     },object@motifs_in_curves,object@norder-1+rep(object@len/object@dist_knots,length.out=object@N),basis,1:object@N,MoreArgs = list(len_motifs),SIMPLIFY=FALSE)
     
   }else if(error_type == 'pointwise'){
@@ -112,15 +112,15 @@ setMethod("generateCurves", "motifSimulation", function(object,error_type,error_
       mtfd:::generate_background_curve(object@len, object@dist_knots, object@norder,coeff, add_noise = TRUE)
     })
     
-    curve_ids <- unique(unlist(sapply(object@mot_details,function(mot_details){mot_details$appearance$curve})))
+    curve_ids <- unique(unlist(sapply(object@mot_details,function(mot_details){mot_details$occurrences$curve})))
     for(j in curve_ids){
       print(paste(" --- Adding motifs to curve", j))
       temp_curve <- fd_curves[[j]]
-      temp_pattern <- do.call(rbind,lapply(object@mot_details,function(mot_details){(mot_details$appearance %>% filter(curve == j)) %>% dplyr::select(motif_id, start_break_pos)}))
+      temp_pattern <- do.call(rbind,lapply(object@mot_details,function(mot_details){(mot_details$occurrences %>% filter(curve == j)) %>% dplyr::select(motif_id, start_break_pos)}))
       temp_len <- do.call(rbind,lapply(unique(apply(temp_pattern,1,function(row){row[1]})),function(k){data.frame("motif_id" = k,"len" = object@mot_details[[k]]$len)}))
       temp_weights <- lapply(as.character(unique(apply(temp_pattern, 1, function(row) { row[1] }))), 
                              function(k) { 
-                               object@mot_details[[as.numeric(k)]]$weights
+                               object@mot_details[[as.numeric(k)]]$coeffs
                              })
       names(temp_weights) <- as.character(unique(apply(temp_pattern, 1, function(row) { row[1] })))
       fd_curves[[j]] <- mtfd:::add_motif(base_curve  = temp_curve,
@@ -131,7 +131,6 @@ setMethod("generateCurves", "motifSimulation", function(object,error_type,error_
                                   mot_weights = temp_weights,
                                   error_str   = error_str)
     }
-    
     fd_curves <- mtfd:::.transform_list(fd_curves,error_str)
   } else {
     stop("\'error_type\' must be choosen between \'coeff\' and \'pointwise\'")
@@ -145,7 +144,8 @@ setGeneric("plot", function(object,curves,path)
 )
 
 #' @export
-setMethod("plot",c(object = "motifSimulation", curves = "list", path = "character"),function(object,curves,path) {
+setMethod("plot",c(object = "motifSimulation", curves = "list", path = "character"),
+          function(object,curves,path) {
   output_file <- file.path(path, "plots.pdf")
   
   # Create the directory if it does not exist
@@ -155,7 +155,7 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
   # Open a PDF device with the correct path
   pdf(file = output_file, width = 8, height = 6) 
   for (k in seq_along(curves)) {
-    if(!is.null(curves[[k]]$with_error$error_y)) {
+    if(!is.null(curves[[k]]$with_error)) {
       curve_data_no_error <- data.frame(
         t = seq(0, curves[[k]]$basis$rangeval[2]-1),
         x = curves[[k]]$background$no_error_y,
@@ -263,5 +263,85 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
       Map(print, p)
     }
   }
+  
+  curves_data <- list()
+  for(motif_id in 1:length(object@mot_details)) {
+    for(curve_k in 1:length(object@motifs_in_curves)) {
+      motif_instance <- 1
+      if(!is.null(object@motifs_in_curves[[curve_k]])) {
+        for(z in 1:length(object@motifs_in_curves[[curve_k]]$motif_id)) {
+          if(object@motifs_in_curves[[curve_k]]$motif_id[z] == motif_id) {
+            # Calcola l'intervallo della curva
+            start <- (object@motifs_in_curves[[curve_k]]$starting_coeff_pos[z] - 1) * object@dist_knots + 1
+            
+            # Crea un identificatore unico per ogni istanza
+            instance_id <- paste0("curve_", curve_k, "_", motif_instance)
+            motif_instance <- motif_instance + 1
+            
+            # Jittering
+            curve_y <- curves[[curve_k]]$no_noise$motif_y[start:(start + object@mot_details[[motif_id]]$len - 1)] + (curve_k + motif_instance) * 0.1
+            
+            # Creazione di una sequenza x per il plotting
+            x <- seq_along(curve_y)
+            
+            # Aggiungi i dati alla lista
+            curves_data[[length(curves_data) + 1]] <- data.frame(x = x, y = curve_y, id = motif_id, instance = instance_id)  
+          }
+        }
+      }
+    } 
+  }
+  
+  # Combina i dati in un unico dataframe
+  curves_df <- bind_rows(curves_data)
+  
+  # Ottieni la lista unica degli ID
+  unique_ids <- unique(curves_df$id)
+  # Loop per plottare ogni ID separatamente su pagine diverse
+  for (id in unique_ids) {
+    # Filtra i dati per il singolo ID
+    plot_data <- curves_df %>% filter(id == !!id)
+    
+    # Crea l'oggetto fd e il dataframe per motif_y
+    mot_breaks <- seq(from = 0, to = length(curve_y), by = object@dist_knots)
+    mot_basis  <- create.bspline.basis(norder = object@norder, breaks = mot_breaks)
+    fd_curve <- fd(coef = object@mot_details[[id]]$coeffs, basisobj = mot_basis)
+    motif_y <- mtfd:::generate_curve_vector(fd_curve = fd_curve)
+    motif_y <- data.frame(x = seq_along(motif_y), y = motif_y, instance = "motif_y")
+    names(motif_y) <- c("x","y","instance")
+    p <- ggplot() +
+      geom_line(data = plot_data, aes(x = x, y = y, color = instance), size = 1, linetype = "longdash") +
+      
+      geom_line(data = motif_y, aes(x = x, y = y, color = instance), size = 2, linetype = "solid") +  
+      
+      scale_color_manual(
+        values = c("motif_y" = "black",setNames(rainbow(length(unique(plot_data$instance))), unique(plot_data$instance))),
+        labels = c("motif_y" = paste0("motif ", id),unique(plot_data$instance))
+      ) +
+      labs(
+        title = paste0('<b><span style="color:#0073C2;">Motif ', id, '</span></b>'), 
+        x = "X-axis", 
+        y = "Y-axis",
+        color = "Legend Title"  
+      ) +
+      theme_minimal(base_size = 15) +
+      theme(
+        plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, margin = margin(b = 10)),
+        axis.title = element_text(size = 14, margin = margin(t = 10)),
+        axis.text = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        legend.position = "right",
+        legend.box.margin = margin(10, 10, 10, 10),
+        plot.margin = margin(15, 15, 15, 15),
+        panel.grid.major = element_line(color = "gray90"),
+        panel.grid.minor = element_blank()
+      ) +
+      guides(
+        color = guide_legend(ncol = 1, byrow = TRUE, title = NULL),
+        fill = "none"
+      )
+      
+      print(p)
+    }
   dev.off()
 })

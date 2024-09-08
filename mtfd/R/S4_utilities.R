@@ -24,15 +24,10 @@
     if (!"with_error" %in% names(lst[[i]])) {
       # Create a new sub-list
       background <- list(or_coeff = lst[[i]]$or_coeff,    
-                    no_error_y = lst[[i]]$no_error_y)
+                         no_error_y = lst[[i]]$no_error_y)
       lst[[i]] <- list(
         basis = lst[[i]]$basis,
-        background = background,
-        no_noise = lst[[i]]$no_noise,
-        with_error = list(
-          error_structure = mtfd:::.transform_to_matrix(error_str),
-          error_y = NULL)
-      )
+        background = background)
     }
   }
   return(lst)
@@ -202,7 +197,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
               "background" = background,
               "no_noise" = no_error_res,
               "with_error" = error_res,
-              "SNR" = SNR)
+              "SNR" = SNR) 
   # create list with 
   return(res)
 }
@@ -211,14 +206,14 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   # Calculate the length of the coefficients vector
   l <- motif_i$len / dist_knots + norder - 1
   if(is.numeric(distrib)) {
-    motif_i$weights <- sample(distrib,size = l,replace = TRUE)
+    motif_i$coeffs <- sample(distrib,size = l,replace = TRUE)
   }
   else if (distrib == "unif") {
     # Generate coefficients from a uniform distribution
-    motif_i$weights <- runif(l, min = coeff_min, max = coeff_max)
+    motif_i$coeffs <- runif(l, min = coeff_min, max = coeff_max)
   } else if (distrib == "beta") {
     # Generate coefficients from a beta distribution and scale to the desired range
-    motif_i$weights <- coeff_min + rbeta(l, shape1 = 0.45, shape2 = 0.45) * (coeff_max - coeff_min)
+    motif_i$coeffs <- coeff_min + rbeta(l, shape1 = 0.45, shape2 = 0.45) * (coeff_max - coeff_min)
   } else {
     stop("Wrong 'distrib': ", distrib)
   }
