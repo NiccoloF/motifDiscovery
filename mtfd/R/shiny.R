@@ -15,125 +15,128 @@ motifSimulationApp <- function(error_str,mot_details) {
     useShinyjs(),  # Initialize shinyjs
     useSweetAlert(),  # Initialize shinyWidgets
     
+    # Custom CSS for styling
     tags$head(
       tags$style(HTML("
-    /* Your custom CSS */
-    body {
-      background-color: #001f3f;
-      color: #ffffff;
-      font-family: 'Arial', sans-serif;
-    }
-    .well {
-      background-color: #003366;
-      color: white;
-      border: none;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      border-radius: 10px;
-      padding: 20px;
-    }
-    .btn-primary {
-      background-color: #007bff;
-      border: none;
-      padding: 10px 20px;  /* Adjusted padding for larger clickable area */
-      font-size: 18px;     /* Larger font size */
-      cursor: pointer;
-      border-radius: 8px;  /* Rounded corners */
-      transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
-      margin-right: 10px;  /* Space between buttons */
-    }
-    .btn-primary:hover {
-      background-color: #0056b3;
-      transform: scale(1.05);  /* Slightly increase button size on hover */
-    }
-    .btn-primary:active {
-      background-color: #004080;
-      transform: scale(1.02);  /* Slightly reduce button size on click */
-    }
-    #pagination_controls {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-      margin-bottom: 20px; /* Added bottom margin to separate from other elements */
-    }
-    .pagination-buttons {
-      background-color: #007bff;
-      border: none;
-      color: white;
-      padding: 10px 20px;  /* Adjusted padding for larger clickable area */
-      font-size: 18px;     /* Larger font size */
-      border-radius: 8px;  /* Rounded corners */
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
-      margin: 0 10px;  /* Space between pagination buttons */
-    }
-    .pagination-buttons:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
-    .pagination-buttons:hover:not(:disabled) {
-      background-color: #0056b3;
-      transform: scale(1.05);  /* Slightly increase button size on hover */
-    }
-    .pagination-buttons:active:not(:disabled) {
-      background-color: #004080;
-      transform: scale(1.02);  /* Slightly reduce button size on click */
-    }
-    .collapsible {
-      cursor: pointer;
-      padding: 12px;
-      background-color: #003366;
-      border: none;
-      color: white;
-      text-align: left;
-      outline: none;
-      font-size: 18px;  /* Larger font size */
-      width: 100%;
-      display: block;
-      margin-bottom: 5px;
-      border-radius: 8px;  /* Rounded corners */
-      transition: background-color 0.3s; /* Smooth transitions */
-    }
-    .active, .collapsible:hover {
-      background-color: #00509e;
-    }
-    .content {
-      display: none;
-      padding: 10px;
-      background-color: #002244;
-      border-radius: 5px;
-      margin-bottom: 10px;
-    }
-    .plot-container {
-      margin-bottom: 20px;
-    }
-    .plot-title {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .input-row {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-    .input-group {
-      flex: 1;
-      margin-right: 10px;
-    }
-    .input-group:last-child {
-      margin-right: 0;
-    }
-    #error_message {
-      color: red;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-  "))
+        /* General styling */
+        body {
+          background-color: #f8f9fa;
+          color: #343a40;
+          font-family: 'Arial', sans-serif;
+        }
+        .well {
+          background-color: #ffffff;
+          color: #343a40;
+          border: 1px solid #ced4da;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          border-radius: 10px;
+          padding: 20px;
+        }
+        .btn-primary {
+          background-color: #007bff;
+          border: none;
+          padding: 10px 20px;
+          font-size: 16px;
+          cursor: pointer;
+          border-radius: 5px;
+          transition: background-color 0.3s, transform 0.2s;
+          margin-right: 10px;
+        }
+        .btn-primary:hover {
+          background-color: #0056b3;
+          transform: scale(1.05);
+        }
+        .btn-primary:active {
+          background-color: #004080;
+          transform: scale(1.02);
+        }
+        #pagination_controls {
+          display: flex;
+          justify-content: center;
+          margin: 20px 0;
+        }
+        .pagination-buttons {
+          background-color: #007bff;
+          border: none;
+          color: white;
+          padding: 10px 20px;
+          font-size: 16px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s, transform 0.2s;
+          margin: 0 10px;
+        }
+        .pagination-buttons:disabled {
+          background-color: #cccccc;
+          cursor: not-allowed;
+        }
+        .pagination-buttons:hover:not(:disabled) {
+          background-color: #0056b3;
+          transform: scale(1.05);
+        }
+        .pagination-buttons:active:not(:disabled) {
+          background-color: #004080;
+          transform: scale(1.02);
+        }
+        .collapsible {
+          cursor: pointer;
+          padding: 10px;
+          background-color: #007bff;
+          border: none;
+          color: white;
+          text-align: left;
+          font-size: 16px;
+          width: 100%;
+          border-radius: 5px;
+          margin-bottom: 10px;
+          transition: background-color 0.3s;
+        }
+        .collapsible:hover {
+          background-color: #0056b3;
+        }
+        .content {
+          display: none;
+          padding: 10px;
+          background-color: #f8f9fa;
+          border-radius: 5px;
+          margin-bottom: 20px;
+        }
+        .plot-container {
+          margin-bottom: 30px;
+        }
+        .plot-title {
+          text-align: center;
+          margin-bottom: 10px;
+          font-size: 20px;
+          font-weight: bold;
+        }
+        .input-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          margin-bottom: 15px;
+        }
+        .input-group {
+          flex: 1;
+          min-width: 220px;
+        }
+        #error_message {
+          color: red;
+          font-weight: bold;
+          margin-top: 20px;
+          text-align: center;
+        }
+      "))
     ),
     
-    titlePanel("Comprehensive Curve Plots for Each Error"),
+    # Title and Main Panel
+    titlePanel("Motif Simulation Plots"),
     
     mainPanel(
+      # Dynamic UI for plots
       uiOutput("plots_ui"),
+      
+      # Plot and pagination buttons
       fluidRow(
         column(width = 12, 
                actionButton("plotBtn", "Generate Plots", class = "btn btn-primary"),
@@ -144,14 +147,22 @@ motifSimulationApp <- function(error_str,mot_details) {
                )
         )
       ),
-      downloadButton("downloadPdf", "Download PDF"),
-      downloadButton("downloadRdata", "Download Rdata"),
-      div(id = "error_message", "")
+      
+      # Download buttons
+      fluidRow(
+        column(width = 12, 
+               downloadButton("downloadPdf", "Download PDF", class = "btn btn-primary"),
+               downloadButton("downloadRdata", "Download Rdata", class = "btn btn-primary"),
+               div(id = "error_message", "")
+        )
+      ),
     ),
     
+    # Input controls panel
     fluidRow(
       column(width = 12,
              wellPanel(
+               textInput("path", "Directory Path to Save Plots", value = getwd()),
                div(class = "input-row",
                    div(class = "input-group", numericInput("N", "Number of Curves (N)", value = 20, min = 1)),
                    div(class = "input-group", numericInput("len", "Curve Length (len)", value = 300, min = 1))
@@ -165,10 +176,19 @@ motifSimulationApp <- function(error_str,mot_details) {
                    div(class = "input-group", numericInput("dist_knots", "Distance Between Knots (dist_knots)", value = 10, min = 1))
                ),
                div(class = "input-row",
-                   div(class = "input-group", numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30, min = 1)),
-                   div(class = "input-group", selectInput("distribution", "Coefficient Distribution", choices = c("unif", "beta"), selected = "unif"))
+                   div(class = "input-group", numericInput("min_dist_motifs", "Minimum Distance Between Motifs (min_dist_motifs)", value = 30,min = 1)),
+                   div(class = "input-group", selectInput("distribution", "Coefficient Distribution", choices = c("unif", "beta", "empirical"), selected = "beta"))
                ),
-               textInput("path", "Output Directory", value = getwd())
+               
+               # Conditional panel to show when "empirical" is selected
+               conditionalPanel(
+                 condition = "input.distribution == 'empirical'",
+                 textInput("empirical_values", "Enter Empirical Coefficients (comma-separated)", value = "1, 2, 3, 4, 5")
+               ),
+               
+               div(class = "input-row",
+                   div(class = "input-group", selectInput("error_type", "Error Type", choices = c("pointwise", "coeff")))
+               )
              )
       )
     )
@@ -183,109 +203,154 @@ motifSimulationApp <- function(error_str,mot_details) {
       show_modal_spinner(spin = "circle", text = "Generating plots, please wait...")
       
       tryCatch({
-        curve_details <- list(
-          N = input$N,
-          len = input$len,
-          norder = input$norder,
-          coeff_min = input$coeff_min,
-          coeff_max = input$coeff_max,
-          dist_knots = input$dist_knots,
-          min_dist_motifs = input$min_dist_motifs
-        )
+        N <- input$N
+        len <- input$len
+        norder <- input$norder
+        coeff_min <- input$coeff_min
+        coeff_max <- input$coeff_max
+        dist_knots <- input$dist_knots
+        min_dist_motifs <- input$min_dist_motifs
+        error_type <- input$error_type
         
-        parse_weights <- function(weights_input) {
-          if (weights_input == "") {
-            return(NULL)
-          }
-          as.numeric(unlist(strsplit(weights_input, ",")))
+        # Handle empirical distribution
+        if (input$distribution == "empirical") {
+          distribution <- as.numeric(unlist(strsplit(input$empirical_values, ",")))
+        } else {
+          distribution <- input$distribution
         }
         
-        distribution <- input$distribution
         if (!dir.exists(input$path)) {
           stop("Invalid directory path.")
         }
-        builder <- mtfd::motifSimulationBuilder(curve_details, mot_details, distribution)
-        curves <- mtfd::generateCurves(builder, error_str)
+  
+        builder <- mtfd::motifSimulationBuilder(N = N,len = len,
+                                                mot_details = mot_details,
+                                                norder = norder,
+                                                coeff_min = coeff_min,
+                                                coeff_max = coeff_max,
+                                                dist_knots = dist_knots,
+                                                min_dist_motifs = min_dist_motifs,
+                                                distribution = distribution)
+        curves <- mtfd::generateCurves(builder,error_type = error_type, error_str)
         
         output_file <- file.path(input$path, "plots.pdf")
         
         if (!dir.exists(input$path)) {
           dir.create(input$path)
         }
-        
+        n_error <- NULL
         plots <- lapply(seq_along(curves), function(k) {
-          if (!is.null(curves[[k]]$with_error$error_y)) {
+          if(!is.null(curves[[k]]$with_error)) {
+            n_error <<- length(curves[[k]]$with_error$error_y)
             curve_data_no_error <- data.frame(
-              t = seq(0, curves[[k]]$no_error$basis$rangeval[2] - 1),
-              x = curves[[k]]$no_error$no_error_y)
-            names(curve_data_no_error) <- c("t", "x")
+              t = seq(0, curves[[k]]$basis$rangeval[2]-1),
+              x = curves[[k]]$background$no_error_y,
+              z = curves[[k]]$no_noise$motif_y)
+            names(curve_data_no_error) <- c("t","x","z")
             
             curve_data_error <- NULL
             curve_data_error <- data.frame(
-              t = seq(0, curves[[k]]$no_error$basis$rangeval[2] - 1),
-              x = curves[[k]]$with_error$error_y,
-              SNR = unlist(rep(curves[[k]]$SNR[1:length(curves[[k]]$SNR)], len = curves[[k]]$no_error$basis$rangeval[2])))
-            names(curve_data_error) <- c("t", paste0("x", seq(length(curves[[k]]$with_error$error_y))), "SNR")
+              t = seq(0, curves[[k]]$basis$rangeval[2]-1),
+              x = curves[[k]]$with_error$error_y)
+            names(curve_data_error) <- c("t",paste0("x",seq(length(curves[[k]]$with_error$error_y))))
             
             motif_lines <- mapply(function(id_motif, pos_motif, instance) {
               motif_t = seq((pos_motif - 1) * builder@dist_knots,
                             (pos_motif - 1) * builder@dist_knots + builder@mot_details[[id_motif]]$len)
-              motif_x = lapply(curves[[k]]$with_error$error_y, function(curve) { return(curve[motif_t + 1]) })
+              motif_x = lapply(curves[[k]]$with_error$error_y,function(curve){return(curve[motif_t + 1])})
               
-              return(lapply(motif_x, function(motif) { data.frame(t = motif_t, x = motif, motif_id = factor(paste(id_motif, instance, sep = "_")),
-                                                                  initial_number = str_extract(as.character(id_motif), "^[^_]+"),
-                                                                  xmin = (pos_motif - 1) * builder@dist_knots,
-                                                                  xmax = (pos_motif - 1) * builder@dist_knots + builder@mot_details[[id_motif]]$len) }))
+              return(lapply(motif_x,function(motif){ data.frame(t = motif_t, x = motif, motif_id = factor(paste(id_motif, instance, sep = "_")),
+                                                                initial_number = str_extract(as.character(id_motif), "^[^_]+"),
+                                                                xmin = (pos_motif - 1) * builder@dist_knots,
+                                                                xmax = (pos_motif - 1) * builder@dist_knots + builder@mot_details[[id_motif]]$len)}))
             }, builder@motifs_in_curves[[k]]$motif_id, builder@motifs_in_curves[[k]]$starting_coeff_pos, seq_along(builder@motifs_in_curves[[k]]$motif_id), SIMPLIFY = FALSE)
             
-            motif_colors <- c("1" = "red", "2" = "blue", "3" = "darkgreen", "4" = "orange",
-                              "5" = "purple", "6" = "cyan", "7" = "magenta", "8" = "brown",
-                              "9" = "pink", "10" = "grey")
-            motif_colors <- rep(motif_colors, length.out = length(builder@mot_details))
-            if (length(builder@mot_details) > 10)
-              attr(motif_colors, "names")[11:length(builder@mot_details)] <- as.character(as.integer(attr(motif_colors, "names")[11:length(builder@mot_details)]) + 10)
+            motif_colors <- c( "1" = "red", "2" = "blue", "3" = "darkgreen", "4" = "orange",
+                               "5" = "purple", "6" = "cyan", "7" = "magenta", "8" = "brown",
+                               "9" = "pink", "10" = "grey")
+            motif_colors <- rep(motif_colors,length.out = length(builder@mot_details))
+            if(length(builder@mot_details) > 10 )
+              attr(motif_colors,"names")[11:length(builder@mot_details)] <- as.character(as.integer(attr(motif_colors,"names")[11:length(builder@mot_details)]) + 10)
             
             max_dataframes <- max(sapply(motif_lines, function(sublist) length(sublist)))
-            # Inizializza una lista per memorizzare i risultati
+            # Initialize a list to store results
             motif_data <- vector("list", max_dataframes)
-            # Cicla su ogni "livello" dei data frame
             for (i in seq_len(max_dataframes)) {
-              # Estrai i data frame dal livello i-esimo
-              dataframes_at_level_i <- lapply(motif_lines, function(sublist) {
-                sublist[[i]]
-              })
-              # Fai il bind_rows sui data frame estratti
+              # Extract data frames at the i-th level
+              dataframes_at_level_i <- lapply(motif_lines, function(sublist) sublist[[i]])
+              # Combine the extracted data frames
               motif_data[[i]] <- bind_rows(dataframes_at_level_i)
               names(motif_data[[i]]) <- c("t", "x", "motif_id", "initial_number", "xmin", "xmax")
             }
-            return(lapply(1:length(motif_data), function(j) {
+            p <- lapply(1:length(motif_data), function(j) {
+              # Create motif_id labels
+              motif_labels <- paste("motif_id:", unique(motif_data[[j]]$initial_number))
               pic <- ggplot() +
-                # Plot the main curve in black
-                geom_line(data = curve_data_no_error, aes(x = t, y = x), color = scales::alpha('gray30', 0.15), linewidth = 0.5) + 
-                # Plot the error curve in black
+                # Plot the main curve in gray30
+                geom_line(data = curve_data_no_error, aes(x = t, y = x, color = 'background_curve'), linewidth = 0.5) +
+                # Plot the curve with motifs in gold
+                geom_line(data = curve_data_no_error, aes(x = t, y = z, color = 'with_motif'), linewidth = 0.5) +
+                # Plot the error curve
                 geom_line(data = curve_data_error, aes_string(x = "t", y = paste0("x", j)), color = "black", linewidth = 0.5) +
-                # Add shaded rectangles for motif positions with transparency
-                geom_rect(data = motif_data[[j]], aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = initial_number), alpha = 0.005) +
+                # Add shaded rectangles for motif positions
+                geom_rect(data = motif_data[[j]], 
+                          aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = factor(initial_number)), 
+                          alpha = 0.005) +
+                # Add SNR text on top of each rectangle
+                geom_text(data = curves[[k]]$SNR[[j]], 
+                          aes(x = (xmin + xmax) / 2, y = Inf, 
+                              label = paste("SNR:", round(SNR, 3))),
+                          vjust = 1.5, color = "black", size = 3.5) +
                 # Plot motifs with distinct colors
                 geom_line(data = motif_data[[j]], aes(x = t, y = x, color = factor(initial_number), group = motif_id), linewidth = 1.0) + 
-                scale_color_manual(values = motif_colors) +
-                scale_fill_manual(values = motif_colors) +
-                # Add SNR to the title
+                # Add color and fill scales with custom labels for motif_id
+                scale_color_manual(
+                  values = c('background_curve' = scales::alpha('gray30', 0.15), 
+                             'with_motif' = 'gold', 
+                             motif_colors),
+                  labels = c('background_curve' = 'background_curve', 
+                             'with_motif' = 'with_motif', 
+                             setNames(motif_labels, unique(motif_data[[j]]$initial_number)))
+                ) +
+                scale_fill_manual(
+                  values = motif_colors, 
+                  labels = setNames(motif_labels, unique(motif_data[[j]]$initial_number))
+                ) +
+                # Title
                 labs(
-                  title = paste('Random curve', k, '- SNR:', round(curve_data_error$SNR[j], 3)), 
+                  title = paste0('<b><span style="color:#0073C2;">Random curve ', k, ' - type_error ', 
+                                 ifelse(j %% length(curves[[k]]$with_error$error_y) == 0, 
+                                        length(curves[[k]]$with_error$error_y), j %% length(curves[[k]]$with_error$error_y)), 
+                                 '</span></b>'), 
                   x = "t", 
                   y = paste0("x", j)
                 ) +
+                # Clean theme with subtle grid
                 theme_minimal(base_size = 15) +
-                guides(color = guide_legend(title = "Motif ID"), fill = guide_legend(title = "Motif ID"))
+                theme(
+                  plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, margin = margin(b = 10)),
+                  axis.title = element_text(size = 14, margin = margin(t = 10)),
+                  axis.text = element_text(size = 12),
+                  legend.text = element_text(size = 12),
+                  legend.position = "right",
+                  legend.box.margin = margin(10, 10, 10, 10),
+                  plot.margin = margin(15, 15, 15, 15),
+                  panel.grid.major = element_line(color = "gray90"),
+                  panel.grid.minor = element_blank()
+                ) +
+                guides(
+                  color = guide_legend(ncol = 1, byrow = TRUE, title = NULL),
+                  fill = "none",
+                )
               
               return(pic)
-            }))
+            })
           }
         })
+     
         plots <- unlist(plots, recursive = FALSE)
         
-        plots_per_page <- dim(error_str)[1]
+        plots_per_page <- n_error
         num_pages <- ceiling(length(plots) / plots_per_page)
         current_page <- reactiveVal(1)
         

@@ -213,7 +213,7 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
           # Add SNR text on top of each rectangle
           geom_text(data = curves[[k]]$SNR[[j]], 
                     aes(x = (xmin + xmax) / 2, y = Inf, 
-                        label = paste("SNR:", round(SNR, 3))), ####### DA CAMBIARE
+                        label = paste("SNR:", round(SNR, 3))),
                     vjust = 1.5, color = "black", size = 3.5) +
           # Plot motifs with distinct colors
           geom_line(data = motif_data[[j]], aes(x = t, y = x, color = factor(initial_number), group = motif_id), linewidth = 1.0) + 
