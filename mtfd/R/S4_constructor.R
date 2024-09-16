@@ -12,20 +12,27 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
   if(is.null(min_dist_motifs)) {
     min_dist_motifs <- norder * dist_knots
   }
-  mot_details <- lapply(mot_details,function(mot){names(mot) <- c("len","coeffs","occurrences")
-                                                  if(is.data.frame(mot[[3]]) || is.matrix(mot[[3]])) { 
-                                                    names(mot[[3]]) <- c("motif_id", "curve","start_break_pos") }
-                                                  return(mot)})
   # check N, dist_knots and len
   if((N%%1!=0)|(N<1))
     stop('Invalid \'N\'.')
+  if(length(mot_details) == 0) {
+    return(new("motifSimulation",N = N,
+               mot_details = list(),
+               motifs_in_curves = list(),
+               distribution = distribution,
+               dist_knots=dist_knots,len=len,norder=norder,
+               coeff_min=coeff_min,coeff_max=coeff_max,
+               min_dist_motifs=min_dist_motifs))
+  }
   if((dist_knots%%1!=0)|(dist_knots<1))
     stop('Invalid \'dist_knots\'.')
   if(TRUE %in% ((len%%1!=0)|(len<1)|(sum(len%%dist_knots)>0)))
     stop('Invalid \'len\'.')
-  if(length(mot_details) == 0)
-    stop('Invalid \'mot_details\'.')
-  
+  mot_details <- lapply(mot_details,function(mot){names(mot) <- c("len","coeffs","occurrences")
+                                                  if(is.data.frame(mot[[3]]) || is.matrix(mot[[3]])) { 
+                                                    names(mot[[3]]) <- c("motif_id", "curve","start_break_pos") }
+                                                  return(mot)})
+
   weights_defined <- sapply(mot_details, function(x) !is.null(x$coeffs))
   if (!(all(weights_defined) || all(!weights_defined))) {
     stop("Inconsistent coefficients field: some elements have it defined, others do not.")
