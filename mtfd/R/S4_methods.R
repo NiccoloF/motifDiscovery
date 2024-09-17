@@ -337,83 +337,106 @@ setMethod("plot",c(object = "motifSimulation", curves = "list", path = "characte
     }
   }
   if(!purrr::is_empty(object@motifs_in_curves)) {
-    curves_data <- list()
-    for(motif_id in 1:length(object@mot_details)) {
-      for(curve_k in 1:length(object@motifs_in_curves)) {
-        motif_instance <- 1
-        if(!is.null(object@motifs_in_curves[[curve_k]])) {
-          for(z in 1:length(object@motifs_in_curves[[curve_k]]$motif_id)) {
-            if(object@motifs_in_curves[[curve_k]]$motif_id[z] == motif_id) {
-              # Calcola l'intervallo della curva
-              start <- (object@motifs_in_curves[[curve_k]]$starting_coeff_pos[z] - 1) * object@dist_knots + 1
-              
-              # Crea un identificatore unico per ogni istanza
-              instance_id <- paste0("curve_", curve_k, "_", motif_instance)
-              motif_instance <- motif_instance + 1
-              
-              curve_y <- curves[[curve_k]]$no_noise$motif_y[start:(start + object@mot_details[[motif_id]]$len - 1)]
-              
-              # Creazione di una sequenza x per il plotting
-              x <- seq_along(curve_y)
-              
-              # Aggiungi i dati alla lista
-              curves_data[[length(curves_data) + 1]] <- data.frame(x = x, y = curve_y, id = motif_id, instance = instance_id)  
+    curves_data_noise <- vector("list",max_dataframes)
+    for(error_n in 1:max_dataframes) {
+      temp <- list()
+      for(motif_id in 1:length(object@mot_details)) {
+        for(curve_k in 1:length(object@motifs_in_curves)) {
+          motif_instance <- 1
+          if(!is.null(object@motifs_in_curves[[curve_k]])) {
+            for(z in 1:length(object@motifs_in_curves[[curve_k]]$motif_id)) {
+              if(object@motifs_in_curves[[curve_k]]$motif_id[z] == motif_id) {
+                # Calcola l'intervallo della curva
+                start <- (object@motifs_in_curves[[curve_k]]$starting_coeff_pos[z] - 1) * object@dist_knots + 1
+                
+                # Crea un identificatore unico per ogni istanza
+                instance_id <- paste0("curve_", curve_k, "_", motif_instance)
+                motif_instance <- motif_instance + 1
+                
+                curve_y_noise <- curves[[curve_k]]$with_noise$noise_y[[error_n]][start:(start + object@mot_details[[motif_id]]$len - 1)]
+                # Creazione di una sequenza x per il plotting
+                x <- seq_along(curve_y_noise)
+                
+                # Aggiungi i dati alla lista
+                temp[[length(temp) + 1]] <- data.frame(x = x, y = curve_y_noise, id = motif_id, instance = instance_id) 
+              }
             }
           }
-        }
-      } 
+        } 
+      }
+      curves_data_noise[[error_n]] <- temp
     }
   
     # Combina i dati in un unico dataframe
-    curves_df <- bind_rows(curves_data)
-    
+    curves_df <- lapply(curves_data_noise,bind_rows)
     # Ottieni la lista unica degli ID
-    unique_ids <- unique(curves_df$id)
-    # Loop per plottare ogni ID separatamente su pagine diverse
+    unique_ids <- unique(curves_df[[1]]$id)
+    
+    # Compute the mean motif for each error
+    motif_y_means <- vector("list", length(unique_ids))
+    index <- 0
+    # Iterate over each unique ID
     for (id in unique_ids) {
-      # Filtra i dati per il singolo ID
-      plot_data <- curves_df %>% filter(id == !!id)
-      
-      # Crea l'oggetto fd e il dataframe per motif_y
-      mot_breaks <- seq(from = 0, to = length(curve_y), by = object@dist_knots)
-      mot_basis  <- create.bspline.basis(norder = object@norder, breaks = mot_breaks)
-      fd_curve <- fd(coef = object@mot_details[[id]]$coeffs, basisobj = mot_basis)
-      motif_y <- mtfd:::generate_curve_vector(fd_curve = fd_curve)
-      motif_y <- data.frame(x = seq_along(motif_y), y = motif_y, instance = "motif_y")
-      names(motif_y) <- c("x","y","instance")
-      p <- ggplot() +
-        geom_line(data = plot_data, aes(x = x, y = y, color = instance), size = 1, linetype = "longdash") +
+      index <- index + 1
+      # Iterate through each sublist in builder@mot_details for the current id
+      for (i in builder@mot_details[[index]]$occurrences$curve %>% unique()) {
+        curve <- curves[[i]]
+        motif_in_curve_i <- builder@motifs_in_curves[[i]]
+        for(z in 1:length(motif_in_curve_i$motif_id))
+        {
+          if(motif_in_curve_i$motif_id[z] == id) {
+            start <- (motif_in_curve_i$starting_coeff_pos[z] - 1) * object@dist_knots + 1
+            # Compute pointwise means across all curves in the subcurve list
+            if (is.null(motif_y_means[[index]])) {
+              motif_y_means[[index]] <- curve$no_noise$motif_y[start:(start + object@mot_details[[index]]$len - 1)]
+            } else {
+              motif_y_means[[index]] <- motif_y_means[[index]] + curve$no_noise$motif_y[start:(start + object@mot_details[[index]]$len - 1)]
+            }
+          }
+        }
+      }
+      motif_y_means[[index]] <- data.frame(x = seq_along(motif_y_means[[index]]), y = motif_y_means[[index]] / length(builder@mot_details[[index]]$occurrences$curve %>% unique()))
+      names(motif_y_means)[index] <- id
+    }
+    # Loop per plottare ogni ID separatamente su pagine diverse
+    for(error_n in 1:max_dataframes) {
+      for (id in unique_ids) {
+        # Filtra i dati per il singolo ID
+        plot_data <- curves_df[[error_n]] %>% filter(id == !!id)
         
-        geom_line(data = motif_y, aes(x = x, y = y, color = instance), size = 2, linetype = "solid") +  
-        
-        scale_color_manual(
-          values = c("motif_y" = "black",setNames(rainbow(length(unique(plot_data$instance))), unique(plot_data$instance))),
-          labels = c("motif_y" = paste0("motif ", id),unique(plot_data$instance))
-        ) +
-        labs(
-          title = paste0('<b><span style="color:#0073C2;">Motif ', id, '</span></b>'), 
-          x = "X-axis", 
-          y = "Y-axis",
-          color = "Legend Title"  
-        ) +
-        theme_minimal(base_size = 15) +
-        theme(
-          plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, margin = margin(b = 10)),
-          axis.title = element_text(size = 14, margin = margin(t = 10)),
-          axis.text = element_text(size = 12),
-          legend.text = element_text(size = 12),
-          legend.position = "right",
-          legend.box.margin = margin(10, 10, 10, 10),
-          plot.margin = margin(15, 15, 15, 15),
-          panel.grid.major = element_line(color = "gray90"),
-          panel.grid.minor = element_blank()
-        ) +
-        guides(
-          color = guide_legend(ncol = 1, byrow = TRUE, title = NULL),
-          fill = "none"
-        )
-        
+        p <- ggplot() + 
+          geom_line(data = plot_data, aes(x = x, y = y, color = instance), size = 1, linetype = "longdash") + 
+          geom_line(data = motif_y_means[[as.character(id)]], aes(x = x, y = y, color = "black"), size = 2, linetype = "solid") + 
+          scale_color_manual(
+            values = c("motif_y_means" = "black", setNames(rainbow(length(unique(plot_data$instance))), unique(plot_data$instance))),
+            labels = c("motif_y_means" = paste0("motif ", id), unique(plot_data$instance))
+          ) + 
+          labs(
+            title = paste0('<b><span style="color:#0073C2;">Motif ', id,'</span></b>'),
+            subtitle = paste0("Mean of the no noise motif <b>", id, "</b> with type error <b>", error_n, "</b>"),
+            x = "x",
+            y = "t",
+            color = "Noise Curves"
+          ) + 
+          theme_minimal(base_size = 15) + 
+          theme(
+            plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, margin = margin(b = 10)),
+            plot.subtitle = element_markdown(size = 16, hjust = 0.5, margin = margin(b = 10)),  # Styled subtitle
+            axis.title = element_text(size = 14, margin = margin(t = 10)),
+            axis.text = element_text(size = 12),
+            legend.text = element_text(size = 12),
+            legend.position = "right",
+            legend.box.margin = margin(10, 10, 10, 10),
+            plot.margin = margin(15, 15, 15, 15),
+            panel.grid.major = element_line(color = "gray90"),
+            panel.grid.minor = element_blank()
+          ) + 
+          guides(
+            color = guide_legend(ncol = 1, byrow = TRUE, title = "Noise Curves"),
+            fill = "none"
+          )
         print(p)
+      }
     }
   }
   dev.off()
