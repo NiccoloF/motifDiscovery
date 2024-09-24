@@ -61,7 +61,7 @@
 #' @return \item{V0_clean}{ list of the candidates motifs after cleaning}
 #' @return \item{V1}{ list of derived from candidates motifs}
 #' @return \item{V1_clean}{ list of derived from candidates motifs after cleaning}
-#' @author Riccardo Lazzarini Niccolo' Feresini
+#' @author Riccardo Lazzarini, Niccolo' Feresini
 #' @export
 probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                          standardize= FALSE,c_max = Inf,iter_max = 1000,
@@ -71,7 +71,7 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                          iter4clean = 50, tol4clean = 1e-4,m = 2,w = 1, seed = 1, 
                          K = 2, c = 40, quantile4clean = 1/K, exe_print = FALSE,
                          set_seed = FALSE,diss = 'd0_2', 
-                         transformed = FALSE, v_init = NULL,align = TRUE,n_threads = 1){
+                         transformed = FALSE, v_init = NULL,align = TRUE,sil_threshold = 0.5,n_threads = 1){
   params = list(standardize=standardize,c_max = c_max,iter_max = iter_max,
                 iter4elong = iter4elong,trials_elong = trials_elong,
                 return_options = return_options, alpha = alpha,
@@ -88,7 +88,6 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
   params <- checked_data$Parameters
   
   data <- checked_data$FuncData
-  
   string_diss <- ifelse(alpha == 0 || alpha == 1,"L2","H1")
   prok <- NULL
   if (!is.null(data$v_init)) {

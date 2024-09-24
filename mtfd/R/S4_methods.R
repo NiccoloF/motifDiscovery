@@ -106,7 +106,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
         for (n in seq_along(motifs_in_curves_i$motif_id)) {
           start_break <- motifs_in_curves_i$starting_coeff_pos[n]
           start_point <- (start_break - 1) * object@dist_knots
-          end_point   <- start_point + len_motifs[n]
+          end_point   <- start_point + len_motifs[motifs_in_curves_i$motif_id[n]]
           
           # Calculate variance for SNR numerator and denominator
           SNR_num <- rbind(SNR_num,data.frame(xmin =start_point,xmax = end_point,SNR = var(or_y_motif[start_point:end_point])))
@@ -147,7 +147,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
       mtfd:::generate_background_curve(object@len, object@dist_knots, object@norder,coeff, add_noise = TRUE)
     })
     set.seed(seed_motif)
-    curve_ids <- unique(unlist(sapply(object@mot_details,function(mot_details){mot_details$occurrences$curve})))
+    curve_ids <- unique(unlist(lapply(object@mot_details,function(mot){mot$occurrences$curve})))
     for(j in curve_ids){
       print(paste(" --- Adding motifs to curve", j))
       temp_curve <- fd_curves[[j]]
@@ -177,12 +177,12 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
 })
 
 #' @export
-setGeneric("plot", function(object,curves,path) 
-  standardGeneric("plot")
+setGeneric("plot_motifs", function(object,curves,path) 
+  standardGeneric("plot_motifs")
 )
 
 #' @export
-setMethod("plot",c(object = "motifSimulation", curves = "list", path = "character"),
+setMethod("plot_motifs",c(object = "motifSimulation", curves = "list", path = "character"),
           function(object,curves,path) {
   output_file <- file.path(path, "plots.pdf")
   

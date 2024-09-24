@@ -51,8 +51,7 @@ probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
                                      ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
-                 
-                 univariate_mat <- full_mat[,column][,seq(j,d*length(keep),by = d)]
+                 univariate_mat <- as.matrix(as.matrix(full_mat[,column])[,seq(j,d*length(keep),by = d)])
                  matplot(univariate_mat,type="l",col=rainbow(length(keep)),lwd=1.5,lty=5,
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',

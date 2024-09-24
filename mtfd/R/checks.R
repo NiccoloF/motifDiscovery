@@ -65,8 +65,8 @@ initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
   if((FALSE %in% lapply(Y0,is.matrix))&&(FALSE %in% lapply(Y0,is.vector)))
     stop('Y0 should be a list of vectors or matrices.')
   N=length(Y0) # number of curves
-  if(N<5)
-    stop('More curves y_i(x) needed.')
+  #if(N<5)
+  #  stop('More curves y_i(x) needed.')
   Y0=lapply(Y0,as.matrix)
   d=unique(unlist(lapply(Y0,ncol),use.names=FALSE)) # dimension of curves
   if(length(d)>1)

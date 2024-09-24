@@ -51,7 +51,6 @@ motifs_search <- function(cluster_candidate_motifs_results,
   # worker_number: number of CPU cores to be used for parallelization (default number of CPU cores). If worker_number=1, the function is run sequentially.
   
   ### set parallel jobs ###################################################################################
-  library(parallel)
   core_number <- detectCores()
   # check worker number
   if(!is.null(worker_number)){

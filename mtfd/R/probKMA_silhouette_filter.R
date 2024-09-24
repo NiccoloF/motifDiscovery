@@ -20,7 +20,6 @@
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #' @export
 probKMA_silhouette_filter <- function(probKMA_results,silhouette,sil_threshold=0.5,size_threshold=2){
-
   index_sil=which(silhouette$silhouette_average>=sil_threshold)
   index_size=which(colSums(probKMA_results$P_clean)>=size_threshold)
   index=intersect(index_sil,index_size)
