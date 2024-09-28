@@ -1,0 +1,178 @@
+
+---
+title: "mtfd: Functional Motif Discovery"
+author: "Niccolò Feresini & Riccardo Lazzarini"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{mtfd: Functional Motif Discovery}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,    
+  warning = FALSE     
+)
+
+# Load the package without startup messages
+suppressPackageStartupMessages(library(mtfd))
+```
+
+## Introduction
+
+The **`clusterMotif`** function serves as the core of the package, offering a robust and efficient implementation of two advanced algorithms: **ProbKMA** and **FunBiAlign**. Together, these algorithms provide a comprehensive solution for the detection and clustering of recurring patterns within functional data.
+
+In addition to motif discovery, **`mtfd`** allows users to **simulate functional curves with embedded motifs**. The package provides several functions for generating synthetic functional data, which can be useful for testing and benchmarking the motif discovery algorithms. These simulated curves are customizable, allowing users to control the number, length, and complexity of the motifs.
+
+By the end of this vignette, users will be guide through practical examples and equipped with a solid understanding of how to effectively utilize `mtfd` package for their pattern detection needs.
+
+## Overview of clusterMotif
+
+The `clusterMotif` function allows users to:
+
+- Choose to run **ProbKMA** multiple times with varying numbers of motifs (`K`) and minimum motif lengths (`c`), or **FunBiAlign** specifying the length (`portion_len`) and the minimum cardinality (`min_card`) of the motifs.
+
+- Perform clustering based on local alignments of curve segments.
+
+- Control the clustering process through a wide range of hyperparameters.
+
+### Key Arguments for ProbKMA
+
+- Here’s an overview of the key arguments for the `ProbKMA` algorithm in the `clusterMotif` function.
+
+  - **Y0**: A list of N vectors for univariate curves or N matrices for multivariate curves (mandatory).
+  - **method**: A string. In this case 'ProbKMA' (mandatory)
+  - **K**: A vector specifying the numbers of motifs to be tested (mandatory).
+  - **c**: A vector specifying the minimum motif lengths to be tested (mandatory).
+  - **name**: A string containing the relative path where to save the results (mandatory).
+  - **diss**: Dissimilarity. Possible choices are 'd0_L2', 'd1_L2', 'd0_d1_L2' (mandatory).
+  - **alpha**: Parameter in [0,1] that defines the relative weight of the curve’s levels and         derivatives (mandatory).
+  - **n_init**: The number of random initializations for each combination of `K` and `c` (mandatory).
+  - **method**: Determines whether to apply ProbKMA or funBIalign for motif detection (mandatory).
+  - **plot**: If `TRUE`, summary plots are drawn to visualize results (mandatory).
+  - **stopCriterion**: criterion to stop iterate, based on the Bhattacharyya distance between            memberships in subsequent iterations. Possible choices are: `max` for the maximum of             distances in the different motifs; `mean` for the average of distances in the different motifs; `quantile` for the quantile of distances in the different motifs (in this case, quantile must be provided)
+  - **worker_number**: Number of parallel workers (mandatory).
+  - **Y1**: A list of N vectors or matrices representing the derivative of the curves. Required    if `diss='d1_L2'` or `diss='d0_d1_L2'`.
+  - **P0**: A matrix specifying the initial membership probabilities. If it is not specified, it will be randomly generated
+  - **S0**: A matrix specifying the initial shift. If it is not specified, it will be randomly generated
+  
+  - **V_init**:
+  - **n_init_motif**: 
+
+### Example Usage
+
+Here is an example showing a basic use of `clusterMotif` with **ProbKMA** :
+
+```{r basic example of Probkma,eval = FALSE}
+########################## PROBKMA ######################################### 
+library(mtfd)
+
+diss = 'd0_d1_L2' 
+alpha = 0.5
+# run probKMA multiple times (2x3x10=60 times)
+K = c(2,3) # number of clusters to try 
+c = c(61,51) # minimum motif lengths to try 
+n_init = 10 # number of random initializations to try
+
+data("simulated200") # load simulated data
+
+results = mtfd::clusterMotif(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
+                             name = './results_ProbKMA_VectorData/',plot = TRUE,
+                             probKMA_options = list(Y1=simulated200$Y1,K=K,c=c,n_init=n_init,
+                                                    diss=diss,alpha=alpha),
+                             worker_number = NULL)
+```
+
+### Running Multiple Initializations
+
+The `clusterMotif` function allows you to specify multiple random initializations (`n_init`) for each combination of `K` and `c`, improving the robustness of the detected motifs.
+
+```{r example_initializations}
+# # Run with multiple initializations
+# result_multiple <- clusterMotif(
+#   Y0 = curves,
+#   K = c(2, 4),
+#   c = c(15, 25),
+#   n_init = 10,
+#   plot = TRUE
+# )
+#
+# # View the summary of clustering results
+# summary(result_multiple)
+```
+
+### Key Arguments for funBIalign
+
+### Using the funBIalign Algorithm
+
+You can also use the **funBIalign** algorithm by setting the appropriate flags:
+
+```{r example_funbialign}
+# Run clusterMotif with funBIalign
+#result_bialign <- clusterMotif(
+  #Y0 = curves,
+  #method = "funBIalign",
+  #portion_len = 20,
+  #min_card = 5,
+  #criterium = "Variance",
+  #plot = TRUE
+#)
+
+# Visualize the results
+#plot_motif(result_bialign)
+```
+
+### Detailed Hyperparameters of ProbKMA
+
+The `probKMA_options` argument in `clusterMotif` provides fine control over the behavior of **ProbKMA**. Key parameters include:
+
+- **standardize**: Standardizes the data before clustering.
+- **iter_max**: Maximum number of iterations for the algorithm.
+- **iter4elong**: Number of iterations for motif elongation.
+- **quantile**: Quantile value used to refine motif clusters.
+- **tol**: Convergence tolerance for clustering.
+- **max_gap**: Maximum allowed gap between curve segments.
+- **deltaJK_elong**: Step size for motif elongation.
+- **silhouette_align**: If `TRUE`, alignments based on silhouette index are calculated.
+- **n_subcurves**: Number of subcurves used for clustering.
+- **sil_threshold**: Silhouette index threshold for motif quality.
+
+### Post-Processing and Visualization
+
+After clustering, `clusterMotif` provides visualization tools to examine the discovered motifs. The `plot_motif` function helps to visualize the motifs and compare clusters.
+
+```{r plot_motifs}
+# # Plot the motifs discovered by ProbKMA
+# plot_motif(result)
+```
+
+### Output of clusterMotif
+
+The function returns a list with the following components:
+- **K, c, n_init, name**: Details of the clustering process.
+- **times**: Execution times for each combination of `K`, `c`, and `n_init`.
+- **silhouette_average_sd**: The mean and standard deviation of the silhouette indices for each ProbKMA execution.
+
+### Conclusion
+
+The **`clusterMotif`** function is a powerful tool for discovering functional motifs in complex datasets. With its flexibility, users can run multiple initializations, customize clustering parameters, simulate functional curves with motifs, and visualize the results in an intuitive way. Whether using **ProbKMA** or **funBIalign**, the `mtfd` package provides a robust solution for analyzing functional data and uncovering hidden patterns.
+
+### Summary of Key Parameters
+
+| Parameter                | Description                                                                 |
+|--------------------------|-----------------------------------------------------------------------------|
+| **K**                    | Number of motifs to test                                                    |
+| **c**                    | Minimum length of motifs to test                                            |
+| **n_init**               | Number of random initializations                                            |
+| **probKMA_options**       | List of hyperparameters for ProbKMA algorithm                               |
+| **method**               | Algorithm selection: "ProbKMA" or "funBIalign"                              |
+| **silhouette_align**      | Whether to calculate silhouette alignment                                   |
+| **criterium**             | Reordering of results based on "fMRS" or "Variance"                         |
+| **plot**                 | If TRUE, generates summary plots                                            |
+| **worker_number**         | Number of workers for parallel computation                                  |
+| **Y0, Y1**               | Input data: list of curves and their derivatives                            |
+| **return_options**        | If TRUE, returns the full set of input options used for the clustering       |

@@ -14,7 +14,10 @@ Description: method to locally cluster curves and discover functional motifs,
              than one typical “shape”). It can employ various dissimilarity measures and incorporate 
              derivatives in the discovery process, thus exploiting complex facets of shapes.
 License: GPL (>= 2)
-Suggests: tinytest
+Suggests: 
+    knitr,
+    rmarkdown,
+    tinytest
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 Imports: Rcpp (>= 1.0.12),dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,zoo,ggplot2,fda,tidyverse,shiny,shinyWidgets,shinyjs,shinybusy
@@ -22,3 +25,4 @@ Depends: dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,ggplot2,fda
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20
 LazyData: true
+VignetteBuilder: knitr

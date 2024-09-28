@@ -7,7 +7,7 @@
 #' @param cleaned if TRUE, plot the cleaned motifs.
 #' @return plot of memberships motifs, objective function and Bhattacharyya distance
 #' @author Niccolò Feresini & Marzia Angela Cremone & Francesca Chiaromonte
-probKMA_plot <- function(probKMA_results,ylab='',sil_avg=NULL,cleaned=FALSE){
+probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE){
   d=ncol(probKMA_results$Y0[[1]])
   N=nrow(probKMA_results$P)
   K=ncol(probKMA_results$P)

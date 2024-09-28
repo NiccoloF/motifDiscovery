@@ -3,7 +3,7 @@
 #' @description Plot the results of motifs_search.
 #'
 #' @param motifs_search_results output of motifs_search function.
-#' @param ylab a vector of length d, with the titles for the y axis for each dimension.
+#' @param ylab string with the title for the y axis .
 #' @param freq_threshold plot only motifs with frequency at least equal to freq_threshold.
 #' @param top_n if 'all', plot all motifs found. If top_n is an integer, then all top top_n motifs are plotted.
 #' @param plot_curves if TRUE, plot all the curves with coloured motifs.
@@ -12,7 +12,6 @@
 motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,top_n='all',plot_curves=TRUE){
   # Plot the results of motifs_search.
   # motifs_search_results: output of motifs_search function.
-  # ylab: a vector of length d, with the titles for the y axis for each dimension.
   # freq_threshold: plot only motifs with frequency at least equal to freq_threshold.
   # top_n: if 'all', plot all motifs found. If top_n is an integer, then all top top_n motifs are plotted.
   # plot_curves: if TRUE, plot all the curves with coloured motifs.
@@ -54,8 +53,8 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
   lapply(seq_len(d),
          function(j){
            par(mar=c(3,4,4,2)+0.1)
-           plot(V0[[1]][,j],type='l',col=rainbow(K),lwd=5,lty=1,main=ylab[j],xlim=c(1,max(V_length)),
-                ylab=ylab[j],ylim=c(min(unlist(V0)),max(unlist(V0))))
+           plot(V0[[1]][,j],type='l',col=rainbow(K),lwd=5,lty=1,main=paste0(ylab,"-","Dimension:",j),xlim=c(1,max(V_length)),
+                ylab=ylab,ylim=c(min(unlist(V0)),max(unlist(V0))))
            mapply(function(v,k) points(v[,j],type='l',col=rainbow(K)[k+1],lwd=5,lty=1,ylab=ylab),
                   V0[-1],seq_len(K-1))
            par(mar=c(0,0,0,0))
@@ -67,8 +66,8 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
     lapply(seq_len(d),
            function(j){
              par(mar=c(3,4,4,2)+0.1)
-             plot(V1[[1]][,j],type='l',col=rainbow(K),lwd=5,lty=1,main=paste(ylab[j],'derivative'),xlim=c(1,max(V_length)),
-                  ylab=ylab[j],ylim=c(min(unlist(V1)),max(unlist(V1))))
+             plot(V1[[1]][,j],type='l',col=rainbow(K),lwd=5,lty=1,main=paste(ylab,"-","Dimension:",j,'derivative'),xlim=c(1,max(V_length)),
+                  ylab=ylab,ylim=c(min(unlist(V1)),max(unlist(V1))))
              mapply(function(v,k) points(v[,j],type='l',col=rainbow(K)[k+1],lwd=5,lty=1,ylab=ylab),
                     V1[-1],seq_len(K-1))
              par(mar=c(0,0,0,0))
@@ -92,7 +91,7 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
                y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y_inters_k))
                y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                matplot(y_plot,type='l',col=v_occurrences[,1]+1,lwd=round(-4/R_motif*v_occurrences[,3]+5,2),
-                       lty=1,ylab=ylab[j],main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab[j]))
+                       lty=1,ylab=ylab,main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab,"-","Dimension:",j))
                points(v[,j],type='l',col='black',lwd=7,lty=1)
                par(mar=c(0,0,0,0))
                plot.new()
@@ -120,7 +119,7 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
                y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y0_inters_k))
                y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                matplot(y_plot,type='l',col=v_occurrences[,1]+1,lwd=round(-4/R_motif*v_occurrences[,3]+5,2),
-                       lty=1,ylab=ylab[j],main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab[j]))
+                       lty=1,ylab=ylab,main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab,"-","Dimension:",j))
                points(v0[,j],type='l',col='black',lwd=7,lty=1)
                par(mar=c(0,0,0,0))
                plot.new()
@@ -132,7 +131,7 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
                y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y1_inters_k))
                y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                matplot(y_plot,type='l',col=v_occurrences[,1]+1,lwd=round(-4/R_motif*v_occurrences[,3]+5,2),
-                       lty=1,ylab=ylab[j],main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab[j],' derivative'))
+                       lty=1,ylab=ylab,main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab,"-","Dimension:",j,' derivative'))
                points(v1[,j],type='l',col='black',lwd=7,lty=1)
                par(mar=c(0,0,0,0))
                plot.new()
@@ -158,7 +157,7 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
-                 plot(y0[,j],type='l',main=paste('Region',i,'-',ylab[j]),ylab=ylab[j])
+                 plot(y0[,j],type='l',main=paste('Region',i,'-',ylab,"-","Dimension:",j),ylab=ylab)
                  for(k in seq_along(motifs_in_curve)){
                    lines(s_i[k]-1+seq_len(V_length[motifs_in_curve[k]]),Y_inters_k[[k]][,j],col=rainbow(K)[motifs_in_curve[k]],lwd=5)
                  }
@@ -192,7 +191,7 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
-                 plot(y0[,j],type='l',main=paste('Region',i,'-',ylab[j]),ylab=ylab[j],xlab='')
+                 plot(y0[,j],type='l',main=paste('Region',i,'-',ylab,"-","Dimension:",j),ylab=ylab,xlab='')
                  for(k in seq_along(motifs_in_curve)){
                    lines(s_i[k]-1+seq_len(V_length[motifs_in_curve[k]]),Y0_inters_k[[k]][,j],col=rainbow(K)[motifs_in_curve[k]],lwd=5)
                  }
@@ -207,7 +206,7 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
-                 plot(y1[,j],type='l',main=paste('Region',i,'-',paste(ylab[j],'derivative')),ylab=ylab[j])
+                 plot(y1[,j],type='l',main=paste('Region',i,'-',paste(ylab,"-","Dimension:",j,'derivative')),ylab=ylab)
                  for(k in seq_along(motifs_in_curve)){
                    lines(s_i[k]-1+seq_len(V_length[motifs_in_curve[k]]),Y1_inters_k[[k]][,j],col=rainbow(K)[motifs_in_curve[k]],lwd=5)
                  }

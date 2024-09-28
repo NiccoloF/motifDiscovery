@@ -29,25 +29,45 @@
 #' @author Niccolò Feresini, Riccardo Lazzarini
 #' @export
 
-clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium="fMRS",cut_off=NULL,
-                         Y1=NULL,P0=matrix(),S0=matrix(),plot=TRUE,K=NULL,c=NULL,n_init=10,diss="d0_L2",alpha=0,
-                         stopCriterion="max",return_options=TRUE,name='results',names_var='',
-                         probKMA_options=list(standardize=TRUE,c_max=Inf,
-                                              iter_max=1e3,iter4elong=10,
-                                              trials_elong=10,max_gap=0.2,
-                                              quantile=0.25,tol=1e-8,
-                                              tol4elong=1e-3,max_elong=0.5,
-                                              deltaJK_elong=0.05,iter4clean=50,
-                                              tol4clean=1e-4,quantile4clean=0.5,
-                                              m=2,w=1,transformed = FALSE,silhouette_align=FALSE,
-                                              n_subcurves = 10,sil_threshold=0.9),
-                         seed = 1,exe_print = FALSE,set_seed = FALSE,
-                         worker_number = NULL,
-                         V_init=NULL, n_init_motif = 0){
-  
+clusterMotif <- function(Y0,method,stopCriterion,name,plot,
+                         probKMA_options = list(),
+                         funBIalign_options = list(portion_len = NULL,min_card = NULL,cut_off=NULL),
+                         worker_number = NULL){
   
   if(method == 'ProbKMA')
   {
+    default_probKMA_options <- list(K=NULL,c=NULL,diss="d0_L2",alpha=0,
+                                    Y1=NULL,P0=matrix(),S0=matrix(),
+                                    n_init=10,return_options=TRUE,names_var='x(t)',
+                                    standardize=FALSE,c_max=Inf,
+                                    iter_max=1e3,iter4elong=100,
+                                    trials_elong=201,max_gap=0.2,
+                                    quantile=0.25,tol=1e-8,
+                                    tol4elong=1e-3,max_elong=0.5,
+                                    deltaJK_elong=0.05,iter4clean=50,
+                                    tol4clean=1e-4,quantile4clean=0.5,
+                                    m=2,w=1,transformed = FALSE,silhouette_align=FALSE,
+                                    n_subcurves = 10,sil_threshold=0.9,
+                                    seed = 1,exe_print = FALSE,set_seed = FALSE,
+                                    V_init=NULL, n_init_motif = 0)
+    
+    probKMA_options <- modifyList(default_probKMA_options, probKMA_options)
+    Y1 <- probKMA_options$Y1
+    P0 <- probKMA_options$P0
+    S0 <- probKMA_options$S0
+    K <- probKMA_options$K
+    c <- probKMA_options$c
+    n_init <- probKMA_options$n_init
+    diss <- probKMA_options$diss
+    alpha <- probKMA_options$alpha
+    return_options <- probKMA_options$return_options
+    names_var <- probKMA_options$names_var
+    seed <- probKMA_options$seed
+    exe_print <- probKMA_options$exe_print
+    set_seed <- probKMA_options$set_seed
+    V_init <- probKMA_options$V_init
+    n_init_motif <- probKMA_options$n_init_motif
+    
     ### check input #############################################################################################
     # check name
     if(!is.character(name))
@@ -194,46 +214,22 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     len_mean=mean(unlist(lapply(Y0,nrow)))
     c_mean=mean(c)
     
-    arguments = list(Y0 = Y0, 
-                     Y1 = Y1,
-                     P0 = P0, 
-                     S0 = S0,
-                     standardize=probKMA_options$standardize,
-                     c_max = probKMA_options$c_max,
-                     iter_max = probKMA_options$iter_max,
-                     iter4elong = probKMA_options$iter4elong,
-                     max_gap = probKMA_options$max_gap,
-                     quantile = probKMA_options$quantile, 
-                     tol = probKMA_options$tol,
-                     trials_elong = probKMA_options$trials_elong,
-                     tol4elong = probKMA_options$tol4elong, 
-                     max_elong = probKMA_options$max_elong, 
-                     deltaJK_elong = probKMA_options$deltaJK_elong, 
+    arguments = list(Y0 = Y0, Y1 = Y1, P0 = P0, S0 = S0, 
+                     standardize = probKMA_options$standardize, c_max = probKMA_options$c_max,
+                     iter_max = probKMA_options$iter_max, iter4elong = probKMA_options$iter4elong, 
+                     trials_elong = probKMA_options$trials_elong, return_options = return_options,
+                     alpha = alpha, max_gap = probKMA_options$max_gap, 
+                     quantile = probKMA_options$quantile, stopCriterion = stopCriterion, tol = probKMA_options$tol,
+                     tol4elong =probKMA_options$tol4elong, 
+                     max_elong = probKMA_options$max_elong, deltaJK_elong = probKMA_options$deltaJK_elong,
                      iter4clean = probKMA_options$iter4clean, 
-                     tol4clean = probKMA_options$tol4clean,
+                     tol4clean = probKMA_options$tol4clean, m = probKMA_options$m, w = probKMA_options$w,
+                     seed = seed, K = NULL, c = NULL, 
                      quantile4clean = probKMA_options$quantile4clean,
-                     m = probKMA_options$m,
-                     w = probKMA_options$w, 
-                     transformed = probKMA_options$transformed,
-                     return_options = return_options,
-                     alpha = alpha,
-                     diss = diss,
-                     stopCriterion = stopCriterion, 
-                     seed = seed, 
-                     K = NULL, #any value
-                     c = NULL, #any value
-                     v_init = NULL, #any value
-                     exe_print = exe_print,
-                     set_seed = set_seed,
+                     exe_print = exe_print, set_seed = set_seed, 
+                     diss = diss, transformed = probKMA_options$transformed, v_init = NULL,
                      align = probKMA_options$silhouette_align,
-                     sil_threshold = probKMA_options$sil_threshold,
                      n_threads = worker_number)
-    if(((len_mean/c_mean>10)&(length(K)*length(c)*n_init<40))|(length(K)*length(c)*n_init==1)){
-      if(is.null(probKMA_options$worker_number))
-        probKMA_options$worker_number=worker_number
-      cl_find=NULL
-    }else{
-      probKMA_options$worker_number=1
       if(worker_number>1){
         cl_find=parallel::makeCluster(worker_number,timeout=60*60*24*30)
         parallel::clusterExport(cl_find,c('name','names_var',
@@ -241,13 +237,14 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                                           '.mapply_custom','.diss_d0_d1_L2','.domain',
                                           '.select_domain','.find_min_diss',
                                           'probKMA_wrap','arguments'),envir=environment()) 
-        parallel::clusterCall(cl_find,function()library(parallel,combinat))
+        parallel::clusterCall(cl_find, function() {
+          library(parallel)
+          library(combinat)
+        })
         on.exit(parallel::stopCluster(cl_find))
       }else{
         cl_find=NULL
       }
-    }
-    
     ### run probKMA ##########################################################################################
     i_c_K = expand.grid(seq_len(n_init),c,K)
     vector_seed = seq(1,length(i_c_K$Var1))
@@ -289,10 +286,10 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
           }
           transformed=probKMA_results$transformed
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,cleaned=FALSE,transformed=transformed) #transformed
+          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE,transformed=transformed) #transformed
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],cleaned=TRUE,transformed=transformed)
+          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],plot = plot,cleaned=TRUE,transformed=transformed)
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
           silhouette=mtfd:::probKMA_silhouette_plot(results, 
@@ -310,6 +307,153 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     }
     if(n_init_motif == 0 || !V_init_bool)
     {
+      if(N == 1) {
+        
+        # Function to compute variance in a sliding window, ignoring completely empty/NA curves
+        .compute_local_variance <- function(curve, window_size) {
+          apply(curve, 2, function(dim_curve) {
+            zoo::rollapply(dim_curve, width = window_size, FUN = function(x) {
+              if (all(is.na(x))) {
+                return(NA)
+              } else {
+                return(var(na.omit(x)))
+              }
+            }, fill = NA, align = "center", partial = TRUE)
+          })
+        }
+        
+        # Function to compute the slope (first derivative) in a sliding window for each dimension
+        .compute_local_slope <- function(curve, window_size) {
+          apply(curve, 2, function(dim_curve) {
+            zoo::rollapply(dim_curve, width = window_size, FUN = function(x) {
+              if (length(na.omit(x)) > 1) {
+                return(lm(na.omit(x) ~ seq_along(na.omit(x)))$coefficients[2])
+              } else {
+                return(NA)
+              }
+            }, fill = NA, align = "center", partial = TRUE)
+          })
+        }
+        
+        .split_curve_statistically <- function(curve, expected_motif_length, n_subcurves,randomness_factor = 0.3) {
+          length_curve <- nrow(curve)  # Number of observations in the curve
+          
+          # Step 1: Compute local variance and slope to detect changes in the curve
+          local_variance <- .compute_local_variance(curve, expected_motif_length)
+          local_slope <- .compute_local_slope(curve, expected_motif_length)
+          
+          # Normalize the variance and slope for fair comparison
+          normalized_variance <- scale(local_variance, center = TRUE, scale = TRUE)
+          normalized_slope <- scale(local_slope, center = TRUE, scale = TRUE)
+          
+          # Combine variance and slope into a single score
+          combined_score <- apply(normalized_variance + normalized_slope, 1, function(x) mean(x, na.rm = TRUE))
+          
+          # Step 2: Identify candidate split points where the score is high (indicating a transition)
+          threshold <- quantile(combined_score, 0.75, na.rm = TRUE)  # Top 25% of the score
+          candidate_splits <- which(combined_score >= threshold & !is.na(combined_score))
+          
+          # Step 3: Create valid split points while ensuring each valid portion of values meets the expected length requirement
+          split_points <- c(1)  # Start point
+          last_split <- 1
+          for (i in candidate_splits) {
+            # Check if we can add a split while respecting minimum length
+            if (i - last_split >= expected_motif_length) {
+              segment <- curve[last_split:i, ]
+              valid_indices <- which(!is.na(as.matrix(segment)[, 1]))  # Indices of valid values
+              
+              if (length(valid_indices) > 0) {
+                valid_segments <- split(valid_indices, cumsum(c(1, diff(valid_indices) != 1)))  # Split into contiguous valid segments
+                
+                valid_segment <- FALSE
+                for (seg in valid_segments) {
+                  if (length(seg) >= expected_motif_length) {
+                    valid_segment <- TRUE
+                    break
+                  }
+                }
+                
+                # Introduce randomness in adding split points
+                if (valid_segment && runif(1) < randomness_factor) {
+                  split_points <- c(split_points, i)
+                  last_split <- i
+                }
+              }
+            }
+          }
+          
+          # Add last segment if it meets the minimum length requirement
+          if (length_curve - last_split >= expected_motif_length) {
+            split_points <- c(split_points, length_curve)
+          } else
+          {
+            split_points[length(split_points)] <- length_curve
+          }
+          
+          split_points <- unique(split_points)
+          
+          # Step 4: Adjust the number of split points to match n_subcurves if provided
+          if (length(split_points) - 1 > n_subcurves) {
+            # Too many splits, reduce by merging closest split points
+            while (length(split_points) - 1 > n_subcurves) {
+              # Find the smallest gap between consecutive split points
+              gaps <- diff(split_points)
+              min_gap_index <- which.min(gaps)
+              split_points <- split_points[-(min_gap_index + 1)]  # Remove the smaller split
+            }
+          } else if (length(split_points) - 1 < n_subcurves) {
+            # Too few splits, add new split points in the largest gaps between existing points
+            additional_splits_needed <- n_subcurves - (length(split_points) - 1)
+            local_iter <- 0
+            while (additional_splits_needed > 0) {
+              local_iter <- local_iter + 1
+              # Find the largest gap between consecutive split points
+              gaps <- diff(split_points)
+              max_gap_index <- which.max(gaps)
+              # Add a split point in the middle of the largest gap, respecting min_length
+              new_split <- round(mean(split_points[max_gap_index:(max_gap_index + 1)]))
+              
+              # Ensure the new split doesn't violate minimum length
+              if (new_split - split_points[max_gap_index] >= expected_motif_length && 
+                  split_points[max_gap_index + 1] - new_split >= expected_motif_length) {
+                split_points <- sort(c(split_points, new_split))
+                additional_splits_needed <- additional_splits_needed - 1
+              } else {
+                stop(paste0("Failed to find valid split points. Unable to divide the curve into subcurves where each subcurve has a minimum length of ", max(c), " observations. Please check the curve data or adjust the minimum length constraint."))
+              }
+            }
+          }
+          
+          # Step 5: Create subcurves based on valid split points
+          subcurves <- list()
+          for (i in 1:(length(split_points) - 1)) {
+            subcurve <- curve[split_points[i]:split_points[i + 1], ]
+            if (nrow(as.matrix(subcurve)) > 0) {  # Ensure subcurve is not empty
+              subcurves[[i]] <- subcurve
+            }
+          }
+          return(list(subcurves = subcurves, split_points = split_points))
+        }
+        
+        n_subcurves <- probKMA_options$n_subcurves 
+        if(arguments$diss == 'd0_d1_L2') {
+          split_results <- .split_curve_statistically(arguments$Y0[[1]], max(c),n_subcurves, randomness_factor = 0.3)
+          arguments$Y0 <- split_results$subcurves
+          Y1_subcurves <- list()
+          for (i in seq_along(split_results$split_points)[-length(split_results$split_points)]) {
+            Y1_subcurves[[i]] <- arguments$Y1[[1]][pos[i]:pos[i + 1]]
+          }
+          arguments$Y1 <- Y1_subcurves
+        }
+        else if(arguments$diss == 'd0_L2') {
+          split_results <- .split_curve_statistically(arguments$Y0[[1]], max(c),n_subcurves, randomness_factor = 0.3)
+          arguments$Y0 <- split_results$subcurves
+        }
+        else if(arguments$diss == 'd1_L2') {
+          split_results <- .split_curve_statistically(arguments$Y1[[1]], max(c),n_subcurves,randomness_factor = 0.3)
+          arguments$Y1 <- split_results$subcurves
+        }
+    }
       results=tryCatch({.mapply_custom(cl_find, function(K,c,i,small_seed){ 
         dir.create(paste0(name,"K",K,"_c",c),showWarnings=TRUE,recursive = TRUE)
         files=list.files(paste0(name,"K",K,"_c",c))
@@ -326,217 +470,52 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
             arguments$seed = small_seed
             set.seed(small_seed)
           }
-          if(N==1) {
-            cat("Number of curves is equal to \'1\'. Applying random split.")
-            silh_value = -1.0
-            # Function to compute variance in a sliding window, ignoring completely empty/NA curves
-            .compute_local_variance <- function(curve, window_size) {
-              apply(curve, 2, function(dim_curve) {
-                zoo::rollapply(dim_curve, width = window_size, FUN = function(x) {
-                  if (all(is.na(x))) {
-                    return(NA)
-                  } else {
-                    return(var(na.omit(x)))
-                  }
-                }, fill = NA, align = "center", partial = TRUE)
-              })
-            }
+          while(iter==iter_max){
+            start=proc.time()
+            small_seed = small_seed + 1
+            arguments$K = K
+            arguments$c = c
+            arguments$quantile4clean = 1/K
+            results = do.call(mtfd:::probKMA_wrap,arguments)
+            probKMA_results = results[[1]]
+            silhouette_results = results[[2]]
+            end=proc.time()
+            time=end-start
+            iter=probKMA_results$iter
+            iter_max=arguments$iter_max
             
-            # Function to compute the slope (first derivative) in a sliding window for each dimension
-            .compute_local_slope <- function(curve, window_size) {
-              apply(curve, 2, function(dim_curve) {
-                zoo::rollapply(dim_curve, width = window_size, FUN = function(x) {
-                  if (length(na.omit(x)) > 1) {
-                    return(lm(na.omit(x) ~ seq_along(na.omit(x)))$coefficients[2])
-                  } else {
-                    return(NA)
-                  }
-                }, fill = NA, align = "center", partial = TRUE)
-              })
-            }
-            
-            .split_curve_statistically <- function(curve, expected_motif_length, K, min_length, window_size, n_subcurves,randomness_factor = 0.3) {
-              length_curve <- nrow(curve)  # Number of observations in the curve
-              
-              # Step 1: Compute local variance and slope to detect changes in the curve
-              local_variance <- .compute_local_variance(curve, window_size)
-              local_slope <- .compute_local_slope(curve, window_size)
-              
-              # Normalize the variance and slope for fair comparison
-              normalized_variance <- scale(local_variance, center = TRUE, scale = TRUE)
-              normalized_slope <- scale(local_slope, center = TRUE, scale = TRUE)
-              
-              # Combine variance and slope into a single score
-              combined_score <- apply(normalized_variance + normalized_slope, 1, function(x) mean(x, na.rm = TRUE))
-              
-              # Step 2: Identify candidate split points where the score is high (indicating a transition)
-              threshold <- quantile(combined_score, 0.75, na.rm = TRUE)  # Top 25% of the score
-              candidate_splits <- which(combined_score >= threshold & !is.na(combined_score))
-              
-              # Step 3: Create valid split points while ensuring each valid portion of values meets the expected length requirement
-              split_points <- c(1)  # Start point
-              last_split <- 1
-              for (i in candidate_splits) {
-                # Check if we can add a split while respecting minimum length
-                if (i - last_split >= min_length) {
-                  segment <- curve[last_split:i, ]
-                  valid_indices <- which(!is.na(as.matrix(segment)[, 1]))  # Indices of valid values
-                  
-                  if (length(valid_indices) > 0) {
-                    valid_segments <- split(valid_indices, cumsum(c(1, diff(valid_indices) != 1)))  # Split into contiguous valid segments
-                    
-                    valid_segment <- FALSE
-                    for (seg in valid_segments) {
-                      if (length(seg) >= expected_motif_length) {
-                        valid_segment <- TRUE
-                        break
-                      }
-                    }
-                    
-                    # Introduce randomness in adding split points
-                    if (valid_segment && runif(1) < randomness_factor) {
-                      split_points <- c(split_points, i)
-                      last_split <- i
-                    }
-                  }
-                }
-              }
-              
-              # Add last segment if it meets the minimum length requirement
-              if (length_curve - last_split >= min_length) {
-                split_points <- c(split_points, length_curve)
-              } else
-              {
-                split_points[length(split_points)] <- length_curve
-              }
-              
-              split_points <- unique(split_points)
-              
-              # Step 4: Adjust the number of split points to match n_subcurves if provided
-              if (length(split_points) - 1 > n_subcurves) {
-                # Too many splits, reduce by merging closest split points
-                while (length(split_points) - 1 > n_subcurves) {
-                  # Find the smallest gap between consecutive split points
-                  gaps <- diff(split_points)
-                  min_gap_index <- which.min(gaps)
-                  split_points <- split_points[-(min_gap_index + 1)]  # Remove the smaller split
-                }
-              } else if (length(split_points) - 1 < n_subcurves) {
-                # Too few splits, add new split points in the largest gaps between existing points
-                additional_splits_needed <- n_subcurves - (length(split_points) - 1)
-                local_iter <- 0
-                while (additional_splits_needed > 0) {
-                  local_iter <- local_iter + 1
-                  # Find the largest gap between consecutive split points
-                  gaps <- diff(split_points)
-                  max_gap_index <- which.max(gaps)
-                  # Add a split point in the middle of the largest gap, respecting min_length
-                  new_split <- round(mean(split_points[max_gap_index:(max_gap_index + 1)]))
-                  
-                  # Ensure the new split doesn't violate minimum length
-                  if (new_split - split_points[max_gap_index] >= min_length && 
-                      split_points[max_gap_index + 1] - new_split >= min_length) {
-                    split_points <- sort(c(split_points, new_split))
-                    additional_splits_needed <- additional_splits_needed - 1
-                  } else {
-                    stop(paste0("Failed to find valid split points. Unable to divide the curve into subcurves where each subcurve has a minimum length of ", c, " observations. Please check the curve data or adjust the minimum length constraint."))
-                  }
-                }
-              }
-              
-              # Step 5: Create subcurves based on valid split points
-              subcurves <- list()
-              for (i in 1:(length(split_points) - 1)) {
-                subcurve <- curve[split_points[i]:split_points[i + 1], ]
-                if (nrow(as.matrix(subcurve)) > 0) {  # Ensure subcurve is not empty
-                  subcurves[[i]] <- subcurve
-                }
-              }
-              return(list(subcurves = subcurves, split_points = split_points))
-            }
-            counter <- 0
-            while(iter==iter_max && !all(silh_value > arguments$sil_threshold)){
-              counter <- counter + 1
-              start=proc.time()
-              small_seed = small_seed + 1
-              if(arguments$diss == 'd0_d1_L2') {
-                split_results <- .split_curve_statistically(Y0[[1]], c, K, c, c,probKMA_options$n_subcurves, randomness_factor = 0.0)
-                arguments$Y0 <- split_results$subcurves
-                Y1_subcurves <- list()
-                for (i in seq_along(split_results$split_points)[-length(split_results$split_points)]) {
-                  Y1_subcurves[[i]] <- Y1[[1]][pos[i]:pos[i + 1]]
-                }
-                arguments$Y1 <- Y1_subcurves
-              }
-              else if(arguments$diss == 'd0_L2') {
-                split_results <- .split_curve_statistically(Y0[[1]], c, K, c, c,probKMA_options$n_subcurves, randomness_factor = 0.0)
-                arguments$Y0 <- split_results$subcurves
-              }
-              else if(arguments$diss == 'd1_L2') {
-                split_results <- .split_curve_statistically(Y1[[1]], c, K, c, c,probKMA_options$n_subcurves,randomness_factor = 0.0)
-                arguments$Y1 <- split_results$subcurves
-              }
-              arguments$K = K
-              arguments$c = c
-              arguments$quantile4clean = 1/K
-              results = do.call(mtfd:::probKMA_wrap,arguments)
-              probKMA_results = results[[1]]
-              silhouette_results = results[[2]]
-              silh_value = silhouette_results$silhouette_average
-              end=proc.time()
-              time=end-start
-              iter=probKMA_results$iter
-              iter_max=arguments$iter_max
-              
-              if(iter==iter_max)
-                warning('Maximum number of iteration reached. Re-starting.')
-              
-              if(counter == 1000)
-                stop('No available splits found in 1000 trials. Please decrease the \'sil_threshold\'.')
-            }
-          } else {
-            while(iter==iter_max){
-              start=proc.time()
-              small_seed = small_seed + 1
-              arguments$K = K
-              arguments$c = c
-              arguments$quantile4clean = 1/K
-              results = do.call(mtfd:::probKMA_wrap,arguments)
-              probKMA_results = results[[1]]
-              silhouette_results = results[[2]]
-              end=proc.time()
-              time=end-start
-              iter=probKMA_results$iter
-              iter_max=arguments$iter_max
-              
-              if(iter==iter_max)
-                warning('Maximum number of iteration reached. Re-starting.')
-            }
+            if(iter==iter_max)
+              warning('Maximum number of iteration reached. Re-starting.')
           }
-          
+          if(plot) {
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
           mtfd:::probKMA_plot(probKMA_results,
-                              sil_avg = silhouette_results[[4]],
+                              plot = TRUE,
                               ylab=names_var,
-                              cleaned=FALSE) 
+                              sil_avg = silhouette_results[[4]],
+                              cleaned=FALSE)
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
           mtfd:::probKMA_plot(probKMA_results,
-                              sil_avg = silhouette_results[[4]],
+                              plot = TRUE,
                               ylab=names_var,
-                              cleaned=TRUE) 
+                              sil_avg = silhouette_results[[4]],
+                              cleaned=TRUE)
           dev.off()
-      
+
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
           silhouette = mtfd:::probKMA_silhouette_plot(silhouette_results,K,plot = plot)
           dev.off()
-          
+          } else {
+            silhouette = mtfd:::probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
+          }
+
           probKMA_results["v_init"] <- NULL # delete v_init components
           save(probKMA_results,time,silhouette,
                file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
-          return(list(probKMA_results=probKMA_results,
+           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
-        }
+         }
       },i_c_K[,3],i_c_K[,2],i_c_K[,1],vector_seed,SIMPLIFY=FALSE)},error = function(e){
         stop(e$message)
       })
@@ -864,8 +843,14 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
                 cluster_candidate_motifs_results = cluster_candidate_motifs_results,
                 motifs_search_results = motifs_search_results))
   }
-  if(method=="FunBialign")
+  if(method=="FunBIalign")
   {
+    if(length(funBIalign_options) != 3) {
+      stop('\'funBIalign_options\' must contain: \'portion_len\',\'min_card\',\'cut_off\'.')
+    }
+    portion_len <- funBIalign_options$portion_len
+    min_card <- funBIalign_options$min_card
+    cut_off <- funBIalign_options$cut_off
     # check required input
     if(missing(portion_len) || is.null(portion_len))
       stop('portion_len attribute must be specified')
@@ -1103,7 +1088,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
 
     # CRITERIUM: variance ----
     # We can order the results by variance too
-    if(criterium == "Variance")
+    if(stopCriterion == "Variance")
     {
       motif_var <- lapply(list_of_recommendations_ordered, 
                           function(x){
@@ -1122,7 +1107,7 @@ clusterMotif <- function(Y0,method,portion_len = NULL,min_card = NULL,criterium=
     ## Plot the data and highlight the motif occurrences in red -----
     if(plot)
     {
-      pdf(paste0(name,"/plot_",criterium,".pdf"),width=10,height=5)
+      pdf(paste0(name,"/plot_",stopCriterion,".pdf"),width=10,height=5)
       layout(matrix(1:2,ncol=2,byrow=TRUE),widths=c(8.5,1))
       for(q in 1:min(length(list_of_recommendations_ordered),cut_off,na.rm=TRUE)){
         temp_motif <- list_of_recommendations_ordered[[q]]
