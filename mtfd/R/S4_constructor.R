@@ -1,9 +1,49 @@
-#' @title Create MyS4Class Object
-#' @description A constructor function for the S4 class MyS4Class.
-#' @param name A character string representing the name.
-#' @param value A numeric value.
-#' @return An object of class MyS4Class.
+#' @title Create motifSimulation Object
+#' @description It represents the constructor of the S4 class 'motifSimulation'..
+#' @param N An integer specifying the number of background curves to be generated (mandatory).
+#' @param len An integer specifying the length of the background curves (mandatory).
+#' @param mot_details A list outlining the definitions of the motifs to be included. Each motif is characterized by its length, a set of coefficients that may be optionally specified, and the number of occurrences. These occurrences can be indicated either by specific positions within the curves or by a total count. In the latter case, the algorithm will randomly position the motifs throughout the curves (mandatory).
+#' @param norder An integer specifying the order of the B-splines (mandatory).
+#' @param coeff_min Additive coefficients to be incorporated into the generation of coefficients for the background curves (default = -15).
+#' @param coeff_max Additive coefficients to be incorporated into the generation of coefficients for the background curves (default = 15).
+#' @param dist_knots An integer specifying the distance between two consecutive knots (default = 10).
+#' @param min_dist_motifs An integer specifying the minimum distance between two consecutive motifs embedded in the same curve (default = 'norder' * 'dist_knots').
+#' @param distribution A character string specifying the distribution from which the coefficients of the background curves are generated. You can choose between a uniform distribution or a beta distribution. Alternatively, you can pass a vector representing the empirical distribution from which you wish to sample (default = "unif").
+#' @return An object of class motifSimulation
 #' @export
+#' @examples
+#' \dontrun{
+#' mot_len <- 100
+#' motif_str <- rbind.data.frame(c(1, 1, 20),
+#'                               c(2, 1, 2), 
+#'                               c(1, 3, 1),
+#'                               c(1, 2, 1),
+#'                               c(1, 2, 15),
+#'                               c(1, 4, 1),
+#'                               c(2, 5, 1),
+#'                               c(2, 7, 1),
+#'                               c(2,17,1))
+#' 
+#' names(motif_str) <- c("motif_id", "curve","start_break_pos")
+#' 
+#' mot1 <- list("len" = mot_len, #length
+#'              "coeffs" = NULL, # weights for the motif
+#'              "occurrences" = motif_str %>% filter(motif_id == 1))
+#' 
+#' mot2 <- list("len" = mot_len,
+#'              "coeffs" = NULL,
+#'              "occurrences" = motif_str %>% filter(motif_id == 2))
+#' 
+#' mot_details <- list(mot1,mot2)
+#' 
+#' # MATRIX ERROR 
+#' noise_str <- list(rbind(rep(2, 100)),
+#'                   rbind(rep(0.0, 100)))
+#' 
+#' builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
+#'                                         distribution = 'beta')
+#' }
+
 motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
                                    coeff_min=-15,coeff_max=15,
                                    dist_knots=10,min_dist_motifs=NULL,

@@ -13,13 +13,16 @@ Description: method to locally cluster curves and discover functional motifs,
              and fuzzy clustering (curves belonging to more than one cluster, if they contain more
              than one typical “shape”). It can employ various dissimilarity measures and incorporate 
              derivatives in the discovery process, thus exploiting complex facets of shapes.
+             Additionally, the package includes functionality to simulate functional data with embedded motifs. 
+             This feature allows users to create benchmark datasets to test the algorithms, 
+             ensuring robust validation and comparison of motif discovery methods.
 License: GPL (>= 2)
 Suggests: 
     knitr,
     rmarkdown,
     tinytest
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Imports: Rcpp (>= 1.0.12),dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,zoo,ggplot2,fda,tidyverse,shiny,shinyWidgets,shinyjs,shinybusy
 Depends: dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,ggplot2,fda,tidyverse,shiny,shinyWidgets,shinyjs,shinybusy
 LinkingTo: Rcpp, RcppArmadillo

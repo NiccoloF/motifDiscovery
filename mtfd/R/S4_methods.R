@@ -1,14 +1,24 @@
-#' @title showDetails
-#' @description Shows details of an object of class MyS4Class.
-#' @param object An object of class MyS4Class.
+#' @title generateCurves
+#' @description Generate the curves with the motifs embedded.
+#' @param object An S4 object that has been previously constructed (mandatory).
+#' @param noise_type A string specifying whether to add pointwise error or coefficients ('pointwise' or 'coeff') (mandatory).
+#' @param noise_str A list corresponding to the number of motifs, specifying the structure of noise to be added for each motif. If 'pointwise' is chosen, the user can specify a list of vectors or matrices indicating the amount of noise for each motif. If 'coeff' is selected, a list of individual values or vectors can be provided (mandatory).
+#' @param seed_background An integer specifying the seed for background curve generation (default = 777).
+#' @param seed_motif An integer specifying the seed for motif generation (default = 43213).
+#' @param only_der A logical value indicating whether to add a vertical shift to each motif instance. If set to 'FALSE', a vertical shift is added (default = TRUE).
+#' @param coeff_min_shift A numeric value specifying the minimum vertical shift (default = -10).
+#' @param coeff_max_shift A numeric value specifying the maximum vertical shift (default = 10).
+#' @return a list containing curves with embedded motifs.
 #' @export
-# noise_str can be a vector or a matrix with n_cols = motif_len
+#' @examples
+#' \dontrun{
+#' curves <- mtfd::generateCurves(builder,noise_type = 'pointwise',noise_str)                                
+#' }
 setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL,seed_background = 777,seed_motif = 43213,
                                       only_der = TRUE,coeff_min_shift = -10,coeff_max_shift = 10) {
   standardGeneric("generateCurves")
 })
 
-#' @rdname showDetails
 #' @export
 setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL, noise_str = NULL,seed_background = 777,seed_motif = 43213,
                                                         only_der = TRUE,coeff_min_shift = -10,coeff_max_shift = 10) {
@@ -64,26 +74,22 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
           rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1, # number of motifs coefficients for each selected motif
           motifs_in_curves_i$starting_coeff_pos-1,SIMPLIFY=FALSE)) # Calculating the position of the coefficients of the motifs within the coefficients of the curves
         shifted_coeff <- rep(runif(length(motifs_in_curves_i$motif_id),min=coeff_min_shift,max=coeff_max_shift),rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1) 
-        for(z in 1:length(noise_str[[1]])) {
-        list_coeff_error <- lapply(1:length(noise_str[[1]]),function(null) {
-          sd_noise <- NULL
+      
+        list_coeff_error <- lapply(1:length(noise_str[[1]]),function(z) {
           if(only_der) {
           coeff[pos_coeff_motifs] = unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
-            sd_noise <<- noise_str[[id]][z]
+            sd_noise <- noise_str[[id]][z]
             print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
-            object@mot_details[[id]]$coeffs})) +
-            rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
+            object@mot_details[[id]]$coeffs + rnorm(length(object@mot_details[[id]]$coeffs),sd=sd_noise)}))
           } else {
             coeff[pos_coeff_motifs] = unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
               sd_noise <<- noise_str[[id]][z]
               print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
-              object@mot_details[[id]]$coeffs})) + shifted_coeff + 
-                rnorm(length(pos_coeff_motifs),sd=rep(rep(sd_noise,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id],rep(len_motifs,length.out=length(object@mot_details))[motifs_in_curves_i$motif_id]/object@dist_knots+object@norder-1)) # Adding gaussian noise to coefficients
+              object@mot_details[[id]]$coeffs + rnorm(length(object@mot_details[[id]]$coeffs),sd=sd_noise)})) + shifted_coeff
           }
           # For each chosen coefficient add a uniform number and a gaussian noise
           return(coeff)
         })
-        }
       if(only_der) {
         coeff[pos_coeff_motifs] <- unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
                                   object@mot_details[[id]]$coeffs}))
@@ -101,13 +107,13 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
       for (k in seq_along(noise_str[[1]])) {
         SNR_num <- data.frame(xmin = numeric(), xmax = numeric(), SNR = numeric(), stringsAsFactors = FALSE)
         SNR_den <- data.frame(xmin = numeric(), xmax = numeric(), SNR = numeric(), stringsAsFactors = FALSE)
-        
+      
         # Loop over each motif
         for (n in seq_along(motifs_in_curves_i$motif_id)) {
           start_break <- motifs_in_curves_i$starting_coeff_pos[n]
           start_point <- (start_break - 1) * object@dist_knots
           end_point   <- start_point + len_motifs[motifs_in_curves_i$motif_id[n]]
-          
+
           # Calculate variance for SNR numerator and denominator
           SNR_num <- rbind(SNR_num,data.frame(xmin =start_point,xmax = end_point,SNR = var(or_y_motif[start_point:end_point])))
           SNR_den <- rbind(SNR_den,data.frame(xmin =start_point,xmax = end_point,SNR = var(or_y[[k]][start_point:end_point] - or_y_motif[start_point:end_point])))
@@ -176,7 +182,16 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
   return(fd_curves = fd_curves)
 })
 
+#' @title plot_motifs
+#' @description Plot the results of generateCurves.
+#' @param object An S4 object that has been previously constructed (mandatory).
+#' @param curves The result of the previous method (mandatory).
+#' @param path A character string specifying the directory path where the results will be saved (mandatory).
 #' @export
+#' @examples
+#' \dontrun{
+#' mtfd::plot_motifs(builder,curves,getwd())                                  
+#' }
 setGeneric("plot_motifs", function(object,curves,path) 
   standardGeneric("plot_motifs")
 )
@@ -442,8 +457,15 @@ setMethod("plot_motifs",c(object = "motifSimulation", curves = "list", path = "c
   dev.off()
 })
 
-
+#' @title to_motifDiscovery
+#' @description Transforms the result of generateCurves into a format suitable for clusterMotif.
+#' @param curves A list coming from generateCurves function.
+#' @return A  list containing all curves suitable for clusterMotif input.
 #' @export
+#' @examples
+#' \dontrun{
+#' mtfd::plot(builder,curves,getwd())                                  
+#' }
 setGeneric("to_motifDiscovery", function(curves) 
   standardGeneric("to_motifDiscovery")
 )

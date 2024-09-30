@@ -1,16 +1,13 @@
-# library(shiny)
-# library(ggplot2)
-# library(dplyr)
-# library(shinyjs)
-# library(shinyWidgets)
-# library(shinybusy)
-# library(data.table)
-
 #' @title motifSimulationApp
-#' @description Shows details of an object of class MyS4Class.
-#' @param object An object of class MyS4Class.
+#' @description Shiny app is available, serving as a graphical user interface (GUI) that enables users to execute all the motifSimulation functions in a straightforward and intuitive manner. The app consistently provides summary plots, enhancing the user experience.
+#' @param noise_str A list corresponding to the number of motifs, specifying the structure of noise to be added for each motif. If 'pointwise' is chosen, the user can specify a list of vectors or matrices indicating the amount of noise for each motif. If 'coeff' is selected, a list of individual values or vectors can be provided.
+#' @param mot_details A list outlining the definitions of the motifs to be included. Each motif is characterized by its length, a set of coefficients that may be optionally specified, and the number of occurrences. These occurrences can be indicated either by specific positions within the curves or by a total count. In the latter case, the algorithm will randomly position the motifs throughout the curves.
+#' @examples
+#' \dontrun{
+#' mtfd::motifSimulationApp(noise_str,mot_details)
+#' }
 #' @export
-motifSimulationApp <- function(error_str,mot_details) {
+motifSimulationApp <- function(noise_str,mot_details) {
   ui <- fluidPage(
     useShinyjs(),  # Initialize shinyjs
     useSweetAlert(),  # Initialize shinyWidgets
@@ -187,7 +184,7 @@ motifSimulationApp <- function(error_str,mot_details) {
                ),
                
                div(class = "input-row",
-                   div(class = "input-group", selectInput("error_type", "Error Type", choices = c("pointwise", "coeff")))
+                   div(class = "input-group", selectInput("noise_type", "Noise Type", choices = c("pointwise", "coeff")))
                )
              )
       )
@@ -210,7 +207,7 @@ motifSimulationApp <- function(error_str,mot_details) {
         coeff_max <- input$coeff_max
         dist_knots <- input$dist_knots
         min_dist_motifs <- input$min_dist_motifs
-        error_type <- input$error_type
+        noise_type <- input$noise_type
         
         # Handle empirical distribution
         if (input$distribution == "empirical") {
@@ -222,7 +219,7 @@ motifSimulationApp <- function(error_str,mot_details) {
         if (!dir.exists(input$path)) {
           stop("Invalid directory path.")
         }
-  
+
         builder <- mtfd::motifSimulationBuilder(N = N,len = len,
                                                 mot_details = mot_details,
                                                 norder = norder,
@@ -231,17 +228,52 @@ motifSimulationApp <- function(error_str,mot_details) {
                                                 dist_knots = dist_knots,
                                                 min_dist_motifs = min_dist_motifs,
                                                 distribution = distribution)
-        curves <- mtfd::generateCurves(builder,error_type = error_type, error_str)
+        curves <- mtfd::generateCurves(builder,noise_type = noise_type,noise_str=noise_str)
         
         output_file <- file.path(input$path, "plots.pdf")
         
         if (!dir.exists(input$path)) {
           dir.create(input$path)
         }
-        n_error <- NULL
+        n_error <- 1
         plots <- lapply(seq_along(curves), function(k) {
-          if(!is.null(curves[[k]]$with_error)) {
-            n_error <<- length(curves[[k]]$with_error$error_y)
+          if(purrr::is_empty(builder@motifs_in_curves)) {
+            curve_data_no_error <- data.frame(
+              t = seq(0, curves[[k]]$basis$rangeval[2]-1),
+              x = curves[[k]]$background$no_error_y
+            )
+            names(curve_data_no_error) <- c("t", "x")
+            
+            p <- ggplot() +
+              # Plot the main curve in gray30
+              geom_line(data = curve_data_no_error, aes(x = t, y = x, color = 'background_curve'), linewidth = 0.5) +
+              
+              scale_color_manual(
+                values = c('background_curve' = scales::alpha('gray30', 0.90))
+              ) +
+              
+              # Title
+              labs(
+                title = paste0('<b><span style="color:#0073C2;">Random curve ', k, '</span></b>'),
+                x = "t",
+                y = "x"
+              ) +
+              
+              # Clean theme with subtle grid
+              theme_minimal(base_size = 15) +
+              theme(
+                plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, margin = margin(b = 10)),
+                axis.title = element_text(size = 14, margin = margin(t = 10)),
+                axis.text = element_text(size = 12),
+                legend.position = "none", 
+                plot.margin = margin(15, 15, 15, 15),  # Margini intorno al grafico
+                panel.grid.major = element_line(color = "gray90"),
+                panel.grid.minor = element_blank()
+              ) 
+            
+            print(p)
+          }else if(!is.null(curves[[k]]$with_noise)) {
+            n_error <<- length(curves[[k]]$with_noise$noise_y)
             curve_data_no_error <- data.frame(
               t = seq(0, curves[[k]]$basis$rangeval[2]-1),
               x = curves[[k]]$background$no_error_y,
@@ -251,13 +283,13 @@ motifSimulationApp <- function(error_str,mot_details) {
             curve_data_error <- NULL
             curve_data_error <- data.frame(
               t = seq(0, curves[[k]]$basis$rangeval[2]-1),
-              x = curves[[k]]$with_error$error_y)
-            names(curve_data_error) <- c("t",paste0("x",seq(length(curves[[k]]$with_error$error_y))))
+              x = curves[[k]]$with_noise$noise_y)
+            names(curve_data_error) <- c("t",paste0("x",seq(length(curves[[k]]$with_noise$noise_y))))
             
             motif_lines <- mapply(function(id_motif, pos_motif, instance) {
               motif_t = seq((pos_motif - 1) * builder@dist_knots,
                             (pos_motif - 1) * builder@dist_knots + builder@mot_details[[id_motif]]$len)
-              motif_x = lapply(curves[[k]]$with_error$error_y,function(curve){return(curve[motif_t + 1])})
+              motif_x = lapply(curves[[k]]$with_noise$noise_y,function(curve){return(curve[motif_t + 1])})
               
               return(lapply(motif_x,function(motif){ data.frame(t = motif_t, x = motif, motif_id = factor(paste(id_motif, instance, sep = "_")),
                                                                 initial_number = str_extract(as.character(id_motif), "^[^_]+"),
@@ -289,7 +321,7 @@ motifSimulationApp <- function(error_str,mot_details) {
                 # Plot the main curve in gray30
                 geom_line(data = curve_data_no_error, aes(x = t, y = x, color = 'background_curve'), linewidth = 0.5) +
                 # Plot the curve with motifs in gold
-                geom_line(data = curve_data_no_error, aes(x = t, y = z, color = 'with_motif'), linewidth = 0.5) +
+                geom_line(data = curve_data_no_error, aes(x = t, y = z, color = 'zero_noise_motif'), linewidth = 0.5) +
                 # Plot the error curve
                 geom_line(data = curve_data_error, aes_string(x = "t", y = paste0("x", j)), color = "black", linewidth = 0.5) +
                 # Add shaded rectangles for motif positions
@@ -306,10 +338,10 @@ motifSimulationApp <- function(error_str,mot_details) {
                 # Add color and fill scales with custom labels for motif_id
                 scale_color_manual(
                   values = c('background_curve' = scales::alpha('gray30', 0.15), 
-                             'with_motif' = 'gold', 
+                             'zero_noise_motif' = 'gold', 
                              motif_colors),
                   labels = c('background_curve' = 'background_curve', 
-                             'with_motif' = 'with_motif', 
+                             'zero_noise_motif' = 'zero_noise_motif', 
                              setNames(motif_labels, unique(motif_data[[j]]$initial_number)))
                 ) +
                 scale_fill_manual(
@@ -319,11 +351,11 @@ motifSimulationApp <- function(error_str,mot_details) {
                 # Title
                 labs(
                   title = paste0('<b><span style="color:#0073C2;">Random curve ', k, ' - type_error ', 
-                                 ifelse(j %% length(curves[[k]]$with_error$error_y) == 0, 
-                                        length(curves[[k]]$with_error$error_y), j %% length(curves[[k]]$with_error$error_y)), 
+                                 ifelse(j %% length(curves[[k]]$with_noise$noise_y) == 0, 
+                                        length(curves[[k]]$with_noise$noise_y), j %% length(curves[[k]]$with_noise$noise_y)), 
                                  '</span></b>'), 
                   x = "t", 
-                  y = paste0("x", j)
+                  y = "x"
                 ) +
                 # Clean theme with subtle grid
                 theme_minimal(base_size = 15) +
@@ -347,8 +379,112 @@ motifSimulationApp <- function(error_str,mot_details) {
             })
           }
         })
-     
+        
         plots <- unlist(plots, recursive = FALSE)
+        
+        if(!purrr::is_empty(builder@motifs_in_curves)) {
+          curves_data_noise <- vector("list",n_error)
+          for(error_n in 1:n_error) {
+            temp <- list()
+            for(motif_id in 1:length(builder@mot_details)) {
+              for(curve_k in 1:length(builder@motifs_in_curves)) {
+                motif_instance <- 1
+                if(!is.null(builder@motifs_in_curves[[curve_k]])) {
+                  for(z in 1:length(builder@motifs_in_curves[[curve_k]]$motif_id)) {
+                    if(builder@motifs_in_curves[[curve_k]]$motif_id[z] == motif_id) {
+                      # Calcola l'intervallo della curva
+                      start <- (builder@motifs_in_curves[[curve_k]]$starting_coeff_pos[z] - 1) * builder@dist_knots + 1
+                      
+                      # Crea un identificatore unico per ogni istanza
+                      instance_id <- paste0("curve_", curve_k, "_", motif_instance)
+                      motif_instance <- motif_instance + 1
+                      
+                      curve_y_noise <- curves[[curve_k]]$with_noise$noise_y[[error_n]][start:(start + builder@mot_details[[motif_id]]$len - 1)]
+                      # Creazione di una sequenza x per il plotting
+                      x <- seq_along(curve_y_noise)
+                      
+                      # Aggiungi i dati alla lista
+                      temp[[length(temp) + 1]] <- data.frame(x = x, y = curve_y_noise, id = motif_id, instance = instance_id) 
+                    }
+                  }
+                }
+              } 
+            }
+            curves_data_noise[[error_n]] <- temp
+          }
+          
+          # Combina i dati in un unico dataframe
+          curves_df <- lapply(curves_data_noise,bind_rows)
+          # Ottieni la lista unica degli ID
+          unique_ids <- unique(curves_df[[1]]$id)
+          
+          # Compute the mean motif for each error
+          motif_y_means <- vector("list", length(unique_ids))
+          index <- 0
+          # Iterate over each unique ID
+          for (id in unique_ids) {
+            index <- index + 1
+            # Iterate through each sublist in builder@mot_details for the current id
+            for (i in builder@mot_details[[index]]$occurrences$curve %>% unique()) {
+              curve <- curves[[i]]
+              motif_in_curve_i <- builder@motifs_in_curves[[i]]
+              for(z in 1:length(motif_in_curve_i$motif_id))
+              {
+                if(motif_in_curve_i$motif_id[z] == id) {
+                  start <- (motif_in_curve_i$starting_coeff_pos[z] - 1) * builder@dist_knots + 1
+                  # Compute pointwise means across all curves in the subcurve list
+                  if (is.null(motif_y_means[[index]])) {
+                    motif_y_means[[index]] <- curve$no_noise$motif_y[start:(start + builder@mot_details[[index]]$len - 1)]
+                  } else {
+                    motif_y_means[[index]] <- motif_y_means[[index]] + curve$no_noise$motif_y[start:(start + builder@mot_details[[index]]$len - 1)]
+                  }
+                }
+              }
+            }
+            motif_y_means[[index]] <- data.frame(x = seq_along(motif_y_means[[index]]), y = motif_y_means[[index]] / length(builder@mot_details[[index]]$occurrences$curve %>% unique()))
+            names(motif_y_means)[index] <- id
+          }
+          # Loop per plottare ogni ID separatamente su pagine diverse
+          for(error_n in 1:n_error) {
+            for (id in unique_ids) {
+              # Filtra i dati per il singolo ID
+              plot_data <- curves_df[[error_n]] %>% filter(id == !!id)
+              
+              plots[[length(plots)+1]] <- ggplot() + 
+                geom_line(data = plot_data, aes(x = x, y = y, color = instance), size = 1, linetype = "longdash") + 
+                geom_line(data = motif_y_means[[as.character(id)]], aes(x = x, y = y, color = "black"), size = 2, linetype = "solid") + 
+                scale_color_manual(
+                  values = c("motif_y_means" = "black", setNames(rainbow(length(unique(plot_data$instance))), unique(plot_data$instance))),
+                  labels = c("motif_y_means" = paste0("motif ", id), unique(plot_data$instance))
+                ) + 
+                labs(
+                  title = paste0('<b><span style="color:#0073C2;">Motif ', id,'</span></b>'),
+                  subtitle = paste0("Mean of the no noise motif <b>", id, "</b> with type error <b>", error_n, "</b>"),
+                  x = "x",
+                  y = "t",
+                  color = "Noise Curves"
+                ) + 
+                theme_minimal(base_size = 15) + 
+                theme(
+                  plot.title = element_markdown(size = 20, face = "bold", hjust = 0.5, margin = margin(b = 10)),
+                  plot.subtitle = element_markdown(size = 16, hjust = 0.5, margin = margin(b = 10)),  # Styled subtitle
+                  axis.title = element_text(size = 14, margin = margin(t = 10)),
+                  axis.text = element_text(size = 12),
+                  legend.text = element_text(size = 12),
+                  legend.position = "right",
+                  legend.box.margin = margin(10, 10, 10, 10),
+                  plot.margin = margin(15, 15, 15, 15),
+                  panel.grid.major = element_line(color = "gray90"),
+                  panel.grid.minor = element_blank()
+                ) + 
+                guides(
+                  color = guide_legend(ncol = 1, byrow = TRUE, title = "Noise Curves"),
+                  fill = "none"
+                )
+            }
+          }
+        }
+        
         
         plots_per_page <- n_error
         num_pages <- ceiling(length(plots) / plots_per_page)
