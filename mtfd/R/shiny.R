@@ -445,8 +445,8 @@ motifSimulationApp <- function(noise_str,mot_details) {
             names(motif_y_means)[index] <- id
           }
           # Loop per plottare ogni ID separatamente su pagine diverse
-          for(error_n in 1:n_error) {
-            for (id in unique_ids) {
+          for (id in unique_ids) {
+            for(error_n in 1:n_error) {
               # Filtra i dati per il singolo ID
               plot_data <- curves_df[[error_n]] %>% filter(id == !!id)
               

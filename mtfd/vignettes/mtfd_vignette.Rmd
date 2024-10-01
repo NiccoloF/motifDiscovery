@@ -5,9 +5,10 @@ author: "Niccolò Feresini & Riccardo Lazzarini"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{mtfd: Functional Motif Discovery}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+runtime: shiny
 ---
 
 ```{r setup, include = FALSE}
@@ -206,7 +207,9 @@ Below is an overview of the key arguments:
 The five main types of use are considered below.
 
 ### 0) Special case: No motifs
-```{r no_motifs,eval = FALSE}
+```{r no_motifs}
+library(mtfd)
+
 mot_len <- 100
 mot_details <- NULL # or list()
 
@@ -214,12 +217,18 @@ builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details)
 
 curves <- mtfd::generateCurves(builder) 
 
-mtfd::plot_motifs(builder,curves,getwd())
+mtfd::plot_motifs(builder,curves,name = "plots_0")
+```
+
+```{r display_pdf_0, echo=FALSE, out.width="100%",out.height="100%"}
+knitr::include_graphics("plots_0.pdf")
 ```
 
 
 ### 1) Set the motif position and add pointwise noise
-```{r motif_position_pointiwise_error,eval = FALSE}
+```{r motif_position_pointiwise_error}
+library(mtfd)
+
 mot_len <- 100 
 # struct specifying the motif ID,the number of curve and the relative knot position
 motif_str <- rbind.data.frame(c(1, 1, 20),
@@ -260,12 +269,18 @@ builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
 
 curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str=noise_str) 
 
-mtfd::plot_motifs(builder,curves,getwd())
+mtfd::plot_motifs(builder,curves,"plots_1")
+```
+
+```{r display_pdf_1, echo=FALSE, out.width="100%",out.height="100%"}
+knitr::include_graphics("plots_1.pdf")
 ```
 
 
 ### 2) Set the motif position and add coeff noise
-```{r motif_position_coeff_error,eval = FALSE}
+```{r motif_position_coeff_error}
+library(mtfd)
+
 mot_len <- 100
 # struct specifying the motif ID,the number of curve and the relative knot position
 motif_str <- rbind.data.frame(c(1, 1, 20),
@@ -298,12 +313,18 @@ builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
 
 curves <- mtfd::generateCurves(builder,noise_type = 'coeff',noise_str,only_der = FALSE)
 
-mtfd::plot_motifs(builder,curves,getwd())
+mtfd::plot_motifs(builder,curves,"plots_2")
+```
+
+```{r display_pdf_2, echo=FALSE, out.width="100%",out.height="100%"}
+knitr::include_graphics("plots_2.pdf")
 ```
 
 
 ### 3) Random motif position and add pointwse noise
-```{r random_position_pointiwise_error,eval = FALSE}
+```{r random_position_pointiwise_error}
+library(mtfd)
+
 mot_len <- 100
 
 mot1 <- list("len" = mot_len, #length
@@ -324,12 +345,18 @@ builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
 
 curves <- mtfd::generateCurves(builder,noise_type = 'pointwise',noise_str,only_der = FALSE)
 
-mtfd::plot_motifs(builder,curves,getwd())
+mtfd::plot_motifs(builder,curves,"plots_3")
+```
+
+```{r display_pdf_3, echo=FALSE, out.width="100%",out.height="100%"}
+knitr::include_graphics("plots_3.pdf")
 ```
 
 
 ### 4) Random motif position and add coeff noise
-```{r random_position_coeff_error,eval = FALSE}
+```{r random_position_coeff_error}
+library(mtfd)
+
 mot_len <- 100
 mot1 <- list("len" = mot_len, 
              "weights" = NULL, 
@@ -350,8 +377,13 @@ builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
 
 curves <- mtfd::generateCurves(builder,noise_type = 'coeff',noise_str,only_der = FALSE)
 
-mtfd::plot_motifs(builder,curves,getwd())
+mtfd::plot_motifs(builder,curves,"plots_4")
 ```
+
+```{r display_pdf_4, echo=FALSE, out.width="100%",out.height="100%"}
+knitr::include_graphics("plots_4.pdf")
+```
+
 
 ### Additional functions
 In addition to the functions previously described, the package includes a helper function that facilitates the direct transformation of the output from 'generateCurves' into a format suitable for 'clusterMotif'. This function generates a comprehensive list that encompasses all curves, each containing the embedded patterns corresponding to various tested noise levels.
@@ -360,7 +392,34 @@ result <- mtfd::to_motifDiscovery(curves)
 ```
 
 Additionally, a Shiny app is available, serving as a graphical user interface (GUI) that enables users to execute all the previously mentioned functions in a straightforward and intuitive manner. The app consistently provides summary plots, enhancing the user experience.
-```{r shiny_app,eval = FALSE}
+```{r shiny_app}
+library(mtfd)
+
+motif_str <- rbind.data.frame(c(1, 1, 20),
+                              c(1, 1, 2),
+                              c(1, 3, 1),
+                              c(1, 2, 1),
+                              c(1, 2, 15),
+                              c(1, 4, 1),
+                              c(1, 5, 1),
+                              c(1, 7, 1),
+                              c(2,17,1))
+
+names(motif_str) <- c("motif_id", "curve","start_break_pos")
+
+mot1 <- list("len" = 100, #length
+             "weights" = NULL, # weights for the motif
+             "appearance" = motif_str %>% filter(motif_id == 1))
+
+mot2 <- list("len" = 150,
+             "weights" = NULL,
+             "appearance" = motif_str %>% filter(motif_id == 2))
+
+mot_details <- list(mot1,mot2)
+
+noise_str <- list(rbind(rep(2, 100),c(rep(0.1,50),rep(2, 50))), 
+                  rbind(rep(0.0, 150),rep(5.0, 150)))
+  
 mtfd::motifSimulationApp(noise_str,mot_details)
 ```
 

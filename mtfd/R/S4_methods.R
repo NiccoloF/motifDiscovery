@@ -192,14 +192,18 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
 #' \dontrun{
 #' mtfd::plot_motifs(builder,curves,getwd())                                  
 #' }
-setGeneric("plot_motifs", function(object,curves,path) 
+setGeneric("plot_motifs", function(object,curves,name,path=getwd()) 
   standardGeneric("plot_motifs")
 )
 
 #' @export
-setMethod("plot_motifs",c(object = "motifSimulation", curves = "list", path = "character"),
-          function(object,curves,path) {
-  output_file <- file.path(path, "plots.pdf")
+setMethod("plot_motifs","motifSimulation",
+          function(object,curves,name,path=getwd()) {
+            
+  if (!grepl("\\.pdf$", name)) {
+    name <- paste0(name, ".pdf")
+  }
+  output_file <- file.path(path,name)
   
   # Create the directory if it does not exist
   if (!dir.exists(path)) {
@@ -394,9 +398,9 @@ setMethod("plot_motifs",c(object = "motifSimulation", curves = "list", path = "c
     for (id in unique_ids) {
       index <- index + 1
       # Iterate through each sublist in builder@mot_details for the current id
-      for (i in builder@mot_details[[index]]$occurrences$curve %>% unique()) {
+      for (i in object@mot_details[[index]]$occurrences$curve %>% unique()) {
         curve <- curves[[i]]
-        motif_in_curve_i <- builder@motifs_in_curves[[i]]
+        motif_in_curve_i <- object@motifs_in_curves[[i]]
         for(z in 1:length(motif_in_curve_i$motif_id))
         {
           if(motif_in_curve_i$motif_id[z] == id) {
@@ -410,12 +414,12 @@ setMethod("plot_motifs",c(object = "motifSimulation", curves = "list", path = "c
           }
         }
       }
-      motif_y_means[[index]] <- data.frame(x = seq_along(motif_y_means[[index]]), y = motif_y_means[[index]] / length(builder@mot_details[[index]]$occurrences$curve %>% unique()))
+      motif_y_means[[index]] <- data.frame(x = seq_along(motif_y_means[[index]]), y = motif_y_means[[index]] / length(object@mot_details[[index]]$occurrences$curve %>% unique()))
       names(motif_y_means)[index] <- id
     }
     # Loop per plottare ogni ID separatamente su pagine diverse
-    for(error_n in 1:max_dataframes) {
-      for (id in unique_ids) {
+    for (id in unique_ids) {
+      for(error_n in 1:max_dataframes) {
         # Filtra i dati per il singolo ID
         plot_data <- curves_df[[error_n]] %>% filter(id == !!id)
         
