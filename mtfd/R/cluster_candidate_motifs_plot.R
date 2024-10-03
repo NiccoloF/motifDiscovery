@@ -73,7 +73,7 @@ cluster_candidate_motifs_plot <- function(cluster_candidate_motifs_results,ylab=
   if(is.null(cluster_candidate_motifs_results$hclust_res)){
     V_hclust=1
   }else{
-    V_hclust=cutree(cluster_candidate_motifs_results$hclust_res,h=2*R_all) # cut at high 2*R_all
+    V_hclust=dendextend::cutree(cluster_candidate_motifs_results$hclust_res,h=2*R_all) # cut at high 2*R_all
   }
   n_hclust=max(V_hclust)
   if(!is.null(cluster_candidate_motifs_results$hclust_res)){

@@ -2,7 +2,7 @@ Package: mtfd
 Type: Package
 Title: Motif discovery in functional data
 Version: 1.0
-Date: 2024-02-22
+Date: 2023-06-01
 Author: Marzia Angela Cremona, Francesca Chiaromonte, Niccolo Feresini, Riccardo Lazzarini
 Maintainer: Niccolo Feresini <niccolo.feresini@gmail.com>, Riccardo Lazzarini<riccardo.lazzarini@mail.polimi.it>
 Description: method to locally cluster curves and discover functional motifs,
@@ -23,8 +23,8 @@ Suggests:
     tinytest
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-Imports: Rcpp (>= 1.0.12),dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,zoo,ggplot2,fda,tidyverse,shiny,shinyWidgets,shinyjs,shinybusy
-Depends: dplyr,dendextend,data.table,scales,Matrix,parallel,combinat,ggplot2,fda,tidyverse,shiny,shinyWidgets,shinyjs,shinybusy
+Imports: Rcpp (>= 1.0.12),dplyr,data.table,parallel,ggplot2,shiny
+Depends: dplyr,data.table,parallel,ggplot2,shiny
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20
 LazyData: true
