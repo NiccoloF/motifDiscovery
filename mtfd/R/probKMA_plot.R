@@ -88,6 +88,8 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    {
                     if(p_clean_i[k]==1)
                     {
+                      # univariate_mat[dom_seq[v_dom]] take max - min 
+                      # univariate_motif[dom_seq[v_dom]] apply transformation with max - min
                       univariate_motif <- probKMA_results$V0_clean[[k]][,j]
                       v_dom <- V_dom[[k]]
                       dom_seq <- seq.int(s_i[k],s_i[k]+max(0,length(v_dom)-1))

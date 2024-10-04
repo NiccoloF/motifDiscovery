@@ -126,6 +126,30 @@ results = mtfd::clusterMotif(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="
 ```
 
 
+```{r example with initial motifs,eval = FALSE}
+library(mtfd)
+
+diss = 'd0_d1_L2' 
+alpha = 0.5
+# run probKMA multiple times (2x3x10=60 times)
+K = c(2,3) 
+c = c(61,51) 
+n_init = 10 
+
+data("simulated200") # load simulated data
+
+results = mtfd::clusterMotif(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
+                             name = './results_ProbKMA_VectorData/',plot = TRUE,
+                             probKMA_options = list(Y1=simulated200$Y1,K=K,c=c,n_init=n_init,
+                                                    diss=diss,alpha=alpha),
+                             worker_number = NULL)
+```
+
+dada
+casdas
+das
+das
+
 ### Key Arguments for funBIalign
 Below is an overview of the key arguments for the `ProbKMA` algorithm in the `clusterMotif` function:
 
