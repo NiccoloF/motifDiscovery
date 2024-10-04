@@ -23,7 +23,8 @@ Suggests:
     tinytest
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-Imports: Rcpp (>= 1.0.12),dplyr,data.table,parallel,ggplot2,shiny
+Imports: Rcpp (>= 1.0.12),dplyr,data.table,parallel,ggplot2,shiny,dendextend,fastcluster,
+         fda,ggtext,methods,purrr,scales,shinyWidgets,shinybusy,shinyjs,stringr,zoo
 Depends: dplyr,data.table,parallel,ggplot2,shiny
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20

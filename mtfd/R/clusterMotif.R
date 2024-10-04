@@ -106,6 +106,25 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
                          funBIalign_options = list(portion_len = NULL,min_card = NULL,cut_off=NULL),
                          worker_number = NULL){
   
+  
+  ### set parallel jobs #############################################################################
+  core_number <- parallel::detectCores()
+  # check worker number
+  if(!is.null(worker_number)){
+    if(!is.numeric(worker_number)){
+      warning('Worker number not valid. Selecting default number.')
+      worker_number=NULL
+    }else{
+      if((worker_number%%1!=0)|(worker_number<1)|(worker_number>core_number)){
+        warning('Worker number not valid. Selecting default number.')
+        worker_number=NULL
+      }
+    }
+  } else {
+    worker_number <- core_number-1 
+  }
+  rm(core_number)
+  
   if(method == 'ProbKMA')
   {
     default_probKMA_options <- list(K=NULL,c=NULL,diss="d0_L2",alpha=0,
@@ -265,27 +284,6 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       }
     }
    
-    ### set parallel jobs #############################################################################
-    core_number <- parallel::detectCores()
-    # check worker number
-    if(!is.null(worker_number)){
-      if(!is.numeric(worker_number)){
-        warning('Worker number not valid. Selecting default number.')
-        worker_number=NULL
-      }else{
-        if((worker_number%%1!=0)|(worker_number<1)|(worker_number>core_number)){
-          warning('Worker number not valid. Selecting default number.')
-          worker_number=NULL
-        }
-      }
-    }
-    if(is.null(worker_number))
-      worker_number <- core_number-1
-    
-    rm(core_number)
-    len_mean=mean(unlist(lapply(Y0,nrow)))
-    c_mean=mean(c)
-    
     arguments = list(Y0 = Y0, Y1 = Y1, P0 = P0, S0 = S0, 
                      standardize = probKMA_options$standardize, c_max = probKMA_options$c_max,
                      iter_max = probKMA_options$iter_max, iter4elong = probKMA_options$iter4elong, 
@@ -302,7 +300,8 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
                      diss = diss, transformed = probKMA_options$transformed, v_init = NULL,
                      align = probKMA_options$silhouette_align,
                      n_threads = worker_number)
-      if(worker_number>1){
+      
+    if(worker_number>1){
         cl_find=parallel::makeCluster(worker_number,timeout=60*60*24*30)
         parallel::clusterExport(cl_find,c('name','names_var',
                                           'probKMA_plot','probKMA_silhouette_plot',
@@ -346,7 +345,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
             arguments$c = c
             arguments$quantile4clean = 1/K
             arguments$v_init = v_init
-            results = do.call(mtfd:::probKMA_wrap,arguments)
+            results = do.call(probKMA_wrap,arguments)
             probKMA_results = results[[1]]
             silhouette_results = results[[2]]
             end=proc.time()
@@ -358,13 +357,13 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
           }
           transformed=probKMA_results$transformed
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE,transformed=transformed) #transformed
+          probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE,transformed=transformed) #transformed
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-          mtfd:::probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],plot = plot,cleaned=TRUE,transformed=transformed)
+          probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],plot = plot,cleaned=TRUE,transformed=transformed)
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-          silhouette=mtfd:::probKMA_silhouette_plot(results, 
+          silhouette=probKMA_silhouette_plot(results, 
                                              align=arguments$silhouette_align,
                                              plot=TRUE)
           dev.off()
@@ -548,7 +547,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
             arguments$K = K
             arguments$c = c
             arguments$quantile4clean = 1/K
-            results = do.call(mtfd:::probKMA_wrap,arguments)
+            results = do.call(probKMA_wrap,arguments)
             probKMA_results = results[[1]]
             silhouette_results = results[[2]]
             end=proc.time()
@@ -561,14 +560,14 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
           }
           if(plot) {
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          mtfd:::probKMA_plot(probKMA_results,
+          probKMA_plot(probKMA_results,
                               plot = TRUE,
                               ylab=names_var,
                               sil_avg = silhouette_results[[4]],
                               cleaned=FALSE)
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-          mtfd:::probKMA_plot(probKMA_results,
+          probKMA_plot(probKMA_results,
                               plot = TRUE,
                               ylab=names_var,
                               sil_avg = silhouette_results[[4]],
@@ -576,10 +575,10 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
           dev.off()
 
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-          silhouette = mtfd:::probKMA_silhouette_plot(silhouette_results,K,plot = plot)
+          silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
           dev.off()
           } else {
-            silhouette = mtfd:::probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
+            silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
           }
 
           probKMA_results["v_init"] <- NULL # delete v_init components
@@ -883,27 +882,27 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     }
     ### filter candidate motifs based on silhouette average and size
     silhouette_average = Reduce(rbind, Reduce(rbind, find_candidate_motifs_results$silhouette_average_sd))[ , 1] # retrieve silhouette average for all candidate motifs
-    filter_candidate_motifs_results = mtfd:::filter_candidate_motifs(find_candidate_motifs_results,
+    filter_candidate_motifs_results = filter_candidate_motifs(find_candidate_motifs_results,
                                                               sil_threshold = quantile(silhouette_average, probKMA_options$sil_threshold),
                                                               size_threshold = 2)
     
     ### cluster candidate motifs based on their distance and select radii
-    cluster_candidate_motifs_results = mtfd:::cluster_candidate_motifs(filter_candidate_motifs_results,
+    cluster_candidate_motifs_results = cluster_candidate_motifs(filter_candidate_motifs_results,
                                                                        motif_overlap = 0.6)
     cluster_candidate_motifs_results$transformed = probKMA_options$transformed
     ### plot cluster candidate motifs results
     pdf(paste0(name,'FMD_clustering_candidate_motifs.pdf'), height = 12, width = 9)
-    mtfd:::cluster_candidate_motifs_plot(cluster_candidate_motifs_results, ask = FALSE)
+    cluster_candidate_motifs_plot(cluster_candidate_motifs_results, ask = FALSE)
     dev.off()
     ### search selected motifs
     cluster_candidate_motifs_results$Y0 <- Y0
     cluster_candidate_motifs_results$Y1 <- Y1
-    motifs_search_results = mtfd:::motifs_search(cluster_candidate_motifs_results,
+    motifs_search_results = motifs_search(cluster_candidate_motifs_results,
                                           use_real_occurrences = FALSE, length_diff = +Inf)
     
     ### plot FMD results (NB: no threshold of frequencies of motif found!)
     pdf(paste0(name,'FMD_results.pdf'), height = 7, width = 17)
-    mtfd:::motifs_search_plot(motifs_search_results, ylab = 'x(t)', freq_threshold = 1)
+    motifs_search_plot(motifs_search_results, ylab = 'x(t)', freq_threshold = 1)
     dev.off()
     
     save(find_candidate_motifs_results, silhouette_average, filter_candidate_motifs_results,
@@ -930,7 +929,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     
     #compute maximum length
     maxLen <- max(sapply(Y0, nrow))
-    full_data <- sapply(Y0, mtfd:::padding, maxLen,simplify = FALSE)
+    full_data <- sapply(Y0, padding, maxLen,simplify = FALSE)
     
     # transform list into a matrix where each curve is on a row
     full_data <- t(sapply(full_data,cbind))
@@ -943,7 +942,8 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       dir.create(paste0(name),showWarnings=TRUE)
   cppFunction('
   Rcpp::List createWindow(Rcpp::NumericMatrix& data,
-                          unsigned int portion_len){
+                          unsigned int portion_len,
+                          unsigned int worker_number){
   
   const unsigned int totdim = data.ncol();
   const unsigned int totobs = data.nrow();
@@ -960,7 +960,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
   {
     // fill in my data 
 #ifdef _OPENMP
-#pragma omp parallel for
+#pragma omp parallel for num_threads(worker_number)
 #endif
     for(arma::uword i = 0; i < totrows; ++i)
     {
@@ -972,7 +972,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
   {
     // fill in my data
 #ifdef _OPENMP
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(worker_number)
 #endif
       for(arma::uword k = 0; k < totobs; ++k)
       {
@@ -988,7 +988,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
 }',depends = "RcppArmadillo")
     # step 1
     
-    window_data_list <- createWindow(full_data,portion_len)
+    window_data_list <- createWindow(full_data,portion_len,worker_number)
     window_data <- window_data_list[[1]]
     rownames(window_data) <- window_data_list[[2]]
 
@@ -1008,7 +1008,8 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     
   cppFunction('
   Rcpp::NumericMatrix createDistance(Rcpp::NumericMatrix& windowData,
-                                     const arma::vec& numerosity){
+                                     const arma::vec& numerosity,
+                                     unsigned int worker_number){
   
   int outrows = windowData.nrow();
   int outcols = windowData.ncol();
@@ -1021,7 +1022,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
   arma::mat scoreData(result.begin(),outrows,outrows,false,true);
   
 #ifdef _OPENMP
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) num_threads(worker_number)
 #endif
   for (arma::uword i = 1; i < outrows; ++i) { // for any functional observation
     const arma::rowvec& x_i = windowDataRef.row(i); // curve i 
@@ -1059,7 +1060,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     {
       int num = numerosity[j] - 1;
 #ifdef _OPENMP
-#pragma omp parallel for 
+#pragma omp parallel for num_threads(worker_number)
 #endif
       for(int i = until_here; i < until_here + numerosity[j]-1;++i)
       {
@@ -1073,14 +1074,14 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
   return Rcpp::wrap(result);
 }',depends = "RcppArmadillo")
 # step 2: compute fMRS-based dissimilarity matrix
-    D_fmsr <- createDistance(window_data,numerosity)
+    D_fmsr <- createDistance(window_data,numerosity,worker_number)
     rownames(D_fmsr) <- colnames(D_fmsr) <- rownames(window_data)
     ## STEP 3 -----
     # step 3: get the sub-trees (tree_s)
-    minidend  <- mtfd:::get_minidend(as.dist(D_fmsr))
+    minidend  <- get_minidend(as.dist(D_fmsr))
     # step 3: identify seeds and corresponding families
 
-    all_paths   <- mtfd:::get_path_complete(minidend, window_data, min_card = min_card,worker_number = worker_number)
+    all_paths   <- get_path_complete(minidend, window_data, min_card = min_card,worker_number = worker_number)
     all_paths   <- all_paths[!(lapply(all_paths, is.null) %>% unlist())] 
     
     # step 3: get recommended nodes and their info (cardinality and score)
@@ -1107,7 +1108,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     #for every recommended motif, compute all its accolites
     all_accolites <- lapply(list_of_recommendations_ordered,
                             function(x){
-                              lapply(x, mtfd:::get_accolites, window_data, portion_len, FALSE) %>% unlist()
+                              lapply(x, get_accolites, window_data, portion_len, FALSE) %>% unlist()
                             })
     
     # Starting from the top, we compare each motif to those with higher rank. If all portions of

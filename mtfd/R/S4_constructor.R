@@ -135,7 +135,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
       )
     # Apply the check for each curve
     valid_curves <- mapply(function(sub_data) {
-                            mtfd:::.check_fits(sub_data, min_dist_motifs = min_dist_motifs,len = len)
+                            .check_fits(sub_data, min_dist_motifs = min_dist_motifs,len = len)
                           },
                           split(motif_str_new, motif_str_new$curve), 
                           SIMPLIFY = TRUE)
@@ -196,7 +196,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
         return(NULL) # No motifs embedded in this curve
       }
       
-      id_motifs <- mtfd:::.resample(rep(seq_along(freq_motifs_i), freq_motifs_i))
+      id_motifs <- .resample(rep(seq_along(freq_motifs_i), freq_motifs_i))
       len_elements <- c(norder - 1, rep(len_motifs / dist_knots + norder - 1, length.out = nmotifs)[id_motifs] + c(rep((min_dist_motifs / dist_knots - norder + 1), sum(freq_motifs_i) - 1), 0), norder - 1)
       gaps_tot <- len_i - sum(len_elements) # number of free coefficients
       gaps <- diff(c(0, sort(sample(gaps_tot + sum(freq_motifs_i), sum(freq_motifs_i))))) - 1
@@ -227,7 +227,7 @@ motifSimulationBuilder <- function(N,len,mot_details,norder = 3,
   ########################## WEIGHTS GENERATION #################################
   # if weights are not provided, randomly generate them according to the distribution
   if(all(!weights_defined)) {
-    mot_details <- mapply(mtfd:::.generate_coefficients,mot_details,
+    mot_details <- mapply(.generate_coefficients,mot_details,
                           MoreArgs = list(distrib = distribution,
                                           dist_knots = dist_knots,
                                           norder = norder, 

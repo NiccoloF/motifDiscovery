@@ -63,7 +63,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
       }
       coeff <- or_coeff
       fda_no_error=fda::fd(coef=coeff,basisobj=basis_i)
-      or_y_no_error <- mtfd:::generate_curve_vector(fda_no_error)
+      or_y_no_error <- generate_curve_vector(fda_no_error)
       fda_with_error <- NULL
       or_y <- NULL
       shifted_coeff <- NULL
@@ -98,10 +98,10 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
                                     object@mot_details[[id]]$coeffs})) + shifted_coeff
       }
       fda_with_motif <- fda::fd(coef=coeff,basisobj=basis_i)
-      or_y_motif <- mtfd:::generate_curve_vector(fda_with_motif)
+      or_y_motif <- generate_curve_vector(fda_with_motif)
       
       fda_with_error <- Map(fda::fd,list_coeff_error,MoreArgs = list(basisobj=basis_i)) # Fitting curves using such coefficients and basis
-      or_y <- Map(mtfd:::generate_curve_vector,fda_with_error)
+      or_y <- Map(generate_curve_vector,fda_with_error)
       num_motifs <- length(motifs_in_curves_i$motif_id)
       SNR <- vector("list",length(noise_str[[1]]))
       for (k in seq_along(noise_str[[1]])) {
@@ -150,7 +150,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
       }else {
         stop('Wrong \'distrib\'')
       }
-      mtfd:::generate_background_curve(object@len, object@dist_knots, object@norder,coeff, add_noise = TRUE)
+      generate_background_curve(object@len, object@dist_knots, object@norder,coeff, add_noise = TRUE)
     })
     set.seed(seed_motif)
     curve_ids <- unique(unlist(lapply(object@mot_details,function(mot){mot$occurrences$curve})))
@@ -164,7 +164,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
                                object@mot_details[[as.numeric(k)]]$coeffs
                              })
       names(temp_weights) <- as.character(unique(apply(temp_pattern, 1, function(row) { row[1] })))
-      fd_curves[[j]] <- mtfd:::add_motif(base_curve  = temp_curve,
+      fd_curves[[j]] <- add_motif(base_curve  = temp_curve,
                                   mot_pattern = temp_pattern,
                                   mot_len     = temp_len,
                                   dist_knots  = object@dist_knots,
@@ -175,7 +175,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
                                   coeff_min_shift = coeff_min_shift,
                                   coeff_max_shift = coeff_max_shift)
     }
-    fd_curves <- mtfd:::.transform_list(fd_curves,noise_str)
+    fd_curves <- .transform_list(fd_curves,noise_str)
   } else if(!is.null(noise_type)){
     stop("\'noise_type\' must be choosen between \'coeff\' and \'pointwise\'")
   }

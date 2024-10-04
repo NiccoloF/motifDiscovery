@@ -28,9 +28,7 @@
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 
 get_path_complete <- function(minidend, window_data, min_card,worker_number){
-  # Determine the number of cores
-  if(is.null(worker_number))
-    worker_number <- detectCores() - 1
+
   # Set up a cluster
   cl <- makeCluster(worker_number)
   

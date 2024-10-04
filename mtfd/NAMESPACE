@@ -1,6 +1,7 @@
 useDynLib(mtfd, .registration=TRUE) 
 import(Rcpp) 
 import(methods) 
+
 importFrom(dendextend,cutree) 
 importFrom(dendextend,labels_cex) 
 importFrom(dendextend,get_nodes_xy) 

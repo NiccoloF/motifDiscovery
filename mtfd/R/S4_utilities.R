@@ -162,7 +162,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
       start_break <- mot_pattern[mot_pattern[,1]==as.numeric(i), "start_break_pos"] # select the first coefficient 
       start_point <- (start_break-1)*dist_knots
       end_point   <- start_point + mot_len[mot_len[,1]==as.numeric(i),"len"]
-      err_y <- mtfd:::add_error_to_motif(err_y, error_str_i_k, start_point, end_point,k)
+      err_y <- add_error_to_motif(err_y, error_str_i_k, start_point, end_point,k)
       for(n in seq_along(start_point)) {
         SNR_num <- rbind(SNR_num,data.frame(xmin =start_point[n],xmax = end_point[n],SNR = var(no_error_res$motif_y[start_point[n]:end_point[n]])))
       }
