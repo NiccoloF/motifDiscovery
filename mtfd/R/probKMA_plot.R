@@ -106,7 +106,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
         return()},probKMA_results$Y0[ has_a_motif] # consider curves with at least one embedded motif
                   ,S_clean_i[ has_a_motif],P_clean_i[has_a_motif],seq_len(N)[has_a_motif])
       mapply(function(v,v_dom,s_k,p_clean_k,k)
-      {
+      { # guardare plot di Marzia 
         layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
         keep=which(p_clean_k==1)
         Y_inters_k=mapply(

@@ -145,10 +145,6 @@ results = mtfd::clusterMotif(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="
                              worker_number = NULL)
 ```
 
-dada
-casdas
-das
-das
 
 ### Key Arguments for funBIalign
 Below is an overview of the key arguments for the `ProbKMA` algorithm in the `clusterMotif` function:
