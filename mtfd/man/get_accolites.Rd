@@ -2,51 +2,44 @@
 % Please edit documentation in R/get_accolites.R
 \name{get_accolites}
 \alias{get_accolites}
-\title{get_accolites}
+\title{Get Accolites for a Given Leaf Label}
 \usage{
 get_accolites(leaf_label, window_data, portion_len, multiple)
 }
 \arguments{
-\item{Y0}{list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-for d-dimensional curves y_i(x),  with the evaluation of curves (all curves should be evaluated
-on a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions}
+\item{leaf_label}{A character string representing the label of the leaf for which to find accolites.}
 
-\item{Y1}{list of N vectors, for univariate derivative curves y'_i(x), or
-list of N matrices with d columns, for d-dimensional derivatibe curves y'_i(x),
-with the evaluation of the curves derivatives (all curves should be evaluated on a uniform grid).
-When y'_j(x)=NA in the dimension j, then y'_j(x)=NA in ALL dimensions.
-Must be provided when diss='d1_L2' or diss='d0_d1_L2'.}
+\item{window_data}{A data frame or matrix where the row names correspond to the labels of elements,
+containing the data from which accolites will be extracted.}
 
-\item{K}{vector with numbers of motifs that must be tested.}
+\item{portion_len}{An integer specifying the total length of the portion used to define the accolites. 
+The overlap is computed as half of this length.}
 
-\item{c}{vector with minimum motifs lengths that must be tested.}
-
-\item{n_init}{number of random initialization for each combination of K and c.}
-
-\item{name}{name of the folders when the results are saved.}
-
-\item{names_var}{vector of length d, with names of the variables in the different dimensions.}
-
-\item{probKMA_options}{list with options for probKMA (see the help of probKMA).}
-
-\item{silhouette_align}{True or False. If True, try all possible alignments between the curve pieces
-when calculating the adapted silhouette index on the results of probKMA}
-
-\item{plot}{if TRUE, summary plots are drawn.}
+\item{multiple}{A logical indicating whether to check for multiple curves. If TRUE, the function 
+filters out accolites that do not originate from the same curve as the specified leaf label.}
 }
 \value{
-A list containing: K, c, n_init and name;...
-
-\item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
-
-\item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
+A character vector containing the labels of the identified accolites. 
+        If no accolites are found, the function returns an empty vector.
 }
 \description{
-Run multiple times probKMA function with different K,c and initializations,
-with the aim to find a set of candidate motifs.
-If the folder name_KK_cc is already present and n result files are already present,
-load them and continue with the n_init-n runs.
+This function retrieves the accolites (adjacent elements) of a specified leaf label from a dataset. 
+Accolites are defined as the elements that overlap with the specified portion length around the leaf.
+The function can filter accolites based on their origin curve in cases where multiple curves are present.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\details{
+The function works as follows:
+1. It calculates the index of the specified leaf label within the provided `window_data`.
+2. Determines the range of indices representing the accolites by calculating the overlap based on `portion_len`.
+3. Retrieves the corresponding leaf labels from the `window_data`.
+4. If the `multiple` argument is TRUE, it checks if the accolites come from the same curve as the leaf label, 
+   removing those that do not.
+}
+\examples{
+# Example usage
+window_data <- data.frame(matrix(ncol = 3, nrow = 6))
+rownames(window_data) <- c("1_1", "1_2", "1_3", "2_1", "2_2", "2_3")
+result <- get_accolites("1_2", window_data, portion_len = 4, multiple = TRUE)
+print(result)
+
 }

@@ -2,51 +2,46 @@
 % Please edit documentation in R/find_recommended_path.R
 \name{find_recommended_path}
 \alias{find_recommended_path}
-\title{get_path_complete}
+\title{Find Recommended Path in a Tree Structure}
 \usage{
 find_recommended_path(minidend, window_data, min_card)
 }
 \arguments{
-\item{Y0}{list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-for d-dimensional curves y_i(x),  with the evaluation of curves (all curves should be evaluated
-on a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions}
+\item{minidend}{A tree structure representing the hierarchy of nodes, 
+from which leaves will be derived for analysis.}
 
-\item{Y1}{list of N vectors, for univariate derivative curves y'_i(x), or
-list of N matrices with d columns, for d-dimensional derivatibe curves y'_i(x),
-with the evaluation of the curves derivatives (all curves should be evaluated on a uniform grid).
-When y'_j(x)=NA in the dimension j, then y'_j(x)=NA in ALL dimensions.
-Must be provided when diss='d1_L2' or diss='d0_d1_L2'.}
+\item{window_data}{A matrix or data frame containing data associated with each node.}
 
-\item{K}{vector with numbers of motifs that must be tested.}
-
-\item{c}{vector with minimum motifs lengths that must be tested.}
-
-\item{n_init}{number of random initialization for each combination of K and c.}
-
-\item{name}{name of the folders when the results are saved.}
-
-\item{names_var}{vector of length d, with names of the variables in the different dimensions.}
-
-\item{probKMA_options}{list with options for probKMA (see the help of probKMA).}
-
-\item{silhouette_align}{True or False. If True, try all possible alignments between the curve pieces
-when calculating the adapted silhouette index on the results of probKMA}
-
-\item{plot}{if TRUE, summary plots are drawn.}
+\item{min_card}{An integer specifying the minimum number of leaves that must be present in a node 
+for it to be considered for recommendation.}
 }
 \value{
-A list containing: K, c, n_init and name;...
-
-\item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
-
-\item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
+A list containing:
+        - \code{seed_path_info}: A data frame summarizing the valid seed nodes, their number of leaves, 
+        heights, and recommended nodes.
+        - \code{seed_path_list}: A list containing the names of elements for each node in the seed path.
+        - \code{score_path_list}: A list of scores adjusted for each node in the seed path.
+        - \code{recommended_node_labels}: A list of labels for the recommended nodes.
+        - \code{recommended_node_scores}: A numeric vector containing scores for the recommended nodes.
 }
 \description{
-Run multiple times probKMA function with different K,c and initializations,
-with the aim to find a set of candidate motifs.
-If the folder name_KK_cc is already present and n result files are already present,
-load them and continue with the n_init-n runs.
+This function identifies a recommended path in a tree structure based on user-defined minimum criteria. 
+It filters nodes based on the number of leaves and calculates scores for potential recommendations.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\details{
+The function follows these steps:
+1. Extracts the leaves and heights of each node in the tree.
+2. Filters nodes based on the minimum number of leaves specified by \code{min_card}.
+3. Identifies nodes that are parents of the filtered nodes, marking them for deletion.
+4. For each seed node, calculates crossing points with other seed nodes.
+5. Calculates adjusted scores for nodes in the seed path using the C++ function \code{fMSR_adj}.
+6. Recommends nodes based on calculated scores and returns a summary of results.
+}
+\examples{
+# Example usage
+minidend <- create_tree_structure(...)  # Replace with actual tree creation function
+window_data <- data.frame(...)  # Replace with actual data
+result <- find_recommended_path(minidend, window_data, min_card = 3)
+print(result)
+
 }

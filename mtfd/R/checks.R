@@ -1,13 +1,51 @@
-#' @title InitialChecks
-#'
-#' @description checks inputs provided by the user for running ProbKMA
-#' @param Y0 curves
-#' @param Y1 derivatives
-#' @param P0 initial membership probabilities 
-#' @param S0 initial shift matrix
-#' @param params list of parameters
-#' @param diss dissimilarity type
-#' @return \item{List}{returns a list containing FuncData and Parameters useful for initializing the probKMA object}
+#' @title Initial Checks for ProbKMA
+#' 
+#' @description
+#' This function performs various input checks on the parameters provided by the user to ensure they are valid 
+#' for running the ProbKMA algorithm. It verifies the structure and content of the input data, including 
+#' curves, derivatives, initial membership probabilities, shift matrices, and various parameters.
+#' 
+#' @param Y0 A list of matrices or vectors representing the curves.
+#' @param Y1 A list of matrices or vectors representing the derivatives of the curves.
+#' @param P0 A numeric matrix representing initial membership probabilities. Rows correspond to curves, and columns correspond to clusters.
+#' @param S0 A numeric matrix representing the initial shift matrix.
+#' @param params A list containing various parameters for ProbKMA, including:
+#'  \itemize{
+#'    \item \code{standardize} Logical indicating whether to standardize the curves.
+#'    \item \code{K} Number of motifs.
+#'    \item \code{c} Minimum motif length.
+#'    \item \code{c_max} Maximum motif length.
+#'    \item \code{iter_max} Maximum number of iterations.
+#'    \item \code{quantile} Quantile value for stopping criterion.
+#'    \item \code{alpha} A numeric value related to the dissimilarity measure.
+#'    \item \code{w} Weights used in the algorithm.
+#'    \item \code{stopCriterion} Stopping criterion for the algorithm.
+#'    \item \code{m} Weighting exponent.
+#'    \item \code{tol} Tolerance level for stopping criteria.
+#'    \item \code{iter4elong} Maximum iterations for elongation.
+#'    \item \code{tol4elong} Tolerance for elongation.
+#'    \item \code{max_elong} Maximum elongation allowed.
+#'    \item \code{trials_elong} Number of trials for elongation.
+#'    \item \code{deltaJK_elong} Threshold for elongation.
+#'    \item \code{max_gap} Maximum gap allowed.
+#'    \item \code{iter4clean} Number of iterations for cleaning.
+#'    \item \code{tol4clean} Tolerance for cleaning.
+#'    \item \code{quantile4clean} Quantile for cleaning.
+#'    \item \code{return_options} Options for returning results.
+#'    \item \code{seed} Seed for random number generation.
+#'    \item \code{exe_print} Boolean to control printing of execution messages.
+#'    \item \code{set_seed} Boolean to control whether to set a random seed.
+#'    \item \code{transformed} Logical indicating if the data is transformed.
+#'    \item \code{n_threads} Number of threads for parallel processing.
+#'  }
+#' @param diss A character string indicating the type of dissimilarity measure to be used. 
+#' Possible values are: \code{'d0_L2'}, \code{'d1_L2'}, \code{'d0_d1_L2'}.
+#' @param v_init A list containing initial values for the clusters. If provided, it must match the expected structure based on \code{K}.
+#' 
+#' @return A list containing:
+#' \item{FuncData}{A list of processed curves and derivatives after performing the checks.}
+#' \item{Parameters}{A list of validated parameters ready for use in initializing the ProbKMA object.}
+#' 
 #' @export
 initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
   ### Unpacking #############################################################################

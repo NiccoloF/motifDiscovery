@@ -2,7 +2,7 @@
 % Please edit documentation in R/cluster_candidate_motifs.R
 \name{cluster_candidate_motifs}
 \alias{cluster_candidate_motifs}
-\title{cluster_candidate_motifs}
+\title{Cluster Candidate Motifs}
 \usage{
 cluster_candidate_motifs(
   filter_candidate_motifs_results,
@@ -14,35 +14,49 @@ cluster_candidate_motifs(
 )
 }
 \arguments{
-\item{filter_candidate_motifs_results}{output of filter_candidate_motifs function.}
+\item{filter_candidate_motifs_results}{A list containing results from filtering candidate motifs, including various components like `Y0`, `Y1`, `V0_clean`, `V1_clean`, `D_clean`, and more, which are essential for the clustering process.}
 
-\item{motif_overlap}{minimum overlap required between candidate motifs in their distance computation,
-in percentage of the shortest motif.}
+\item{motif_overlap}{A numeric value representing the minimum proportion of overlap required between motifs to be considered similar (default is 0.6).}
 
-\item{k_knn}{number of neighbors to be used in k-nearest neighbors, in order to determine Rall and Rm
-when the two groups (curves with/without motif) are not separated.}
+\item{k_knn}{An integer specifying the number of nearest neighbors to consider when determining the global radius (default is 3).}
 
-\item{votes_knn_Rall}{threshold on the percentage of votes for class 1 (curve has the motif) in
-k-nearest neighbors, in order to determine Rall.}
+\item{votes_knn_Rall}{A numeric value indicating the threshold for KNN voting when determining the global radius (default is 0.5).}
 
-\item{votes_knn_Rm}{threshold on the percentage of votes for class 1 (curve has the motif) in
-k-nearest neighbors, in order to determine Rm.}
+\item{votes_knn_Rm}{A numeric value indicating the threshold for KNN voting when determining group-specific radii (default is 0.5).}
 
-\item{worker_number}{number of CPU cores to be used for parallelization (default number of CPU cores).
-If worker_number=1, the function is run sequentially.}
+\item{worker_number}{An optional integer specifying the number of parallel workers to use. If NULL, it defaults to the number of available cores minus one.}
 }
 \value{
-A list containing some of its input: k_knn, votes_knn_Rall and votes_knn_Rm, the outputs of filter_candidate_patterns function and:
-  \item{VV_D}{ matrix of distances between candidates motifs after filtering}
-  \item{VV_S}{ matrix of shift deformations of candidates motifs after filtering}
-  \item{R_all}{ global radius used to cut the dendrogram}
-  \item{hclust_res}{list of result hierarchical clustering based on the distances candidate motifs obtained after filtering}
+A list containing:
+- `VV_D`: Matrix of distances between motifs.
+- `VV_S`: Matrix of shifts between motifs.
+- `k_knn`: The value of K used in KNN.
+- `votes_knn_Rall`: Voting threshold for the global radius.
+- `R_all`: The global radius determined from the clustering process.
+- `hclust_res`: Result of hierarchical clustering (if applicable).
+- `votes_knn_Rm`: Voting threshold for group-specific radius.
+- `R_m`: Vector of group-specific radii for each cluster.
+- All components from the input `filter_candidate_motifs_results`.
 }
 \description{
-Determine a global radius Rall (based on distances between all motifs and all curves), and cluster candidate
-motifs based on their distance, requiring groups to be more than 2*Rall apart. Then for each group m=1,...,M
-determine a group-specific radius Rm (based on distances between motifs of the same group and all curves).
+This function clusters candidate motifs based on their distances and computes group-specific radii for motif clusters. It utilizes K-nearest neighbors (KNN) for determining a global radius and evaluates overlaps among motifs. The function supports parallel computation for efficiency.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\details{
+This function performs the following steps:
+1. Sets up parallel jobs based on the specified `worker_number`.
+2. Prepares input data based on the type of distance measure used.
+3. Computes distances between motifs.
+4. Determines a global radius (`R_all`) using KNN classification.
+5. Clusters motifs and determines group-specific radii (`R_m`) for each cluster.
+}
+\examples{
+\dontrun{
+# Example usage
+results <- list(Y0 = ..., Y1 = ..., V0_clean = ..., V1_clean = ..., 
+                D_clean = ..., diss = "d0_d1_L2", alpha = 0.5)
+clustered_results <- cluster_candidate_motifs(results, motif_overlap = 0.6, 
+                                               k_knn = 3, votes_knn_Rall = 0.5, 
+                                               votes_knn_Rm = 0.5, worker_number = 2)
+print(clustered_results)
+}
 }

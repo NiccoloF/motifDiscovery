@@ -2,7 +2,7 @@
 % Please edit documentation in R/probKMA_wrap.R
 \name{probKMA_wrap}
 \alias{probKMA_wrap}
-\title{probKMA_wrap}
+\title{Wrapper for the Probabilistic K-means Algorithm (ProbKMA)}
 \usage{
 probKMA_wrap(
   Y0 = NULL,
@@ -41,113 +41,77 @@ probKMA_wrap(
 )
 }
 \arguments{
-\item{Y0}{list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-for d-dimensional curves y_i(x), with the evaluation of curves (all curves should be evaluated on
-a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions}
+\item{Y0}{A matrix of functional data for the first set of observations.}
 
-\item{Y1}{list of N vectors, for univariate derivative curves y'_i(x), or list of N matrices with
-d columns, for d-dimensional derivatibe curves y'_i(x), with the evaluation of the curves derivatives
-(all curves should be evaluated on a uniform grid). When y'_j(x)=NA in the dimension j, then y'_j(x)=NA
-in ALL dimensions. Must be provided when diss='d1_L2' or diss='d0_d1_L2'.}
+\item{Y1}{A matrix of functional data for the second set of observations.}
 
-\item{P0}{initial membership matrix, with N row and K column (if NULL, a random P0 is choosen).}
+\item{P0}{A matrix representing the initial membership probabilities.}
 
-\item{S0}{initial shift warping matrix, with N row and K column (if NULL, a random S0 is choosen).}
+\item{S0}{A matrix representing the initial shift parameters.}
 
-\item{standardize}{if TRUE, each dimension is standardized (Z score on all the regions together).}
+\item{standardize}{A logical value indicating whether to standardize the data. Default is `FALSE`.}
 
-\item{c_max}{maximum motif lengths. Can be an integer (or a vector of K integers).}
+\item{c_max}{Maximum number of motifs to extract. Default is `Inf`.}
 
-\item{iter_max}{the maximum number of iterations allowed.}
+\item{iter_max}{Maximum number of iterations for the algorithm. Default is 1000.}
 
-\item{iter4elong}{motifs elongation is performed every iter4elong iterations (if iter4elong>iter.max,
-no elongation is done).}
+\item{iter4elong}{Number of iterations for elongation. Default is 10.}
 
-\item{trials_elong}{number of (equispaced) elongation trials at each side of the motif in a single
-iteration.}
+\item{trials_elong}{Number of trials for elongation. Default is 10.}
 
-\item{return_options}{if TRUE, the options K,c,diss,w,m are returned by the function.}
+\item{return_options}{A logical value indicating whether to return additional options. Default is `TRUE`.}
 
-\item{alpha}{when diss='d0_d1_L2', weight coefficient between d0_L2 and d1_L2 (alpha=0 means d0_L2,
-alpha=1 means d1_L2).}
+\item{alpha}{A numeric value representing the weighting parameter. Default is 0.}
 
-\item{max_gap}{maximum gap allowed in each alignment (percentage of motif length).}
+\item{max_gap}{Maximum allowable gap between motifs. Default is 0.2.}
 
-\item{quantile}{probability in (0,1) to be used if stop.criterion='quantile'.}
+\item{quantile}{Quantile to be used for cleaning. Default is 0.25.}
 
-\item{tol}{method tolerance (method stops if the stop criterion <tol).}
+\item{stopCriterion}{Stopping criterion for the algorithm, can be 'max' or other specified values. Default is 'max'.}
 
-\item{tol4elong}{tolerance on the Bhattacharyya distance (with the choice made in stop.criterion) for
-performing motifs elongation.}
+\item{tol}{Tolerance for convergence. Default is 1e-8.}
 
-\item{max_elong}{maximum elongation allowed in a single iteration, as percentage of the motif length.}
+\item{tol4elong}{Tolerance for elongation iterations. Default is 1e-3.}
 
-\item{iter4clean}{motif cleaning is performed every iter4clean iterations (if iter4clean>iter_max,
-no cleaning is done).}
+\item{max_elong}{Maximum elongation allowed. Default is 0.5.}
 
-\item{tol4clean}{tolerance on the Bhattacharyya distance (with the choice made in stop_criterion) for
-performing motif cleaning.}
+\item{deltaJK_elong}{Increment for the elongation. Default is 0.05.}
 
-\item{m}{m>1 weighting exponent in least-squares functional.}
+\item{iter4clean}{Number of iterations for the cleaning process. Default is 50.}
 
-\item{w}{vector of weights for the dissimilarity index in the different dimensions (w>0).}
+\item{tol4clean}{Tolerance for the cleaning process. Default is 1e-4.}
 
-\item{K}{number of motifs.}
+\item{m}{Parameter controlling the clustering behavior. Default is 2.}
 
-\item{c}{minimum motif lengths. Can be an integer (or a vector of K integers).}
+\item{w}{Weighting parameter for the dissimilarity measure. Default is 1.}
 
-\item{quantile4clean}{dissimilarity quantile to be used in motif cleaning.}
+\item{seed}{Random seed for reproducibility. Default is 1.}
 
-\item{diss}{dissimilarity. Possible choices are 'd0_L2', 'd1_L2', 'd0_d1_L2'.}
+\item{K}{Number of motifs to extract. Default is 2.}
 
-\item{stop_criterion}{criterion to stop iterate, based on the Bhattacharyya distance
-between memberships in subsequent iterations. Possible choices are: 'max' for the
-maximum of distances in the different motifs; 'mean' for the average of distances in
-the different motifs; 'quantile' for the quantile of distances in the different motifs
-(in this case, quantile must be provided).}
+\item{c}{Minimum motif length. Default is 40.}
 
-\item{deltaJk_elong}{maximum relative objective function increasing allowed in each motif elongation
-(for gaps and each side).}
+\item{quantile4clean}{Quantile used for the cleaning process. Default is 1/K.}
 
-\item{return_init}{if TRUE, P0 and S0 are returned by the function.}
+\item{exe_print}{A logical value indicating whether to print execution details. Default is `FALSE`.}
 
-\item{worker_number}{number of CPU cores to be used for parallelization (default number of CPU cores -1).
-If worker_number=1, the function is run sequentially.}
+\item{set_seed}{A logical value indicating whether to set the random seed. Default is `FALSE`.}
+
+\item{diss}{Dissimilarity measure to be used. Default is 'd0_2'.}
+
+\item{transformed}{A logical value indicating whether the data has been transformed. Default is `FALSE`.}
+
+\item{v_init}{Initial values for the motifs. Default is `NULL`.}
+
+\item{align}{A logical value indicating whether to align the curves. Default is `TRUE`.}
+
+\item{n_threads}{Number of threads to use for parallel processing. Default is 1.}
 }
 \value{
-A list containing some initialization and input options of the function: P0, S0 (if return_init = TRUE), Y0, Y1, standardize, K, c, c_max, diss, alpha, w, m, iter4elong, tol4elong, max_elong, trials_elong, deltaJk_elong, max_gap, iter4clean and tol4clean (if return_options = TRUE);
-
-\item{P}{ membership probability matrix}
-
-\item{P_clean}{ membership probability matrix dichotomized according to the quantile of order 1/K}
-
-\item{S}{ shift warping matrix}
-
-\item{S_clean}{ shift warping matrix after cleaning motifs}
-
-\item{D}{ dissimilarity matrix}
-
-\item{D_clean}{ dissimilarity matrix after cleaning motifs}
-
-\item{iter}{ iterations number}
-
-\item{j_iter}{ minimum objective function}
-
-\item{BC_dist}{ Bhattacharyya distance}
-
-\item{BC_dist_iter}{ Bhattacharyya distance from the last iteration}
-
-\item{V0}{ list of the candidates motifs}
-
-\item{V0_clean}{ list of the candidates motifs after cleaning}
-
-\item{V1}{ list of derived from candidates motifs}
-
-\item{V1_clean}{ list of derived from candidates motifs after cleaning}
+A list containing:
+\item{probKMA_results}{A list of results from the ProbKMA algorithm, including processed functional data and model parameters.}
+\item{silhouette_results}{Results from silhouette analysis, indicating the quality of the clustering.}
 }
 \description{
-R wrap for function probKMA used to parallelize find_candidate_motifs
-}
-\author{
-Riccardo Lazzarini, Niccolo' Feresini
+This function serves as a wrapper for the Probabilistic K-means Algorithm (ProbKMA) to cluster functional data. It handles preprocessing, parameter setup, and execution of the core algorithm, returning the results along with silhouette analysis to assess the clustering quality.
 }

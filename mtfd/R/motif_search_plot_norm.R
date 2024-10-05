@@ -1,14 +1,33 @@
-#' @title motifs_search_plot_norm
+#' @title Plot Normalized Motifs Search Results
 #'
-#' @description Plot the results of motifs_search.
+#' @description 
+#' This function visualizes the results obtained from the motif search analysis performed
+#' using the `motifs_search` function. It generates plots that showcase detected motifs 
+#' along with their associated curves, providing an intuitive understanding of the 
+#' relationships between the motifs and the underlying data. The user can customize various
+#' parameters to tailor the visualization to their specific needs, including filtering motifs 
+#' based on frequency and choosing whether to normalize the y-values.
 #'
-#' @param motifs_search_results output of motifs_search function.
-#' @param ylab a vector of length d, with the titles for the y axis for each dimension.
-#' @param freq_threshold plot only motifs with frequency at least equal to freq_threshold.
-#' @param top_n if 'all', plot all motifs found. If top_n is an integer, then all top top_n motifs are plotted.
-#' @param plot_curves if TRUE, plot all the curves with coloured motifs.
-#' @param transformed if if TRUE, y is normalized to [0,1].
-#' @author Marzia Angela Cremona & Francesca Chiaromonte
+#' @param motifs_search_results A list containing the output of the `motifs_search` function,
+#' including detected motifs and associated data.
+#' @param ylab A vector of length `d` specifying the titles for the y-axis for each dimension.
+#' @param freq_threshold An integer defining the minimum frequency for motifs to be plotted. 
+#' Only motifs with a frequency equal to or greater than this threshold will be displayed.
+#' @param top_n Specifies the number of top motifs to plot. If set to "all", all detected motifs 
+#' will be plotted. If an integer is provided, the top `top_n` motifs will be displayed.
+#' @param plot_curves A logical value indicating whether to plot all curves with colored motifs. 
+#' Defaults to TRUE.
+#' @param transformed A logical value indicating if the y-values should be normalized to the range [0,1]. 
+#' Defaults to FALSE.
+#'
+#' @return A plot object displaying the motifs and curves.
+#'
+#' @examples
+#' # Assuming `results` is the output from `motifs_search`
+#' motifs_search_plot_norm(results, ylab = c("Dimension 1", "Dimension 2"), 
+#'                          freq_threshold = 5, top_n = 10, 
+#'                          plot_curves = TRUE, transformed = FALSE)
+#'
 #' @export
 motifs_search_plot_norm <- function(motifs_search_results,ylab='',freq_threshold=5,top_n='all',
                                     plot_curves=TRUE,

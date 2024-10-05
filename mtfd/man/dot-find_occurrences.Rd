@@ -2,28 +2,61 @@
 % Please edit documentation in R/find_occurrences.R
 \name{.find_occurrences}
 \alias{.find_occurrences}
-\title{find_occurrences}
+\title{Find Occurrences of a Motif}
 \usage{
 .find_occurrences(v, Y, R, alpha, w, c_k, use0, use1, transformed = FALSE)
 }
 \arguments{
-\item{v}{list of 2 elements, v0, v1, matrices with d columns.}
+\item{v}{A list containing two matrices:
+- \code{v0}: The first set of motif values.
+- \code{v1}: The second set of motif values.
+Each matrix should have \( d \) columns corresponding to the dimensions.}
 
-\item{Y}{list of N lists of two elements, Y0, Y1, matrices with d columns.}
+\item{Y}{A list of \( N \) lists, each containing two matrices:
+- \code{Y0}: The first set of curve values.
+- \code{Y1}: The second set of curve values.
+Each matrix should have \( d \) columns corresponding to the dimensions.}
 
-\item{R}{maximum dissimilarity allowed.}
+\item{R}{A numeric value representing the maximum allowed dissimilarity.}
 
-\item{alpha}{if diss_fun=diss_d0_d1_L2, weight coefficient between d0_L2 and d1_L2.}
+\item{alpha}{A numeric value that serves as a weight coefficient between the L2 norms 
+of the two sets of motifs when using the dissimilarity function \code{diss_d0_d1_L2}.}
 
-\item{w}{weights for the dissimilarity index in the different dimensions (w>0).}
+\item{w}{A numeric vector of weights for the dissimilarity index across different dimensions.
+All weights must be positive (\( w > 0 \)).}
 
-\item{c_k}{minimum length of supp(y_shifted) and supp(v) intersection.}
+\item{c_k}{An integer specifying the minimum length of the intersection of the supports 
+of the shifted motif and the curves.}
+
+\item{use0}{A logical value indicating whether to use the first component of the curves (i.e., \( Y0 \) and \( v0 \)).}
+
+\item{use1}{A logical value indicating whether to use the second component of the curves (i.e., \( Y1 \) and \( v1 \)).}
+
+\item{transformed}{A logical value indicating whether the curves have been normalized prior to dissimilarity calculation.}
 }
 \value{
-curve id, shift and dissimilarity
+A matrix with three columns:
+        - \code{curve}: The ID of the curve where the motif was found.
+        - \code{shift}: The optimal shift at which the motif occurs.
+        - \code{diss}: The dissimilarity value associated with the match.
+        If no occurrences are found, an empty matrix is returned.
 }
 \description{
-Find occurrences of a motif in a set of curves (dimesion=d), with dissimilarity lower than R.
+Finds occurrences of a specified motif in a set of curves, where the dissimilarity is lower than a specified threshold \( R \). 
+The function compares the motif against curves represented in multiple dimensions and returns the details of matching occurrences.
+}
+\details{
+The function systematically checks each curve in the provided list against the specified motif 
+to identify positions where the dissimilarity does not exceed the defined threshold \( R \). 
+It handles multidimensional curves and can selectively consider different components of the motifs and curves.
+}
+\examples{
+# Example usage
+v <- list(v0 = matrix(runif(100), ncol = 2), v1 = matrix(runif(100), ncol = 2))
+Y <- list(list(Y0 = matrix(runif(200), ncol = 2), Y1 = matrix(runif(200), ncol = 2)))
+result <- .find_occurrences(v = v, Y = Y, R = 0.5, alpha = 0.5, w = c(1, 1), c_k = 5, use0 = TRUE, use1 = TRUE)
+print(result)
+
 }
 \author{
 Marzia Angela Cremona & Francesca Chiaromonte

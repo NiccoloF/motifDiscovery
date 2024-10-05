@@ -2,51 +2,35 @@
 % Please edit documentation in R/get_parents.R
 \name{get_parents}
 \alias{get_parents}
-\title{get_parents}
+\title{Get Parent Nodes from a Given Node}
 \usage{
 get_parents(node, node_list)
 }
 \arguments{
-\item{Y0}{list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-for d-dimensional curves y_i(x),  with the evaluation of curves (all curves should be evaluated
-on a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions}
+\item{node}{A vector representing a single node whose parents are to be found. 
+It is expected to contain the elements that may be present in the parent nodes.}
 
-\item{Y1}{list of N vectors, for univariate derivative curves y'_i(x), or
-list of N matrices with d columns, for d-dimensional derivatibe curves y'_i(x),
-with the evaluation of the curves derivatives (all curves should be evaluated on a uniform grid).
-When y'_j(x)=NA in the dimension j, then y'_j(x)=NA in ALL dimensions.
-Must be provided when diss='d1_L2' or diss='d0_d1_L2'.}
-
-\item{K}{vector with numbers of motifs that must be tested.}
-
-\item{c}{vector with minimum motifs lengths that must be tested.}
-
-\item{n_init}{number of random initialization for each combination of K and c.}
-
-\item{name}{name of the folders when the results are saved.}
-
-\item{names_var}{vector of length d, with names of the variables in the different dimensions.}
-
-\item{probKMA_options}{list with options for probKMA (see the help of probKMA).}
-
-\item{silhouette_align}{True or False. If True, try all possible alignments between the curve pieces
-when calculating the adapted silhouette index on the results of probKMA}
-
-\item{plot}{if TRUE, summary plots are drawn.}
+\item{node_list}{A list of vectors, where each vector represents a node in the hierarchical structure. 
+The function will search through these nodes to find parents of the specified node.}
 }
 \value{
-A list containing: K, c, n_init and name;...
-
-\item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
-
-\item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
+A numeric vector containing the indices of the parent nodes in the `node_list` that include the specified node.
 }
 \description{
-Run multiple times probKMA function with different K,c and initializations,
-with the aim to find a set of candidate motifs.
-If the folder name_KK_cc is already present and n result files are already present,
-load them and continue with the n_init-n runs.
+This function identifies the parent nodes of a given node in a hierarchical structure. 
+It checks which nodes in the provided list contain the specified node, thereby determining 
+its parent nodes.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\details{
+The function works by applying a logical check across the `node_list`. It returns the indices of all nodes 
+that contain all elements of the specified node vector. If no parent nodes are found, the function will return 
+an empty integer vector.
+}
+\examples{
+# Example usage
+node_list <- list(c(1, 2), c(2, 3), c(1, 3, 4), c(4, 5))
+node <- c(2, 3)
+parents <- get_parents(node, node_list)
+print(parents) # Should return the index of the parent node(s) that contain 2 and 3
+
 }

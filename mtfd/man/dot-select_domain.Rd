@@ -7,20 +7,28 @@
 .select_domain(v, v_dom, use0, use1)
 }
 \arguments{
-\item{v}{list of two elements: v0=v(x), v1=v'(x), matrices with d columns.}
+\item{v}{A list containing two elements: 
+\itemize{
+  \item v[[1]]: A matrix representing \( v(x) \) with \( d \) columns.
+  \item v[[2]]: A matrix representing \( v'(x) \) with \( d \) columns.
+}}
 
-\item{v_dom}{boolean vector: domain of v0 and v1.}
+\item{v_dom}{A boolean vector indicating the domain for `v0` and `v1`.}
 
-\item{use0}{boolean: if use0=TRUE, v0 is selected.}
+\item{use0}{A boolean value indicating whether to select `v0`. If TRUE, `v0` is selected based on `v_dom`.}
 
-\item{use1}{boolean: if use1=TRUE, v1 is selected.}
+\item{use1}{A boolean value indicating whether to select `v1`. If TRUE, `v1` is selected based on `v_dom`.}
 }
 \value{
-v list: containing the selected portion of v and v'.
+A list containing the selected portions of `v0` and `v1` (if applicable), with dimensions adjusted accordingly.
 }
 \description{
-Select the portion of a motif without NA
+This function selects the portion of a motif that is free from NA values based on a specified domain. 
+It allows for the selection of two matrices, `v0` and `v1`, depending on the boolean flags provided.
+}
+\details{
+Select Domain of a Motif
 }
 \author{
-Marzia Angela Cremona  & Francesca Chiaromonte
+Marzia Angela Cremona & Francesca Chiaromonte
 }

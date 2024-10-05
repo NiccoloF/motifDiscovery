@@ -1,32 +1,34 @@
-#' @title get_minidend
+#' @title Generate Minimum Dendrogram from Hierarchical Clustering
 #'
-#' @description Run multiple times probKMA function with different K,c and initializations,
-#' with the aim to find a set of candidate motifs.
-#' If the folder name_KK_cc is already present and n result files are already present,
-#' load them and continue with the n_init-n runs.
+#' @description
+#' This function generates a minimum dendrogram by performing hierarchical clustering on an input distance matrix. 
+#' The function identifies an optimal height cut based on the largest gap in cluster heights and returns the resulting 
+#' dendrogram, allowing for further analysis of clustering structures.
 #'
-#' @param Y0 list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-#' for d-dimensional curves y_i(x),  with the evaluation of curves (all curves should be evaluated
-#' on a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions
-#' @param Y1 list of N vectors, for univariate derivative curves y'_i(x), or
-#' list of N matrices with d columns, for d-dimensional derivatibe curves y'_i(x),
-#' with the evaluation of the curves derivatives (all curves should be evaluated on a uniform grid).
-#' When y'_j(x)=NA in the dimension j, then y'_j(x)=NA in ALL dimensions.
-#' Must be provided when diss='d1_L2' or diss='d0_d1_L2'.
-#' @param K vector with numbers of motifs that must be tested.
-#' @param c vector with minimum motifs lengths that must be tested.
-#' @param n_init number of random initialization for each combination of K and c.
-#' @param name name of the folders when the results are saved.
-#' @param names_var vector of length d, with names of the variables in the different dimensions.
-#' @param probKMA_options list with options for probKMA (see the help of probKMA).
-#' @param silhouette_align True or False. If True, try all possible alignments between the curve pieces
-#' when calculating the adapted silhouette index on the results of probKMA
-#' @param plot if TRUE, summary plots are drawn.
-#' @return A list containing: K, c, n_init and name;...
-#' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
-#' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
-#' @author Marzia Angela Cremona & Francesca Chiaromonte
-
+#' @param adj_fMSR A numeric matrix or a distance object representing the dissimilarity matrix 
+#'                  computed from functional data. This matrix is used to perform hierarchical clustering.
+#'
+#' @return A dendrogram object representing the clustered data. The dendrogram is cut at the identified height,
+#'         resulting in a tree structure that can be used for further analysis or visualization.
+#'
+#' @details
+#' The function performs the following steps:
+#' 1. Uses `fastcluster::hclust` to perform hierarchical clustering on the provided dissimilarity matrix using 
+#'    the "complete" method.
+#' 2. Extracts the heights of the clusters and identifies the largest gap in heights to determine the optimal 
+#'    cut position for the dendrogram.
+#' 3. Cuts the dendrogram at the identified height and returns the lower part of the cut.
+#'
+#' @examples
+#' # Example usage
+#' # Create a sample adjacency matrix
+#' sample_matrix <- matrix(runif(100), nrow = 10)
+#' adj_fMSR <- dist(sample_matrix) # Convert to a distance object
+#' minidend <- get_minidend(adj_fMSR)
+#' plot(minidend) # Visualize the resulting dendrogram
+#'
+#' @importFrom fastcluster hclust
+#' @export
 get_minidend <- function(adj_fMSR){
   # generate dendrogram
   total_hc <- fastcluster::hclust(adj_fMSR, method = "complete")

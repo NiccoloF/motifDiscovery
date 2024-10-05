@@ -1,15 +1,44 @@
 #' @title cluster_candidate_motifs_plot
 #'
-#' @description Plot the results of cluster_candidate_motifs.
+#' @description This function generates plots to visualize the results of the
+#' `cluster_candidate_motifs` function. It provides insights into the
+#' distances between motifs and curves, group-specific radii, and displays
+#' aligned motifs for each cluster.
 #'
-#' @param cluster_candidate_motifs_results output of cluster_candidate_motifs function.
-#' @param R_all global radius, used to cut the dendrogram (requiring groups to be more than 2*Rall apart).
-#' @param R_m vector with group-specific radii. The length of the vector must match the number of clusters
-#' obtained cutting the dendrogram at height 2*Rall. If NULL, Rm is determined in each group (based on
-#' distances between motifs of the same group and all curves).
-#' @param ask if TRUE the user is prompted before a new plot is drawn.
-#' @param ylab Name of y axis
+#' @param cluster_candidate_motifs_results A list containing the output of the
+#' `cluster_candidate_motifs` function, which includes clustering results and
+#' distances between motifs and curves.
+#' 
+#' @param R_all A numeric value representing the global radius. This is used
+#' to cut the dendrogram, requiring groups to be more than twice `R_all`
+#' apart. The default is set to the `R_all` component of the input results.
+#'
+#' @param R_m A numeric vector with group-specific radii. The length of this
+#' vector must match the number of clusters obtained by cutting the dendrogram
+#' at height `2 * R_all`. If set to NULL, the radius `R_m` is determined
+#' within each group based on the distances between motifs of the same group
+#' and all curves.
+#'
+#' @param ask A logical value indicating whether the user should be prompted
+#' before a new plot is drawn. Default is TRUE.
+#'
+#' @param ylab A character string specifying the label for the y-axis in the
+#' plots. Default is an empty string.
+#'
+#' @details This function produces:
+#' - Histograms of distances between all motifs and all curves, highlighting
+#' the global radius.
+#' - A dendrogram of motifs cut at `2 * R_all`, which allows visualization of
+#' the clustering structure.
+#' - Histograms of distances for motifs within specific clusters, comparing
+#' motifs from curves with and without the motifs.
+#' - Plots of aligned motifs for each cluster, showing their positions and
+#' distributions.
+#' - A scatter plot displaying the approximate average distance against the
+#' approximate frequency for motifs in each cluster.
+#'
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
+#' 
 #' @export
 cluster_candidate_motifs_plot <- function(cluster_candidate_motifs_results,ylab='',
                                           R_all=cluster_candidate_motifs_results$R_all,R_m=NULL,ask=TRUE){

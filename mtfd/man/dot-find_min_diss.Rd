@@ -2,7 +2,7 @@
 % Please edit documentation in R/find_min_diss.R
 \name{.find_min_diss}
 \alias{.find_min_diss}
-\title{.find_min_diss}
+\title{Find Minimum Dissimilarity}
 \usage{
 .find_min_diss(
   y,
@@ -18,21 +18,61 @@
 )
 }
 \arguments{
-\item{y}{list of two elements y0=y(x), y1=y'(x), matrices with d columns.}
+\item{y}{A list containing two matrices:
+- \code{y0}: The first set of curve values \(y(x)\).
+- \code{y1}: The second set of curve values \(y'(x)\).
+Each matrix should have \(d\) columns corresponding to the dimensions.}
 
-\item{v}{list of two elements v0=v(x), v1=v'(x), matrices with d columns.}
+\item{v}{A list containing two matrices:
+- \code{v0}: The first set of curve values \(v(x)\).
+- \code{v1}: The second set of curve values \(v'(x)\).
+Each matrix should have \(d\) columns corresponding to the dimensions.}
 
-\item{alpha}{weight coefficient between d0.L2 and d1.L2.}
+\item{alpha}{A numeric weight coefficient that balances the contributions of 
+the L2 norms of the two curve sets.}
 
-\item{w}{weights for the dissimilarity index in the different dimensions (w>0).}
+\item{w}{A numeric vector of weights for the dissimilarity index across different dimensions.
+All weights must be positive (\(w > 0\)).}
 
-\item{c_k}{minimum length of supp(y_shifted) and supp(v) intersection.}
+\item{c_k}{An integer specifying the minimum length of the intersection of the supports 
+of the shifted \(y\) and \(v\).}
+
+\item{d}{An integer indicating the dimensionality of the curves.}
+
+\item{use0}{A logical value indicating whether to use the first component of the curves (i.e., \(y0\) and \(v0\)).}
+
+\item{use1}{A logical value indicating whether to use the second component of the curves (i.e., \(y1\) and \(v1\)).}
+
+\item{transform_y}{A logical value indicating whether to normalize \(y\) to the range \([0,1]\) 
+before calculating the distance.}
+
+\item{transform_v}{A logical value indicating whether to normalize \(v\) to the range \([0,1]\) 
+before calculating the distance.}
 }
 \value{
-Shift warping and dissimilarity
+A numeric vector containing:
+        - The optimal shift that minimizes the dissimilarity.
+        - The minimum dissimilarity value found.
 }
 \description{
-Find shift warping minimizing dissimilarity between multidimensional curves (dimension=d).
+Finds the shift warping that minimizes dissimilarity between multidimensional curves. 
+The function operates on curves represented by two sets of data, each containing multiple dimensions.
+}
+\details{
+This function computes the shift warping between the provided multidimensional curves by 
+examining various shifts and calculating the corresponding dissimilarity. The user can control 
+which components of the curves to include in the calculation and whether to normalize the data.
+
+The function returns both the optimal shift and the minimal dissimilarity, which can be used 
+to assess the similarity between the two sets of curves under the specified constraints.
+}
+\examples{
+# Example usage
+y <- list(y0 = matrix(runif(100), ncol = 2), y1 = matrix(runif(100), ncol = 2))
+v <- list(v0 = matrix(runif(100), ncol = 2), v1 = matrix(runif(100), ncol = 2))
+result <- .find_min_diss(y = y, v = v, alpha = 0.5, w = c(1, 1), c_k = 5, d = 2, use0 = TRUE, use1 = TRUE)
+print(result)
+
 }
 \author{
 Marzia Angela Cremona & Francesca Chiaromonte

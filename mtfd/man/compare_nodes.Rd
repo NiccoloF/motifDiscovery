@@ -2,51 +2,26 @@
 % Please edit documentation in R/compare_nodes.R
 \name{compare_nodes}
 \alias{compare_nodes}
-\title{compare_nodes}
+\title{Compare Nodes}
 \usage{
 compare_nodes(node_1, node_2)
 }
 \arguments{
-\item{Y0}{list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-for d-dimensional curves y_i(x),  with the evaluation of curves (all curves should be evaluated
-on a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions}
+\item{node_1}{A vector representing the first node whose elements will be compared against the accolites of `node_2`.}
 
-\item{Y1}{list of N vectors, for univariate derivative curves y'_i(x), or
-list of N matrices with d columns, for d-dimensional derivatibe curves y'_i(x),
-with the evaluation of the curves derivatives (all curves should be evaluated on a uniform grid).
-When y'_j(x)=NA in the dimension j, then y'_j(x)=NA in ALL dimensions.
-Must be provided when diss='d1_L2' or diss='d0_d1_L2'.}
-
-\item{K}{vector with numbers of motifs that must be tested.}
-
-\item{c}{vector with minimum motifs lengths that must be tested.}
-
-\item{n_init}{number of random initialization for each combination of K and c.}
-
-\item{name}{name of the folders when the results are saved.}
-
-\item{names_var}{vector of length d, with names of the variables in the different dimensions.}
-
-\item{probKMA_options}{list with options for probKMA (see the help of probKMA).}
-
-\item{silhouette_align}{True or False. If True, try all possible alignments between the curve pieces
-when calculating the adapted silhouette index on the results of probKMA}
-
-\item{plot}{if TRUE, summary plots are drawn.}
+\item{node_2}{A vector representing the second node, from which accolites will be derived for comparison.}
 }
 \value{
-A list containing: K, c, n_init and name;...
-
-\item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
-
-\item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
+A logical value. The function returns `TRUE` if all elements of `node_1` are found in the accolites of `node_2`. It returns `FALSE` otherwise.
 }
 \description{
-Run multiple times probKMA function with different K,c and initializations,
-with the aim to find a set of candidate motifs.
-If the folder name_KK_cc is already present and n result files are already present,
-load them and continue with the n_init-n runs.
+This function compares two nodes to determine if all elements of the first node (`node_1`) are present within the accolites of the second node (`node_2`). Accolites are defined as a set of elements retrieved from the `get_accolites` function, which operates on `node_1` within a specified window of data. The comparison is successful if all elements in `node_1` are found in the accolites of `node_2`.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\examples{
+# Example usage
+node_1 <- c("A", "B", "C")
+node_2 <- c("A", "B", "C", "D", "E")
+result <- compare_nodes(node_1, node_2)
+print(result) # Returns TRUE if all elements of node_1 are in node_2's accolites
+
 }

@@ -1,28 +1,53 @@
-#' @title .find_min_diss
-#'
-#' @description Find shift warping minimizing dissimilarity between multidimensional curves (dimension=d).
-#'
-#' @param y list of two elements y0=y(x), y1=y'(x), matrices with d columns.
-#' @param v list of two elements v0=v(x), v1=v'(x), matrices with d columns.
-#' @param alpha weight coefficient between d0.L2 and d1.L2.
-#' @param w weights for the dissimilarity index in the different dimensions (w>0).
-#' @param c_k minimum length of supp(y_shifted) and supp(v) intersection.
-#' @return Shift warping and dissimilarity
+#' @title Find Minimum Dissimilarity
+#' 
+#' @description
+#' Finds the shift warping that minimizes dissimilarity between multidimensional curves. 
+#' The function operates on curves represented by two sets of data, each containing multiple dimensions.
+#' 
+#' @param y A list containing two matrices:
+#'        - \code{y0}: The first set of curve values \(y(x)\).
+#'        - \code{y1}: The second set of curve values \(y'(x)\).
+#'        Each matrix should have \(d\) columns corresponding to the dimensions.
+#' @param v A list containing two matrices:
+#'        - \code{v0}: The first set of curve values \(v(x)\).
+#'        - \code{v1}: The second set of curve values \(v'(x)\).
+#'        Each matrix should have \(d\) columns corresponding to the dimensions.
+#' @param alpha A numeric weight coefficient that balances the contributions of 
+#'               the L2 norms of the two curve sets. 
+#' @param w A numeric vector of weights for the dissimilarity index across different dimensions.
+#'          All weights must be positive (\(w > 0\)).
+#' @param c_k An integer specifying the minimum length of the intersection of the supports 
+#'             of the shifted \(y\) and \(v\).
+#' @param d An integer indicating the dimensionality of the curves.
+#' @param use0 A logical value indicating whether to use the first component of the curves (i.e., \(y0\) and \(v0\)).
+#' @param use1 A logical value indicating whether to use the second component of the curves (i.e., \(y1\) and \(v1\)).
+#' @param transform_y A logical value indicating whether to normalize \(y\) to the range \([0,1]\) 
+#'                    before calculating the distance.
+#' @param transform_v A logical value indicating whether to normalize \(v\) to the range \([0,1]\) 
+#'                    before calculating the distance.
+#' 
+#' @return A numeric vector containing:
+#'         - The optimal shift that minimizes the dissimilarity.
+#'         - The minimum dissimilarity value found.
+#' 
+#' @details
+#' This function computes the shift warping between the provided multidimensional curves by 
+#' examining various shifts and calculating the corresponding dissimilarity. The user can control 
+#' which components of the curves to include in the calculation and whether to normalize the data.
+#' 
+#' The function returns both the optimal shift and the minimal dissimilarity, which can be used 
+#' to assess the similarity between the two sets of curves under the specified constraints.
+#' 
+#' @examples
+#' # Example usage
+#' y <- list(y0 = matrix(runif(100), ncol = 2), y1 = matrix(runif(100), ncol = 2))
+#' v <- list(v0 = matrix(runif(100), ncol = 2), v1 = matrix(runif(100), ncol = 2))
+#' result <- .find_min_diss(y = y, v = v, alpha = 0.5, w = c(1, 1), c_k = 5, d = 2, use0 = TRUE, use1 = TRUE)
+#' print(result)
+#' 
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #' @export
 .find_min_diss <- function(y,v,alpha,w,c_k,d,use0,use1,transform_y=FALSE,transform_v=FALSE){
-  # Find shift warping minimizing dissimilarity between multidimensional
-  # curves (dimension=d).
-  # Return shift and dissimilarity.
-  # y: list of two elements y0=y(x), y1=y'(x), matrices with d columns.
-  # v: list of two elements v0=v(x), v1=v'(x), matrices with d columns.
-  # alpha: weight coefficient between d0.L2 and d1.L2.
-  # w: weights for the dissimilarity index in the
-  # different dimensions (w>0).
-  # c_k: minimum length of supp(y_shifted) and supp(v) intersection.
-  # transform_y: if TRUE, y is normalized to [0,1] before applying the distance.
-  # transform_v: if TRUE, v is normalized to [0,1] before applying the distance.
-  
   v_dom=.domain(v,use0)
   v=.select_domain(v,v_dom,use0,use1)
   v_len=length(v_dom)

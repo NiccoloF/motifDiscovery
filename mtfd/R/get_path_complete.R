@@ -1,32 +1,38 @@
-#' @title get_path_complete
+#' @title Get Complete Paths from a Dendrogram
 #'
-#' @description Run multiple times probKMA function with different K,c and initializations,
-#' with the aim to find a set of candidate motifs.
-#' If the folder name_KK_cc is already present and n result files are already present,
-#' load them and continue with the n_init-n runs.
+#' @description
+#' This function computes recommended paths from a dendrogram structure using parallel processing. 
+#' It utilizes the `find_recommended_path` function to identify optimal paths based on a minimum 
+#' cardinality constraint, distributing the computation across multiple worker nodes.
 #'
-#' @param Y0 list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-#' for d-dimensional curves y_i(x),  with the evaluation of curves (all curves should be evaluated
-#' on a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions
-#' @param Y1 list of N vectors, for univariate derivative curves y'_i(x), or
-#' list of N matrices with d columns, for d-dimensional derivatibe curves y'_i(x),
-#' with the evaluation of the curves derivatives (all curves should be evaluated on a uniform grid).
-#' When y'_j(x)=NA in the dimension j, then y'_j(x)=NA in ALL dimensions.
-#' Must be provided when diss='d1_L2' or diss='d0_d1_L2'.
-#' @param K vector with numbers of motifs that must be tested.
-#' @param c vector with minimum motifs lengths that must be tested.
-#' @param n_init number of random initialization for each combination of K and c.
-#' @param name name of the folders when the results are saved.
-#' @param names_var vector of length d, with names of the variables in the different dimensions.
-#' @param probKMA_options list with options for probKMA (see the help of probKMA).
-#' @param silhouette_align True or False. If True, try all possible alignments between the curve pieces
-#' when calculating the adapted silhouette index on the results of probKMA
-#' @param plot if TRUE, summary plots are drawn.
-#' @return A list containing: K, c, n_init and name;...
-#' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
-#' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
-#' @author Marzia Angela Cremona & Francesca Chiaromonte
-
+#' @param minidend A dendrogram structure from which to derive paths. This should be created from 
+#'                 a hierarchical clustering result.
+#' @param window_data A data frame or matrix containing the data associated with the nodes in the dendrogram. 
+#'                    This data is used for path recommendations.
+#' @param min_card An integer specifying the minimum number of leaves (or nodes) that must be present 
+#'                  in a path for it to be considered valid.
+#' @param worker_number An integer representing the number of worker nodes to be used for parallel processing.
+#'
+#' @return A list where each element contains the recommended paths for the corresponding node in the dendrogram. 
+#'         Each path includes information about the nodes and their associated scores.
+#'
+#' @details
+#' The function creates a cluster of worker nodes, loads necessary libraries, and exports required 
+#' variables and functions to each worker. It then applies the `find_recommended_path` function 
+#' in parallel to the leaves of the provided dendrogram, gathering results into a single list. 
+#' Finally, the cluster is stopped, and the results are returned.
+#'
+#' @examples
+#' # Example usage
+#' library(fastcluster)
+#' library(dplyr)
+#'
+#' # Assuming `adj_fMSR` is defined and `window_data` is prepared
+#' minidend <- get_minidend(adj_fMSR) # Get the dendrogram
+#' paths <- get_path_complete(minidend, window_data, min_card = 5, worker_number = 4)
+#' print(paths) # Output the computed paths
+#'
+#' @export
 get_path_complete <- function(minidend, window_data, min_card,worker_number){
 
   # Set up a cluster

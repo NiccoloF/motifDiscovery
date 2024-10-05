@@ -2,7 +2,7 @@
 % Please edit documentation in R/filter_candidate_motifs.R
 \name{filter_candidate_motifs}
 \alias{filter_candidate_motifs}
-\title{filter_candidate_motifs}
+\title{Filter Candidate Motifs}
 \usage{
 filter_candidate_motifs(
   find_candidate_motifs_results,
@@ -13,33 +13,53 @@ filter_candidate_motifs(
 )
 }
 \arguments{
-\item{find_candidate_motifs_results}{output of find_candidate_motif function.}
+\item{find_candidate_motifs_results}{Output from the \code{find_candidate_motif} function, which contains the results of the motif discovery process.}
 
-\item{sil_threshold}{threshold on the average silhouette index.}
+\item{sil_threshold}{A numeric value representing the threshold for the average silhouette index. 
+Values should be between -1 and 1.}
 
-\item{size_threshold}{threshold on the size of the motif (number of curves in the cluster).}
+\item{size_threshold}{An integer representing the threshold for the size of the motif, defined as the number of curves in the cluster. 
+Should be at least 1.}
 
-\item{K}{vector with numbers of motifs that must be considered (should be a subset of
-find_candidate_motifs_results$K).}
+\item{K}{A vector containing the numbers of motifs that must be considered. 
+This should be a subset of \code{find_candidate_motifs_results$K}.}
 
-\item{c}{vector with minimum motifs lengths that must be considered (should be a subset of
-find_candidate_motifs_results$c).}
+\item{c}{A vector with the minimum motif lengths that must be considered. 
+This should be a subset of \code{find_candidate_motifs_results$c}.}
 }
 \value{
-A list containing some ProbKMA options: Y0, Y1, diss, alpha, w, c, K and max_gap; and
-
-\item{V0_clean}{ vector of candidates motifs after filtering}
-
-\item{V1_clean}{ vector of deriveds candidates motifs after filtering}
-
-\item{D_clean}{ matrix of distances candidates motifs from the curves after filtering}
-
-\item{P_clean}{ matrix of probabilities membership of the candidate motifs after filtering}
+A list containing the filtered candidate motifs and some ProbKMA options:
+\item{V0_clean}{A vector of candidate motifs after filtering.}
+\item{V1_clean}{A vector of derived candidate motifs after filtering.}
+\item{D_clean}{A matrix of distances of candidate motifs from the curves after filtering.}
+\item{P_clean}{A matrix of probabilities of membership of the candidate motifs after filtering.}
+\item{Y0}{The original input data for the first curve.}
+\item{Y1}{The original input data for the derivative of the curve.}
+\item{diss}{The dissimilarity matrix used in motif discovery.}
+\item{alpha}{The weight parameter for the Sobolev distance.}
+\item{w}{Weights for the dissimilarity index across different dimensions.}
+\item{max_gap}{Maximum allowable gap between curves.}
 }
 \description{
-Filter the candidate motifs on the basis of a threshold on the average silhouette index
-and a threshold on the size of the curves in the motif.
+Filters the candidate motifs based on a specified threshold for the average silhouette index and 
+a threshold for the size of the curves in the motif. This function is useful for refining the set 
+of candidate motifs by removing those that do not meet the defined criteria.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\details{
+This function checks the provided thresholds for silhouette indices and motif sizes, 
+ensuring they are valid before filtering the motifs. If any parameters are invalid, 
+default values from the \code{find_candidate_motifs_results} are used.
+
+The function then loads the necessary data files for each combination of motif numbers and sizes, 
+filtering them using the silhouette criteria. The resulting motifs are sorted by their length 
+in descending order, and the filtered results are returned in a structured list.
+}
+\examples{
+# Example usage
+candidate_results <- find_candidate_motif(data)
+filtered_motifs <- filter_candidate_motifs(candidate_results, sil_threshold = 0.6, size_threshold = 3)
+
+# Inspect the cleaned candidate motifs
+print(filtered_motifs$V0_clean)
+
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mapply_custom.R
 \name{.mapply_custom}
 \alias{.mapply_custom}
-\title{.mapply_custom}
+\title{Custom mapply Function for Parallel Processing}
 \usage{
 .mapply_custom(
   cl,
@@ -13,8 +13,54 @@
   USE.NAMES = TRUE
 )
 }
+\arguments{
+\item{cl}{A cluster object created by `makeCluster`. If `NULL`, the classical `mapply` function is used.}
+
+\item{FUN}{A function to apply to the arguments.}
+
+\item{...}{Arguments to be passed to `FUN`. These should be vectors of equal length.}
+
+\item{MoreArgs}{A list of additional arguments to be passed to `FUN`.}
+
+\item{SIMPLIFY}{A logical value indicating whether to simplify the result if possible. Default is `TRUE`.}
+
+\item{USE.NAMES}{A logical value indicating whether to use names from the first argument. Default is `TRUE`.}
+}
+\value{
+A vector or list containing the results of applying the function `FUN` to the provided arguments. 
+        The output type depends on the value of `SIMPLIFY`.
+}
 \description{
-if the number of cluster is not null apply clusterMap, otherwise apply the classical version
+A wrapper function that conditionally applies either the classical `mapply` function 
+or `parallel::clusterMap` based on whether a cluster object is provided. 
+If the number of clusters is not null, it applies `clusterMap` for parallel execution; 
+otherwise, it defaults to the classical `mapply`.
+}
+\details{
+This function is useful for switching between parallel and non-parallel execution 
+based on the availability of a cluster, allowing for more flexible and efficient code.
+}
+\examples{
+# Example usage
+library(parallel)
+cl <- makeCluster(4) # Create a cluster with 4 workers
+
+# Define a simple function to square numbers
+square_func <- function(x) {
+  return(x^2)
+}
+
+# Using .mapply_custom with a cluster
+result_parallel <- .mapply_custom(cl, square_func, 1:5, MoreArgs = list())
+print(result_parallel) # Prints squared values
+
+# Using .mapply_custom without a cluster
+result_serial <- .mapply_custom(NULL, square_func, 1:5, MoreArgs = list())
+print(result_serial) # Prints squared values
+
+# Stop the cluster after use
+stopCluster(cl)
+
 }
 \author{
 Marzia Angela Cremona & Francesca Chiaromonte

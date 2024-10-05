@@ -2,23 +2,66 @@
 % Please edit documentation in R/diss_d0_d1_L2.R
 \name{.diss_d0_d1_L2}
 \alias{.diss_d0_d1_L2}
-\title{.diss_d0_d1_L2}
+\title{Dissimilarity Index for Multidimensional Curves}
 \usage{
 .diss_d0_d1_L2(y, v, w, alpha, transform_y = FALSE, transform_v = FALSE)
 }
 \arguments{
-\item{y}{list of two elements y0=y(x), y1=y'(x) for x in dom(v), matrices with d columns.}
+\item{y}{A list of two matrices: 
+\itemize{
+  \item \code{y[[1]]}: Values of the curve at points in the domain (y(x)).
+  \item \code{y[[2]]}: Values of the derivative of the curve at the same points (y'(x)).
+}
+Each matrix should have \code{d} columns, where \code{d} is the dimensionality of the curves.}
 
-\item{v}{list of two elements v0=v(x), v1=v'(x) for x in dom(v), matrices with d columns.}
+\item{v}{A list of two matrices: 
+\itemize{
+  \item \code{v[[1]]}: Values of the reference curve at points in the domain (v(x)).
+  \item \code{v[[2]]}: Values of the derivative of the reference curve at the same points (v'(x)).
+}
+Each matrix should have \code{d} columns, where \code{d} is the dimensionality of the curves.}
 
-\item{w}{weights for the dissimilarity index in the different dimensions (w>0).}
+\item{w}{A numeric vector of weights for the dissimilarity index in different dimensions. Each weight should be greater than 0.}
 
-\item{alpha}{weight coefficient between d0.L2 and d1.L2 (alpha=0 means d0.L2, alpha=1 means d1.L2).}
+\item{alpha}{A numeric value (between 0 and 1) that specifies the weight coefficient between the L2 norm of the function (d0.L2) and the L2 norm of the derivative (d1.L2):
+\itemize{
+  \item \code{alpha = 0}: Only the levels (d0.L2) are considered.
+  \item \code{alpha = 1}: Only the derivative information (d1.L2) is considered.
+  \item Values between 0 and 1 provide a mixture of both.
+}}
+
+\item{transform_y}{A logical value indicating whether to normalize \code{y} to the range [0, 1] before applying the distance computation. Default is \code{FALSE}.}
+
+\item{transform_v}{A logical value indicating whether to normalize \code{v} to the range [0, 1] before applying the distance computation. Default is \code{FALSE}.}
+}
+\value{
+A numeric value representing the dissimilarity index between the curves defined by \code{y} and \code{v}.
 }
 \description{
-Dissimilarity index for multidimensional curves (dimension=d).
-Sobolev type distance with normalization on common support: (1-alpha)*d0.L2+alpha*d1.L2.
+Computes a Sobolev-type dissimilarity index for multidimensional curves based on a weighted combination of L2 norms of the function and its derivative. 
+The distance is normalized on a common support, allowing for a comparison between curves considering both their levels and variations.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\details{
+The dissimilarity index is calculated based on the following Sobolev-type distance:
+\deqn{D = (1 - \alpha) \cdot d0.L2 + \alpha \cdot d1.L2}
+where:
+\itemize{
+  \item \code{d0.L2}: L2 distance considering only the levels of the curves.
+  \item \code{d1.L2}: L2 distance considering only the derivatives of the curves.
+}
+
+The function normalizes the inputs based on the specified flags to ensure that all features are comparable.
+}
+\examples{
+# Define two curves and their derivatives
+y_curve <- list(matrix(rnorm(100), ncol = 2), matrix(rnorm(100), ncol = 2))
+v_curve <- list(matrix(rnorm(100), ncol = 2), matrix(rnorm(100), ncol = 2))
+weights <- c(1, 1)
+
+# Calculate dissimilarity index without normalization
+diss_index <- .diss_d0_d1_L2(y = y_curve, v = v_curve, w = weights, alpha = 0.5)
+
+# Output the dissimilarity index
+print(diss_index)
+
 }

@@ -1,4 +1,19 @@
-
+#' Transform Input to Matrix
+#'
+#' @title Transform to Matrix
+#'
+#' @description
+#' This function transforms a numeric vector into a matrix. If the input is a single number, it creates a 1x1 matrix. 
+#' If the input is a vector, it creates a 1xN matrix. If the input is already a matrix, it returns it unchanged.
+#'
+#' @param input A numeric vector or matrix to be transformed.
+#'
+#' @return A matrix representation of the input.
+#'
+#' @details
+#' - If the input is neither a numeric vector nor a matrix, an error is raised.
+#'
+#' @export
 .transform_to_matrix <- function(input) {
   if (is.vector(input)) {
     if (length(input) == 1) {
@@ -17,6 +32,20 @@
   return(result)
 }
 
+#' Transform List Structure
+#'
+#' @title Transform List Structure
+#'
+#' @description
+#' This function modifies a list of structures by checking for the presence of a "with_noise" field. 
+#' If absent, it creates a new sub-list containing relevant fields.
+#'
+#' @param lst A list containing elements to be transformed.
+#' @param noise_str A string indicating the noise structure to apply.
+#'
+#' @return The transformed list with updated structures.
+#'
+#' @export
 .transform_list <- function(lst,noise_str) {
   # Looping the list
   for (i in seq_along(lst)) {
@@ -33,6 +62,20 @@
   return(lst)
 }
 
+#' Generate Curve Vector
+#'
+#' @title Generate Curve Vector from FD Object
+#'
+#' @description
+#' This function generates a curve vector from a functional data (fd) object, with a specified step size and optional derivative.
+#'
+#' @param fd_curve A functional data object from which to generate the curve.
+#' @param step_by A numeric value indicating the step size for generating the curve.
+#' @param Lfdobj A numeric value indicating the order of the derivative to compute. Default is 0 (no derivative).
+#'
+#' @return A numeric vector representing the generated curve.
+#'
+#' @export
 generate_curve_vector <- function(fd_curve, step_by = 1, Lfdobj = 0){
   # from an fd object generate the curve as a vector of len fixed by the fd_obj
   # with step equal to step_by. It generates the derivative Lfdobj
@@ -41,7 +84,23 @@ generate_curve_vector <- function(fd_curve, step_by = 1, Lfdobj = 0){
   return(y)
 }
 
-# add an additive noise to the final curve(motif)
+
+#' Add Error to Motif
+#'
+#' @title Add Additive Error to Motif
+#'
+#' @description
+#' This function adds an additive noise to a given motif based on specified parameters. The noise is generated as a percentage of the standard deviation of the motif.
+#'
+#' @param or_y A numeric vector representing the original motif values.
+#' @param noise_str A string or numeric vector indicating the structure of the noise to be added.
+#' @param start_point A numeric vector indicating the starting points of motifs.
+#' @param end_point A numeric vector indicating the ending points of motifs.
+#' @param k An integer representing the current iteration or motif index.
+#'
+#' @return A numeric vector of the motif values with added noise.
+#'
+#' @export
 add_error_to_motif <- function(or_y, noise_str, start_point, end_point,k){
   err_y <- or_y
   # --- additive noise
@@ -74,10 +133,23 @@ add_error_to_motif <- function(or_y, noise_str, start_point, end_point,k){
   return(err_y)
 }
 
-# generate a background curve with length (len) using b-spline with knots at (dist_knots)
-# one from the other, order (norder) and weights sampled from (weights). User can 
-# decide to add noise (add_noise = TRUE) sampled from a Gaussian distribution
-# with mu = 0 and sd = 0.01 (useful for additive noise in motifs)
+#' Generate Background Curve
+#'
+#' @title Generate Background Curve
+#'
+#' @description
+#' This function generates a background curve using B-splines with specified parameters, including knots, order, and weights. 
+#' Optionally, additive noise can be added to the curve.
+#'
+#' @param len An integer indicating the length of the curve to generate.
+#' @param dist_knots A numeric value indicating the distance between knots.
+#' @param norder An integer specifying the order of the B-spline.
+#' @param weights A numeric vector containing the coefficients for the B-spline.
+#' @param add_noise A logical value indicating whether to add Gaussian noise to the curve.
+#'
+#' @return A list containing the generated basis, coefficients, and curve values with or without noise.
+#'
+#' @export
 generate_background_curve <- function(len, dist_knots, norder, weights, add_noise){
   
   # create knots and generate the corresponding b-spline basis for every curve
@@ -108,6 +180,28 @@ generate_background_curve <- function(len, dist_knots, norder, weights, add_nois
   return(res)
 }
 
+#' Add Motif to Base Curve
+#'
+#' @title Add Motif to Base Curve
+#'
+#' @description
+#' This function adds specified motifs to a base curve, adjusting coefficients and applying noise as needed. It also computes the 
+#' signal-to-noise ratio (SNR) for the motifs.
+#'
+#' @param base_curve A list representing the base curve structure with coefficients and basis.
+#' @param mot_pattern A data frame containing information about the motif patterns to add.
+#' @param mot_len A matrix specifying the lengths of the motifs.
+#' @param dist_knots A numeric value indicating the distance between knots for the motifs.
+#' @param mot_order An integer specifying the order of the B-spline for the motifs.
+#' @param mot_weights A list of numeric vectors containing weights for each motif.
+#' @param noise_str A list of structures defining the noise to be added to motifs.
+#' @param only_der A logical value indicating whether to add only derivatives.
+#' @param coeff_min_shift A numeric value for the minimum shift to apply to coefficients.
+#' @param coeff_max_shift A numeric value for the maximum shift to apply to coefficients.
+#'
+#' @return A list containing the updated base curve, background information, motifs with and without noise, and SNR data.
+#'
+#' @export
 add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, mot_weights, noise_str,
                       only_der,coeff_min_shift,coeff_max_shift){
   # create knots and generate the corresponding b-spline basis for every curve
@@ -200,6 +294,29 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   return(res)
 }
 
+#' Generate Coefficients for Motif
+#'
+#' @title Generate Coefficients
+#'
+#' @description
+#' This function generates a vector of coefficients for a motif based on the specified distribution. 
+#' It can sample coefficients from a numeric vector, a uniform distribution, or a beta distribution.
+#'
+#' @param motif_i A list representing the motif structure that includes the length (`len`).
+#' @param distrib A string or numeric vector indicating the distribution from which to generate coefficients. 
+#'                Accepted values are "unif", "beta", or a numeric vector.
+#' @param dist_knots A numeric value indicating the distance between knots.
+#' @param norder An integer specifying the order of the B-spline.
+#' @param coeff_min A numeric value indicating the minimum coefficient value for uniform or beta distributions.
+#' @param coeff_max A numeric value indicating the maximum coefficient value for uniform or beta distributions.
+#'
+#' @return A modified motif structure containing the generated coefficients.
+#'
+#' @details
+#' - For uniform distribution, coefficients are generated within the specified range defined by `coeff_min` and `coeff_max`.
+#' - For beta distribution, coefficients are scaled to the desired range using the specified minimum and maximum values.
+#'
+#' @export
 .generate_coefficients <- function(motif_i, distrib, dist_knots, norder, coeff_min, coeff_max) {
   # Calculate the length of the coefficients vector
   l <- motif_i$len / dist_knots + norder - 1
@@ -218,7 +335,22 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   return(motif_i)
 }
 
-# Check for overlaps and fitting within each curve
+
+#' Check Fits for Motifs
+#'
+#' @title Check Fits
+#'
+#' @description
+#' This function checks if motifs fit within a specified curve length and whether there are overlaps between motifs. 
+#' It returns TRUE if all conditions are met and FALSE otherwise.
+#'
+#' @param df A data frame containing motif information with columns `start` and `end` indicating the positions of motifs.
+#' @param min_dist_motifs A numeric value specifying the minimum distance required between motifs.
+#' @param len A numeric value representing the total length of the curve.
+#'
+#' @return A logical value indicating whether the motifs fit within the curve and do not overlap.
+#'
+#' @export
 .check_fits <- function(df,min_dist_motifs,len) {
   df <- df[order(df$start), ]
   # Check for overlaps
@@ -236,6 +368,19 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   return(TRUE)
 }
 
+#' Resample Vector
+#'
+#' @title Resample Vector
+#'
+#' @description
+#' This function resamples a vector by randomly selecting indices. The number of samples can be specified.
+#'
+#' @param x A vector to be resampled.
+#' @param ... Additional arguments passed to the sampling function.
+#'
+#' @return A resampled vector.
+#'
+#' @export
 .resample <- function(x, ...) x[sample.int(length(x), ...)]
 
 

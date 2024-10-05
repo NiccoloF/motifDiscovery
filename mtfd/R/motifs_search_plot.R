@@ -1,13 +1,69 @@
-#' @title motifs_search_plot
+#' @title Plot Motif Search Results
 #'
-#' @description Plot the results of motifs_search.
+#' @description
+#' The `motifs_search_plot` function visualizes the results obtained from the `motifs_search` function.
+#' It generates plots for detected motifs across multiple dimensions, displaying both the motifs and their
+#' corresponding derivative curves (if available). Users can filter motifs based on frequency thresholds
+#' and choose to display either all motifs or the top `n` motifs. Additionally, the function provides an
+#' option to plot all underlying curves with colored motifs highlighted.
 #'
-#' @param motifs_search_results output of motifs_search function.
-#' @param ylab string with the title for the y axis .
-#' @param freq_threshold plot only motifs with frequency at least equal to freq_threshold.
-#' @param top_n if 'all', plot all motifs found. If top_n is an integer, then all top top_n motifs are plotted.
-#' @param plot_curves if TRUE, plot all the curves with coloured motifs.
-#' @author Marzia Angela Cremona & Francesca Chiaromonte
+#' @param motifs_search_results A list containing the output from the `motifs_search` function. This
+#'   includes elements such as `V0`, `V1`, `V_frequencies`, `Y0`, `Y1`, `V_length`, `V_occurrences`,
+#'   `V_mean_diss`, and `R_motifs`, which store information about the detected motifs and their properties.
+#'
+#' @param ylab A character string specifying the label for the y-axis in the plots. This label will be
+#'   appended with the dimension number to create individual titles for each plot. Default is an empty
+#'   string (`''`).
+#'
+#' @param freq_threshold An integer indicating the minimum frequency a motif must have to be included
+#'   in the plots. Only motifs with a frequency equal to or greater than `freq_threshold` will be
+#'   visualized. Default value is `5`.
+#'
+#' @param top_n Determines how many motifs to plot based on their frequency. If set to `'all'`, all
+#'   motifs meeting the `freq_threshold` will be plotted. If an integer is provided, only the top
+#'   `top_n` motifs with the highest frequencies will be displayed. Default is `'all'`.
+#'
+#' @param plot_curves A logical value indicating whether to plot all underlying curves with colored
+#'   motifs highlighted. If `TRUE`, the function overlays motifs on the curves for better visualization.
+#'   Default is `TRUE`.
+#'
+#' @return
+#' The function does not return a value but generates plots visualizing the motifs and their occurrences
+#' across different dimensions. It creates separate plots for each dimension and includes legends for
+#' easy identification of motifs.
+#'
+#' @details
+#' The `motifs_search_plot` function performs the following steps:
+#' \enumerate{
+#'   \item Validates input parameters, ensuring that the frequency threshold and `top_n` are appropriate.
+#'   \item Selects motifs that meet the frequency threshold and, if specified, limits the number of motifs
+#'     to the top `n`.
+#'   \item For each dimension, it plots the motif centers (`V0`) and their derivatives (`V1`, if available).
+#'   \item If `plot_curves` is `TRUE`, it overlays the motifs on the original curves, highlighting them with
+#'     distinct colors.
+#'   \item Adds legends to the plots for clear identification of each motif.
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' # Assuming `results` is the output from `motifs_search`
+#' # and it contains motifs across 2 dimensions
+#' 
+#' # Basic usage plotting all motifs with a frequency threshold of 5
+#' motifs_search_plot(results, ylab = "Signal Intensity", freq_threshold = 5)
+#' 
+#' # Plotting the top 10 motifs with a higher frequency threshold
+#' motifs_search_plot(results, ylab = "Signal Intensity", freq_threshold = 10, top_n = 10)
+#' 
+#' # Plotting without overlaying the underlying curves
+#' motifs_search_plot(results, ylab = "Signal Intensity", plot_curves = FALSE)
+#' 
+#' # Using a custom y-axis label
+#' motifs_search_plot(results, ylab = "Amplitude", freq_threshold = 3, top_n = 5)
+#' }
+#'
+#' @importFrom dplyr %>%
+#' @importFrom data.table as.data.table setnames
 #' @export
 motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,top_n='all',plot_curves=TRUE){
   # Plot the results of motifs_search.

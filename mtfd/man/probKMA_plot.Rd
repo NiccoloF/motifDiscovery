@@ -2,25 +2,107 @@
 % Please edit documentation in R/probKMA_plot.R
 \name{probKMA_plot}
 \alias{probKMA_plot}
-\title{probKMA_plot}
+\title{Plot the Results of probKMA}
 \usage{
 probKMA_plot(probKMA_results, plot, ylab = "", sil_avg = NULL, cleaned = FALSE)
 }
 \arguments{
-\item{probKMA_results}{output of probKMA function.}
+\item{probKMA_results}{A list containing the output from the `probKMA` function. This list should include elements such as:
+\describe{
+  \item{Y0}{A list of matrices representing the original curves.}
+  \item{Y1}{A list of matrices representing the derivatives of the curves (if applicable).}
+  \item{V0}{A list of motifs.}
+  \item{V1}{A list of derived motifs (if applicable).}
+  \item{P}{A matrix indicating motif memberships across curves.}
+  \item{S}{A matrix indicating motif start positions in curves.}
+  \item{S_clean}{A matrix indicating cleaned motif start positions (if applicable).}
+  \item{P_clean}{A matrix indicating cleaned motif memberships (if applicable).}
+  \item{V0_clean}{A list of cleaned motifs (if applicable).}
+  \item{V1_clean}{A list of derived cleaned motifs (if applicable).}
+  \item{iter}{An integer indicating the number of iterations performed.}
+  \item{J_iter}{A numeric vector recording the objective function value at each iteration.}
+  \item{BC_dist_iter}{A numeric vector recording the Bhattacharyya distance between memberships at each iteration.}
+}}
 
-\item{ylab}{a vector of length d, with the titles for the y axis for each dimension.}
+\item{plot}{A logical flag indicating whether to produce the plots. If `TRUE`, the function generates all relevant plots. If `FALSE`, no plots are produced.}
 
-\item{sil_avg}{average silhoutte for each embedded motif.}
+\item{ylab}{A character vector of length `d`, providing labels for the y-axis in each dimension. Defaults to an empty string (`''`) for all dimensions.}
 
-\item{cleaned}{if TRUE, plot the cleaned motifs.}
+\item{sil_avg}{A numeric vector containing the average silhouette scores for each embedded motif. This parameter is used to annotate the plots with silhouette information. Defaults to `NULL`, meaning no silhouette scores are displayed.}
+
+\item{cleaned}{A logical value indicating whether to plot only the cleaned motifs (`TRUE`) or all motifs (`FALSE`). When set to `TRUE`, the function highlights motifs that have been cleaned based on predefined criteria. Defaults to `FALSE`.}
 }
 \value{
-plot of memberships motifs, objective function and Bhattacharyya distance
+The function generates a series of plots visualizing:
+\itemize{
+  \item \strong{Motifs with Matched Curves}: Displays the original curves with embedded motifs overlaid. If `cleaned = TRUE`, only cleaned motifs are highlighted.
+  \item \strong{Memberships}: Shows bar plots representing the membership scores of each motif across all curves.
+  \item \strong{Objective Function}: Plots the progression of the objective function (`J_iter`) over iterations to illustrate convergence.
+  \item \strong{Bhattacharyya Distance}: Plots the Bhattacharyya distance (`BC_dist_iter`) between memberships over iterations to assess similarity.
+}
+No value is returned; the function is used solely for its side effects of generating visualizations.
 }
 \description{
-Plot the results of probKMA.
+The `probKMA_plot` function visualizes the results obtained from the `probKMA` analysis. It generates a series of plots
+including motif memberships across different curves, the progression of the objective function over iterations,
+and the Bhattacharyya distance between memberships. Depending on the parameters, it can plot both original
+and cleaned motifs across multiple dimensions, providing insights into the embedding and characteristics of
+identified motifs.
 }
-\author{
-Niccolò Feresini & Marzia Angela Cremone & Francesca Chiaromonte
+\details{
+The `probKMA_plot` function performs the following operations:
+\enumerate{
+  \item **Motif Visualization**:
+    \itemize{
+      \item Plots the original curves (`Y0`) with embedded motifs (`V0`). If derivatives (`Y1` and `V1`) are available, additional plots are generated for them.
+      \item When `cleaned = TRUE`, the function highlights only the cleaned motifs (`V0_clean` and `V1_clean`), providing a clearer view of significant motifs.
+      \item Utilizes color coding and legends to differentiate between different motifs and their instances.
+    }
+  \item **Memberships**:
+    \itemize{
+      \item Generates bar plots showing the membership scores (`P` or `P_clean`) of each motif across all curves.
+      \item Provides a visual representation of how strongly each motif is associated with different curves.
+    }
+  \item **Objective Function and Bhattacharyya Distance**:
+    \itemize{
+      \item Plots the objective function (`J_iter`) over the iterations to demonstrate the optimization process.
+      \item Plots the Bhattacharyya distance (`BC_dist_iter`) to measure the similarity between motif memberships across iterations.
+    }
+}
+
+The function is designed to handle multiple dimensions (`d`) and can accommodate both original and derivative data if provided. 
+It also supports the visualization of cleaned motifs, which are motifs that have been refined based on specific criteria to ensure quality and relevance.
+}
+\examples{
+\dontrun{
+# Load necessary libraries
+library(mtfd)
+
+# Assume `results` is the output from the `probKMA` function
+# and it contains all necessary components.
+
+# Basic plot with default parameters
+probKMA_plot(
+  probKMA_results = results,
+  plot = TRUE,
+  ylab = c("Amplitude", "Frequency"),
+  cleaned = FALSE
+)
+
+# Plot only cleaned motifs with silhouette averages
+probKMA_plot(
+  probKMA_results = results,
+  plot = TRUE,
+  ylab = c("Amplitude", "Frequency"),
+  sil_avg = c(0.75, 0.80),
+  cleaned = TRUE
+)
+
+# Disable plotting
+probKMA_plot(
+  probKMA_results = results,
+  plot = FALSE
+)
+}
+
 }

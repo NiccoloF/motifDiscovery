@@ -2,7 +2,7 @@
 % Please edit documentation in R/motifs_search.R
 \name{motifs_search}
 \alias{motifs_search}
-\title{motifs_search}
+\title{Motif Search in Curves}
 \usage{
 motifs_search(
   cluster_candidate_motifs_results,
@@ -16,50 +16,125 @@ motifs_search(
 )
 }
 \arguments{
-\item{cluster_candidate_motifs_results}{output of cluster_candidate_motifs function.}
+\item{cluster_candidate_motifs_results}{A list containing the output from the `cluster_candidate_motifs` 
+function. This list must include elements such as:
+\describe{
+  \item{Y0}{A list of matrices representing the original curves.}
+  \item{Y1}{A list of matrices representing the derivatives of the curves (if applicable).}
+  \item{V0_clean}{A list of candidate motifs derived from `Y0`.}
+  \item{V1_clean}{A list of candidate motifs derived from `Y1` (if applicable).}
+  \item{D_clean}{A matrix of dissimilarity measures between motifs and curves.}
+  \item{P_clean}{A matrix indicating positive matches (e.g., presence of motifs in curves).}
+  \item{hclust_res}{A hierarchical clustering object obtained from `hclust`.}
+  \item{R_all}{A numeric value representing the global radius used for dendrogram cutting.}
+  \item{w}{A numeric vector of weights for the dissimilarity index across different dimensions.}
+  \item{transformed}{A logical value indicating if the data has been normalized.}
+  \item{max_gap}{A numeric value defining the maximum allowed gap in distances for cluster separation.}
+  \item{k_knn}{An integer specifying the number of neighbors for K-Nearest Neighbors classification.}
+  \item{votes_knn_Rm}{A numeric value defining the probability threshold for KNN-based radius determination.}
+  \item{c}{A numeric vector specifying the minimum number of overlapping elements required for motif validation.}
+}}
 
-\item{R_all}{global radius, used to cut the dendrogram (requiring groups to be more than 2*Rall apart).}
+\item{R_all}{A numeric value representing the global radius used to cut the dendrogram, ensuring that 
+clusters are at least twice this radius apart. This parameter defines the grouping of motifs into clusters.}
 
-\item{R_m}{vector with group-specific radii, used to find motif occurrences. The length of the vector
-must match the number of clusters obtained cutting the dendrogram at height 2*Rall. If NULL, Rm is
-determined in each group (based on distances between motifs of the same group and all curves).}
+\item{R_m}{A numeric vector containing group-specific radii used to identify motif occurrences within each cluster. 
+The length of this vector must match the number of clusters obtained by cutting the dendrogram at a height of `2 * R_all`. 
+If `NULL`, the function automatically determines `R_m` for each group based on the distances between motifs 
+within the same cluster and all curves.}
 
-\item{use_real_occurrences}{if TRUE, find occurrences for all candidate motifs and uses real frequency
-and mean dissimilarity to choose motifs in groups (more accurate, but time consuming). Otherwise,
-uses approximate frequency and mean dissimilarity (default).}
+\item{different_R_m_finding}{A logical value indicating whether to use a different radius (`R_m_finding`) 
+for finding motif occurrences compared to the initial radius (`R_m`). If `TRUE`, `R_m_finding` is used; 
+otherwise, `R_m` is employed. This allows for separate tuning of motif occurrence detection.}
 
-\item{length_diff}{minimum difference in length among motifs of the same group, required in ordered
-to keep more than one motif, in percentage of the most frequent motif.}
+\item{R_m_finding}{A numeric vector containing group-specific radii used specifically for finding motif occurrences 
+when `different_R_m_finding` is set to `TRUE`. The length of this vector must match the number of clusters obtained 
+by cutting the dendrogram at a height of `2 * R_all`. If `NULL`, `R_m_finding` is determined automatically for 
+each group based on distances between motifs within the same cluster and all curves.}
 
-\item{worker_number}{number of CPU cores to be used for parallelization (default number of CPU cores).
-If worker_number=1, the function is run sequentially.}
+\item{use_real_occurrences}{A logical value indicating whether to compute real occurrences of candidate motifs 
+within the curves. If `TRUE`, the function calculates actual frequencies and mean dissimilarities for motif 
+selection, providing more accurate results at the cost of increased computation time. If `FALSE`, it uses 
+approximate frequencies and mean dissimilarities for faster execution. Defaults to `FALSE`.}
+
+\item{length_diff}{A numeric value specifying the minimum percentage difference in length required among 
+motifs within the same group to retain multiple motifs. This parameter ensures diversity in motif selection 
+by preventing motifs of similar lengths from being selected simultaneously. It is defined as a percentage 
+relative to the length of the most frequent motif. Defaults to `Inf`, meaning no additional motifs are selected 
+based on length differences.}
+
+\item{worker_number}{An integer indicating the number of CPU cores to utilize for parallel processing. 
+By default, the function uses one less than the total number of available cores (`detectCores() - 1`). 
+Setting `worker_number = 1` forces the function to run sequentially without parallelization. If `NULL`, 
+the function automatically determines the optimal number of workers based on the system's available cores.}
 }
 \value{
-A list containing Y0 and Y1 output of cluster_candidate_motifs function and:
-
-\item{V0}{ list of founds motifs}
-
-\item{V1}{ list of derived of founds motifs}
-
-\item{V_length}{ vector of real lengths of founds motifs}
-
-\item{V_occurrences}{ vector of real occurrences of founds motifs}
-
-\item{V_frequencies}{ vector of real frequencies of founds motifs}
-
-\item{V_mean_diss}{ vector of real average dissimilarities between the founds motifs}
-
-\item{R_motifs}{ vector of radii of founds motifs}
+A list containing:
+  \describe{
+    \item{V0}{A list of selected motifs derived from `Y0`.}
+    \item{V1}{A list of selected motifs derived from `Y1` (if applicable).}
+    \item{V_length}{A numeric vector representing the real lengths of the selected motifs.}
+    \item{V_occurrences}{A list detailing the occurrences of each selected motif within the curves.}
+    \item{V_frequencies}{A numeric vector indicating the real frequencies of each selected motif.}
+    \item{V_mean_diss}{A numeric vector representing the average dissimilarity of each selected motif.}
+    \item{Y0}{A list of matrices corresponding to the original curves, as provided in `cluster_candidate_motifs_results`.}
+    \item{Y1}{A list of matrices corresponding to the derivatives of the curves (if applicable), as provided in `cluster_candidate_motifs_results`.}
+    \item{R_motifs}{A numeric vector containing the radii associated with each selected motif.}
+  }
 }
 \description{
-Find occurrences of the candidate motifs in the curves and sort 
-them according to their frequencies and radius,
-In each group (as defined by cutting the dendrogram at high 2*Rall), 
-we choose the motif
-with highest frequency and lower mean dissimilarity (the one ranking best in both dimensions),
-Additional motifs can be chosen in a group, if their lengths differ enough from the length of the first motif chosen,
-A candidate motif matches a piece of curve if their dissimilarity is less than the corresponding R_m.
+The `motifs_search` function identifies and ranks motifs within a set of curves based on their 
+frequencies and dissimilarity measures. It processes candidate motifs clustered from hierarchical 
+clustering results, selects optimal motifs within each cluster, and determines their occurrences 
+in the original curves. The function supports parallel processing to enhance computational efficiency 
+and offers flexibility in handling different dissimilarity metrics and motif selection criteria.
 }
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+\details{
+The `motifs_search` function operates through the following steps:
+\enumerate{
+  \item **Parallelization Setup**: Determines the number of worker cores to use based on `worker_number`. If `worker_number > 1`, 
+    it initializes a cluster for parallel processing.
+  \item **Input Preparation**: Depending on the dissimilarity metric (`d0_L2`, `d1_L2`, or `d0_d1_L2`), it prepares the data structures 
+    `Y` and `V` for processing.
+  \item **Dendrogram Cutting**: Cuts the hierarchical clustering dendrogram at a height of `2 * R_all` to define clusters of motifs.
+  \item **Radius Determination**: If `R_m` or `R_m_finding` is not provided, the function calculates these radii for each cluster 
+    based on motif distances and K-Nearest Neighbors (KNN) classification.
+  \item **Candidate Motif Selection**: Depending on `use_real_occurrences`, the function either computes real occurrences and uses 
+    actual frequencies and mean dissimilarities to select motifs, or it uses approximate measures for faster processing.
+  \item **Motif Filtering**: Within each cluster, motifs are ranked based on their frequency and mean dissimilarity. Additional motifs 
+    can be selected if their lengths differ sufficiently from the most frequent motif, as defined by `length_diff`.
+  \item **Output Compilation**: The selected motifs and their associated properties are compiled into a comprehensive list for further analysis or visualization.
+}
+}
+\examples{
+\dontrun{
+# Load necessary libraries
+library(parallel)
+library(dplyr)
+library(data.table)
+library(class)
+
+# Assuming `cluster_results` is the output from `cluster_candidate_motifs`
+# and `window_data` is your dataset
+
+# Perform motif search with default parameters
+search_results <- motifs_search(cluster_candidate_motifs_results = cluster_results)
+
+# Perform motif search with custom frequency threshold and top_n
+search_results <- motifs_search(
+  cluster_candidate_motifs_results = cluster_results,
+  R_all = 0.5,
+  R_m = NULL,
+  different_R_m_finding = FALSE,
+  R_m_finding = NULL,
+  use_real_occurrences = TRUE,
+  length_diff = 0.2,
+  worker_number = 4
+)
+
+# Accessing the results
+selected_motifs <- search_results$V0
+motif_frequencies <- search_results$V_frequencies
+}
+
 }

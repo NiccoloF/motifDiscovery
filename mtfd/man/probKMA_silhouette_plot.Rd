@@ -2,27 +2,29 @@
 % Please edit documentation in R/probKMA_silhouette_plot.R
 \name{probKMA_silhouette_plot}
 \alias{probKMA_silhouette_plot}
-\title{probKMA_silhouette}
+\title{Plot Silhouette Index from probKMA Results}
 \usage{
 probKMA_silhouette_plot(silhouette_results, K, plot = TRUE)
 }
 \arguments{
-\item{probKMA_results}{output of probKMA function (with return_options=TRUE).}
+\item{silhouette_results}{A list containing the results from the silhouette analysis, including:
+- Silhouette indices for each motif.
+- Motif identifiers.
+- Curves associated with each motif.
+- Average silhouette widths.
+- Number of curves in each motif.}
+
+\item{K}{An integer representing the number of motifs identified by the `probKMA` algorithm.}
+
+\item{plot}{A logical value indicating whether to generate the plot. Default is `TRUE`.}
 }
 \value{
-A list containing:
-
-\item{silhouette}{ vector of silhouette indices}
-
-\item{motifs}{ vector of motifs numbers}
-
-\item{curves}{ vector of curves numbers with motifs}
-
-\item{silhouette_average}{ vector of average silhouette index for each cluster}
+A list containing the following elements:
+\item{silhouette}{A vector of silhouette indices for the motifs.}
+\item{motifs}{A vector of motif identifiers.}
+\item{curves}{A vector containing all curves associated with the motifs.}
+\item{silhouette_average}{A vector of average silhouette widths for each motif.}
 }
 \description{
-Compute the adapted silhouette index on the results of probKMA.
-}
-\author{
-Marzia Angela Cremona  & Francesca Chiaromonte
+This function generates a bar plot displaying the adapted silhouette index based on the results from the `probKMA` algorithm. It visually represents the quality of the motifs identified by illustrating the average silhouette width for each motif. Additionally, it provides relevant information about the number of curves associated with each motif.
 }

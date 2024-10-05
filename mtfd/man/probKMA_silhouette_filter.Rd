@@ -2,7 +2,7 @@
 % Please edit documentation in R/probKMA_silhouette_filter.R
 \name{probKMA_silhouette_filter}
 \alias{probKMA_silhouette_filter}
-\title{probKMA_silhouette_filter}
+\title{Filter Motifs from probKMA Results Based on Silhouette and Size Thresholds}
 \usage{
 probKMA_silhouette_filter(
   probKMA_results,
@@ -12,40 +12,25 @@ probKMA_silhouette_filter(
 )
 }
 \arguments{
-\item{probKMA_results}{output of probKMA function (with return_options=TRUE)}
+\item{probKMA_results}{A list representing the output of the `probKMA` function with `return_options = TRUE`. This output includes the motifs, dissimilarity matrices, and membership matrices required for filtering.}
 
-\item{silhouette}{output of probKMA_silhouette function}
+\item{silhouette}{A list output from the `probKMA_silhouette` function, which provides silhouette scores for each motif.}
 
-\item{sil_threshold}{threshold on the average silhouette index}
+\item{sil_threshold}{A numeric value representing the threshold for the average silhouette index. Motifs with a silhouette index greater than or equal to this value will be retained. Default is 0.5.}
 
-\item{size_threshold}{threshold on the size of the motif (number of curves in the cluster)}
+\item{size_threshold}{An integer representing the minimum number of curves (size) in a motif cluster. Motifs with a cluster size greater than or equal to this value will be retained. Default is 2.}
 }
 \value{
-A list containing all the elements in probKMA_results correspondent to the filtered motifs;
-
-\item{V0_clean}{ filtered motifs}
-
-\item{V1_clean}{ derivative of the filtered motifs}
-
-\item{D}{ filtered dissimilarity matrix}
-
-\item{S_clean}{ shift warping matrix after cleaning motifs}
-
-\item{D}{ dissimilarity matrix}
-
-\item{D_clean}{ filtered dissimilarity matrix after cleaning motifs}
-
-\item{P}{ filtered membership matrix}
-
-\item{P_clean}{ filtered membership matrix after cleaning motifs}
-
-\item{c}{ filtered minimum motif lengths}
-
-\item{K}{ vector containing the number of motifs repeated a number of filtered motifs times}
+A list containing the filtered results:
+\item{V0_clean}{Filtered motifs.}
+\item{V1_clean}{Derivatives of the filtered motifs.}
+\item{D}{Dissimilarity matrix.}
+\item{D_clean}{Filtered dissimilarity matrix after cleaning motifs.}
+\item{P}{Membership matrix.}
+\item{P_clean}{Filtered membership matrix after cleaning motifs.}
+\item{c}{Filtered minimum motif lengths.}
+\item{K}{Vector containing the number of motifs repeated by the filtered motifs.}
 }
 \description{
-Filter the motifs found by probKMA on the basis of a threshold on the average silhouette index
-}
-\author{
-Marzia Angela Cremona & Francesca Chiaromonte
+This function filters the motifs identified by the `probKMA` algorithm based on a threshold for the average silhouette index and a minimum size criterion. Motifs that meet or exceed both the silhouette index threshold and the minimum number of curves (size) are retained. The function returns a cleaned version of the input data, including the filtered motifs, their derivatives, and associated matrices.
 }

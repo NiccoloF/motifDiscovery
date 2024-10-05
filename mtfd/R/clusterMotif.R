@@ -382,8 +382,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
                                           '.select_domain','.find_min_diss',
                                           'probKMA_wrap','arguments'),envir=environment()) 
         parallel::clusterCall(cl_find, function() {
-          library(parallel)
-          library(combinat)
+          combinat::combn
         })
         on.exit(parallel::stopCluster(cl_find))
       }else{

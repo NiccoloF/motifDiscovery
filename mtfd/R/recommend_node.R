@@ -1,32 +1,30 @@
-#' @title recommend_node
+#' Recommend Node Function
 #'
-#' @description Run multiple times probKMA function with different K,c and initializations,
-#' with the aim to find a set of candidate motifs.
-#' If the folder name_KK_cc is already present and n result files are already present,
-#' load them and continue with the n_init-n runs.
+#' @title Recommend Node from a Numeric Vector
 #'
-#' @param Y0 list of N vectors, for univariate curves y_i(x), or list of N matrices with d columns,
-#' for d-dimensional curves y_i(x),  with the evaluation of curves (all curves should be evaluated
-#' on a uniform grid). When y_j(x)=NA in the dimension j, then y_j(x)=NA in ALL dimensions
-#' @param Y1 list of N vectors, for univariate derivative curves y'_i(x), or
-#' list of N matrices with d columns, for d-dimensional derivatibe curves y'_i(x),
-#' with the evaluation of the curves derivatives (all curves should be evaluated on a uniform grid).
-#' When y'_j(x)=NA in the dimension j, then y'_j(x)=NA in ALL dimensions.
-#' Must be provided when diss='d1_L2' or diss='d0_d1_L2'.
-#' @param K vector with numbers of motifs that must be tested.
-#' @param c vector with minimum motifs lengths that must be tested.
-#' @param n_init number of random initialization for each combination of K and c.
-#' @param name name of the folders when the results are saved.
-#' @param names_var vector of length d, with names of the variables in the different dimensions.
-#' @param probKMA_options list with options for probKMA (see the help of probKMA).
-#' @param silhouette_align True or False. If True, try all possible alignments between the curve pieces
-#' when calculating the adapted silhouette index on the results of probKMA
-#' @param plot if TRUE, summary plots are drawn.
-#' @return A list containing: K, c, n_init and name;...
-#' @return \item{times}{ list of execution times of ProbKMA for each combination of K, c, and n_init}
-#' @return \item{silhouette_average_sd}{ list of the mean (silhouette_average) and standard deviation (silhouette_sd) of the silhouette indices for each execution of the ProbKMA function}
-#' @author Marzia Angela Cremona & Francesca Chiaromonte
-
+#' @description
+#' This function analyzes a numeric vector and recommends an index based on the characteristics of the vector. 
+#' If the vector is strictly increasing, it suggests stopping before the maximum growth rate. 
+#' If the vector is not strictly increasing, it recommends the index of the minimum value.
+#'
+#' @param node A numeric vector representing scores or metrics. Must contain at least two elements.
+#'
+#' @return An integer index indicating the recommended node based on the analysis of the input vector.
+#'
+#' @details
+#' - If the input vector has fewer than two elements, the function defaults to returning an index of 1.
+#' - The function first checks if the input is a numeric vector. If not, an error is thrown.
+#' - The function calculates the differences between successive elements and identifies whether the vector is strictly increasing.
+#' - In the case of a strictly increasing vector, it returns the index of the maximum growth rate.
+#' - For non-increasing vectors, it returns the index of the minimum value.
+#'
+#' @examples
+#' # Example usage of recommend_node function
+#' recommend_node(c(1, 2, 3, 4, 5))  # Returns 5 (index of max growth)
+#' recommend_node(c(5, 4, 3, 2, 1))  # Returns 5 (index of min value)
+#' recommend_node(c(1, 2, 2, 3, 1))  # Returns 5 (index of min value)
+#'
+#' @export
 recommend_node <- function(node){
   xx <- unlist(node)
   
