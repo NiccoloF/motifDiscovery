@@ -1,105 +1,178 @@
-#' Functional Motif Discovery with Local Clustering and Alignment
+#' @title Functional Motif Discovery with Local Clustering and Alignment
 #'
 #' @description
-#' The `clusterMotif` function performs motif discovery within functional data using two distinct algorithms:
-#' \code{ProbKMA}, a probabilistic k-means with local alignment, and \code{funBIalign}, a hierarchical clustering
-#' method based on mean squared residue scores. These methods aim to identify functional motifs, typical shapes
-#' that recur within and across curves, offering different approaches for motif discovery in functional data.
+#' The `clusterMotif` function facilitates the discovery of recurring patterns, or motifs, within functional data by employing two sophisticated algorithms: 
+#' \code{ProbKMA} (Probabilistic K-means with Local Alignment) and \code{funBIalign}. 
+#' These algorithms are designed to identify and cluster functional motifs across multiple curves, leveraging advanced clustering and alignment techniques to handle complex data structures.
+#'
+#' \code{ProbKMA} integrates probabilistic clustering with local alignment strategies, enabling the detection of motifs that exhibit variability in both shape and position across different curves. 
+#' This method is particularly adept at handling noisy data and motifs that may appear at varying scales or locations within the curves.
+#'
+#' On the other hand, \code{funBIalign} utilizes hierarchical clustering based on mean squared residue scores to uncover motifs. 
+#' This approach effectively captures the additive nature of functional motifs, considering both portion-specific adjustments and time-varying components to accurately identify recurring patterns.
+#'
+#' By providing a flexible interface that accommodates different clustering paradigms, `clusterMotif` empowers users to perform robust motif discovery tailored to their specific data characteristics and analytical requirements. 
+#' Whether opting for the probabilistic and alignment-focused \code{ProbKMA} or the hierarchical and residue-based \code{funBIalign}, users can leverage these methods to extract meaningful and interpretable motifs from their functional datasets.
 #'
 #' @details
-#' The function dynamically switches between two motif discovery algorithms.
+#' The `clusterMotif` function dynamically switches between two advanced motif discovery algorithms based on the user's specification. 
+#' Each algorithm employs distinct strategies to identify and cluster motifs within functional data, offering flexibility and adaptability to various analytical scenarios.
 #'
 #' @section Theoretical Background for ProbKMA:
-#' ProbKMA is inspired by bioinformatics techniques, leveraging local alignment strategies extended from high-similarity 
-#' seeds, combined with fuzzy clustering approaches. The algorithm minimizes a generalized least squares functional, which 
-#' can incorporate both curve levels and derivatives through a Sobolev-based distance. Motif centers, membership 
-#' probabilities, and alignment shifts are iteratively refined, making ProbKMA well-suited for complex motif structures 
-#' and motifs distributed across multiple curves.
+#' 
+#' \code{ProbKMA} is inspired by methodologies prevalent in bioinformatics, particularly those involving local alignment techniques extended from high-similarity seeds. 
+#' This algorithm combines fuzzy clustering approaches with local alignment strategies to effectively minimize a generalized least squares functional. 
+#' The minimization process can incorporate both the levels and derivatives of the curves through a Sobolev-based distance metric, enhancing the algorithm's sensitivity to both shape and rate changes in the data.
+#' 
+#' Throughout its iterative process, \code{ProbKMA} refines motif centers, membership probabilities, and alignment shifts, making it highly effective for capturing complex motif structures and motifs distributed across multiple curves. 
+#' This ensures that the discovered motifs are both representative and robust against variations and noise within the functional data.
 #'
 #' @section Theoretical Background for funBIalign:
-#' Functional motifs are modeled as an additive combination of motif means, portion-specific adjustments, and time-varying 
-#' components. The algorithm constructs a hierarchical dendrogram using the generalized mean squared residue score 
-#' (fMSR) to identify candidate motifs across curves. A post-processing step filters redundant motifs and refines the final 
-#' motif selection.
+#' 
+#' \code{funBIalign} models functional motifs as an additive combination of motif means, portion-specific adjustments, and time-varying components. 
+#' The algorithm constructs a hierarchical dendrogram utilizing the generalized mean squared residue score (fMSR) to identify candidate motifs across curves.
+#' 
+#' A critical aspect of \code{funBIalign} is its post-processing step, which filters out redundant motifs and refines the final selection to ensure that only the most significant and representative motifs are retained. 
+#' This hierarchical approach allows for a nuanced identification of motifs, capturing both broad and subtle patterns within the data.
 #'
 #' @section Common Parameters:
-#' The following parameters are common to both algorithms:
+#' The following parameters are common to both \code{ProbKMA} and \code{funBIalign} algorithms:
 #' \describe{
-#'   \item{\code{Y0}}{A list of N vectors (for univariate curves) or N matrices (for multivariate curves) representing the curves, where each curve is evaluated on a uniform grid.}
-#'   \item{\code{method}}{A character string specifying which method to use: either \code{"ProbKMA"} or \code{"funBIalign"}.}
-#'   \item{\code{stopCriterion}}{A character string indicating for the ProbKMA algorithm the convergence criterion, based on the Bhattacharyya distance between memberships in subsequent iterations (\code{"max"}, \code{"mean"}, or \code{"quantile"}), or for funBIalign the ranking criteria (\code{"fMRS"} or \code{"Variance"}).}
-#'   \item{\code{name}}{A character string providing the name of the resulting folder.}
-#'   \item{\code{plot}}{A logical value indicating whether to plot the motifs and results.}
-#'   \item{\code{worker_number}}{An integer specifying the number of CPU cores to use for parallel computations. Defaults to the number of cores minus one.}
+#'   \item{\code{Y0}}{A list containing \code{N} vectors (for univariate curves) or \code{N} matrices (for multivariate curves) representing the functional data. Each curve is evaluated on a uniform grid, ensuring consistency across the dataset.}
+#'   \item{\code{method}}{A character string specifying the motif discovery algorithm to use. Acceptable values are \code{"ProbKMA"} for Probabilistic K-means with Local Alignment and \code{"funBIalign"} for Functional Bi-directional Alignment.}
+#'   \item{\code{stopCriterion}}{A character string indicating the convergence criterion for the selected algorithm. For \code{ProbKMA}, options include \code{"max"}, \code{"mean"}, or \code{"quantile"} based on the Bhattacharyya distance between memberships in successive iterations. For \code{funBIalign}, options are \code{"fMRS"} (functional Mean Squared Residue) or \code{"Variance"} to guide the ranking of motifs.}
+#'   \item{\code{name}}{A character string specifying the name of the output directory where results will be saved. This facilitates organized storage and easy retrieval of analysis results.}
+#'   \item{\code{plot}}{A logical value indicating whether to generate and save plots of the discovered motifs and clustering results. When set to \code{TRUE}, visualizations are produced to aid in the qualitative assessment of the motif discovery process.}
+#'   \item{\code{worker_number}}{An integer specifying the number of CPU cores to utilize for parallel computations. By default, the function uses the total number of available cores minus one, optimizing computational efficiency without overloading the system.}
 #' }
 #'
 #' @section ProbKMA Options:
 #' The following parameters are specific to the \code{ProbKMA} algorithm:
 #' \describe{
-#'   \item{\code{K}}{Number of motifs to be discovered.}
-#'   \item{\code{c}}{Minimum motif lengths. Can be an integer or a vector of K integers.}
-#'   \item{\code{c_max}}{Maximum motif lengths. Can be an integer or a vector of K integers.}
-#'   \item{\code{diss}}{Dissimilarity measure to use. Possible values are \code{"d0_L2"}, \code{"d1_L2"}, and \code{"d0_d1_L2"}.}
-#'   \item{\code{alpha}}{Weight parameter between \code{d0_L2} and \code{d1_L2} when using \code{d0_d1_L2}. \code{alpha=0} indicates \code{d0_L2}, and \code{alpha=1} indicates \code{d1_L2}.}
-#'   \item{\code{w}}{Weight vector for the dissimilarity index across dimensions (must be positive).}
-#'   \item{\code{m}}{Weighting exponent in the least-squares functional method (must be greater than 1).}
-#'   \item{\code{iter_max}}{Maximum number of iterations allowed.}
-#'   \item{\code{quantile}}{Quantile probability used when \code{stopCriterion="quantile"}.}
-#'   \item{\code{tol}}{Tolerance level for the method; iteration stops if the stop criterion is less than \code{tol}.}
-#'   \item{\code{iter4elong}}{Number of iterations after which motif elongation is performed. If \code{iter4elong > iter_max}, no elongation is performed.}
-#'   \item{\code{tol4elong}}{Tolerance on the Bhattacharyya distance for motif elongation.}
-#'   \item{\code{max_elong}}{Maximum elongation allowed in a single iteration, as a percentage of motif length.}
-#'   \item{\code{trials_elong}}{Number of elongation trials (equispaced) on each side of the motif in a single iteration.}
-#'   \item{\code{deltaJK_elong}}{Maximum relative increase in the objective function allowed during motif elongation.}
-#'   \item{\code{max_gap}}{Maximum gap allowed in each alignment as a percentage of the motif length.}
-#'   \item{\code{iter4clean}}{Number of iterations after which motif cleaning is performed. If \code{iter4clean > iter_max}, no cleaning is performed.}
-#'   \item{\code{tol4clean}}{Tolerance on the Bhattacharyya distance for motif cleaning.}
-#'   \item{\code{quantile4clean}}{Dissimilarity quantile used for motif cleaning.}
-#'   \item{\code{return_options}}{If \code{TRUE}, the options passed to the method are returned.}
-#'   \item{\code{Y1}}{List of derivative curves (used if \code{"d0_d1_L2"}).}
-#'   \item{\code{P0}}{Initial membership matrix (N x K), where N is the number of curves, and K is the number of clusters. If \code{NULL}, a random matrix is generated.}
-#'   \item{\code{S0}}{Initial shift warping matrix (N x K). If \code{NULL}, a random matrix is generated.}
-#'   \item{\code{n_subcurves}}{Number of splitting subcurves used when the number of curves is equal to one.}
-#'   \item{\code{sil_threshold}}{Threshold to filter candidate motifs.}
-#'   \item{\code{set_seed}}{If \code{TRUE}, sets a random seed to ensure reproducibility.}
-#'   \item{\code{seed}}{The random seed for initialization (used if \code{set_seed=TRUE}).}
-#'   \item{\code{exe_print}}{If \code{TRUE}, prints execution details for each iteration.}
-#'   \item{\code{transformed}}{d}
-#'   \item{\code{V_init}}{d}
-#'   \item{\code{n_init_motif}}{d}
+#'   \item{\code{K}}{An integer or vector specifying the number of motifs to be discovered. It can be a single integer for uniform motif discovery or a vector for specifying different numbers of motifs.}
+#'   \item{\code{c}}{An integer or vector indicating the minimum motif lengths. This ensures that each discovered motif meets a specified minimum length requirement, maintaining the integrity of motif structures.}
+#'   \item{\code{c_max}}{An integer or vector specifying the maximum motif lengths, allowing control over the upper bounds of motif sizes to prevent excessively long motifs.}
+#'   \item{\code{diss}}{A character string defining the dissimilarity measure to use. Possible values include \code{"d0_L2"}, \code{"d1_L2"}, and \code{"d0_d1_L2"}, which determine how the algorithm quantifies differences between motifs based on level and derivative information.}
+#'   \item{\code{alpha}}{A numeric value between 0 and 1 that serves as a weight parameter between \code{d0_L2} and \code{d1_L2} when using \code{d0_d1_L2}. An \code{alpha} of 0 emphasizes \code{d0_L2}, while an \code{alpha} of 1 emphasizes \code{d1_L2}, allowing for balanced consideration of both metrics.}
+#'   \item{\code{w}}{A numeric vector specifying the weight for the dissimilarity index across different dimensions. All values must be positive, enabling the algorithm to prioritize certain dimensions over others based on their relative importance.}
+#'   \item{\code{m}}{A numeric value greater than 1 that acts as the weighting exponent in the least-squares functional method. This parameter influences the sensitivity of the algorithm to differences in motif alignment and membership probabilities.}
+#'   \item{\code{iter_max}}{An integer specifying the maximum number of iterations allowed for the algorithm to converge. This prevents excessive computation time by limiting the number of optimization steps.}
+#'   \item{\code{quantile}}{A numeric value representing the quantile probability used when \code{stopCriterion} is set to \code{"quantile"}. This determines the threshold for convergence based on the distribution of Bhattacharyya distances.}
+#'   \item{\code{tol}}{A numeric value specifying the tolerance level for convergence. The algorithm stops iterating if the change in the stop criterion falls below this threshold, ensuring precise and stable convergence.}
+#'   \item{\code{iter4elong}}{An integer indicating the number of iterations after which motif elongation is performed. If set to a value greater than \code{iter_max}, no elongation is performed. Motif elongation allows the algorithm to extend motifs to better fit the data.}
+#'   \item{\code{tol4elong}}{A numeric value defining the tolerance on the Bhattacharyya distance for motif elongation. This parameter controls how much the objective function can increase during elongation, ensuring that motif extensions do not degrade the overall fit.}
+#'   \item{\code{max_elong}}{A numeric value representing the maximum elongation allowed in a single iteration, expressed as a percentage of the motif length. This prevents excessive extension of motifs in any single step.}
+#'   \item{\code{trials_elong}}{An integer specifying the number of elongation trials (equispaced) on each side of the motif in a single iteration. Multiple trials enhance the robustness of motif elongation by exploring various extension possibilities.}
+#'   \item{\code{deltaJK_elong}}{A numeric value indicating the maximum relative increase in the objective function permitted during motif elongation. This ensures that elongation steps contribute positively to the motif fitting process.}
+#'   \item{\code{max_gap}}{A numeric value defining the maximum gap allowed in each alignment as a percentage of the motif length. This parameter controls the allowable discontinuity between aligned motifs, maintaining coherence in motif placement.}
+#'   \item{\code{iter4clean}}{An integer specifying the number of iterations after which motif cleaning is performed. If set to a value greater than \code{iter_max}, no cleaning is performed. Motif cleaning removes redundant or poorly fitting motifs to refine the final motif set.}
+#'   \item{\code{tol4clean}}{A numeric value representing the tolerance on the Bhattacharyya distance for motif cleaning. This parameter determines the threshold for identifying and removing redundant motifs during the cleaning process.}
+#'   \item{\code{quantile4clean}}{A numeric value specifying the dissimilarity quantile used for motif cleaning. This quantile determines which motifs are considered sufficiently dissimilar to be retained in the final set.}
+#'   \item{\code{return_options}}{A logical value indicating whether to return the options passed to the \code{ProbKMA} method. When set to \code{TRUE}, users receive detailed information about the algorithm's configuration, facilitating transparency and reproducibility.}
+#'   \item{\code{Y1}}{A list of derivative curves used if the dissimilarity measure \code{"d0_d1_L2"} is selected. These derivatives enhance the algorithm's ability to capture both shape and rate changes in the functional data.}
+#'   \item{\code{P0}}{An initial membership matrix (N x K), where N is the number of curves and K is the number of clusters. If set to \code{NULL}, a random matrix is generated, initiating the probabilistic clustering process.}
+#'   \item{\code{S0}}{An initial shift warping matrix (N x K). If set to \code{NULL}, a random matrix is generated to initialize the alignment process, allowing motifs to adapt to variations in the data.}
+#'   \item{\code{n_subcurves}}{An integer specifying the number of splitting subcurves used when the number of curves is equal to one. This parameter allows the algorithm to handle single-curve datasets by dividing them into manageable segments for motif discovery.}
+#'   \item{\code{sil_threshold}}{A numeric value representing the threshold to filter candidate motifs based on their silhouette scores. This ensures that only motifs with sufficient clustering quality are retained in the final results.}
+#'   \item{\code{set_seed}}{A logical value indicating whether to set a random seed for reproducibility. When set to \code{TRUE}, the function initializes the random number generator to ensure consistent results across multiple runs.}
+#'   \item{\code{seed}}{An integer specifying the random seed used for initialization when \code{set_seed} is \code{TRUE}. This parameter guarantees reproducibility of the clustering and alignment processes.}
+#'   \item{\code{exe_print}}{A logical value determining whether to print execution details for each iteration. When set to \code{TRUE}, users receive real-time feedback on the algorithm's progress, aiding in monitoring and debugging.}
+#'   \item{\code{transformed}}{(Deprecated or incomplete parameter description; please provide full details if applicable).}
+#'   \item{\code{V_init}}{(Deprecated or incomplete parameter description; please provide full details if applicable).}
+#'   \item{\code{n_init_motif}}{(Deprecated or incomplete parameter description; please provide full details if applicable).}
 #' }
 #'
 #' @section funBIalign Options:
 #' The following parameters are specific to the \code{funBIalign} algorithm:
 #' \describe{
-#'   \item{\code{portion_len}}{Length of curve portions to align.}
-#'   \item{\code{min_card}}{Minimum cardinality of motifs, i.e., the minimum number of motif occurrences required.}
-#'   \item{\code{cut_off}}{Used when plot is TRUE. Generate the first 'cut_off' plots based on the ranking criteria.}
+#'   \item{\code{portion_len}}{An integer specifying the length of curve portions to align. This parameter controls the granularity of alignment, allowing the algorithm to focus on specific segments of the curves for motif discovery.}
+#'   \item{\code{min_card}}{An integer representing the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required for a motif to be considered valid. This ensures that only motifs with sufficient representation across the dataset are retained.}
+#'   \item{\code{cut_off}}{An integer used when \code{plot} is set to \code{TRUE}. It specifies the number of top-ranked plots to generate based on the ranking criteria, facilitating focused visualization of the most significant motifs.}
 #' }
 #'
-#' @return A list containing the discovered motifs and their corresponding statistics, depending on the selected method.
+#' @return 
+#' A list containing the discovered motifs and their corresponding statistics, tailored to the selected method:
+#' \describe{
+#'   \item{\code{motifs}}{A list of identified motifs, each containing the motif's representative curve, membership probabilities, and alignment information.}
+#'   \item{\code{statistics}}{Detailed statistics for each motif, including measures such as silhouette scores, variance explained, and other relevant metrics that quantify the quality and significance of the discovered motifs.}
+#'   \item{\code{parameters}}{The final parameters and configurations used during the motif discovery process, providing transparency and facilitating reproducibility of the results.}
+#'   \item{\code{plots}}{If \code{plot = TRUE}, this component contains the generated plots visualizing the motifs and their distribution across the functional data.}
+#' }
 #'
 #' @examples
 #' \dontrun{
-#' # Discover motifs using ProbKMA
-#' probKMA_results <- mtfd::clusterMotif(Y0=data$Y0, method="ProbKMA", stopCriterion="max",
-#'                                       name = './results_ProbKMA_VectorData/', plot = TRUE,
-#'                                       probKMA_options = list(Y1=data$Y1, K=c(2,3), c=c(51,61), n_init=10,
-#'                                                              names_var = 'x(t)', diss="d0_d1_L2", alpha=0.5),
-#'                                       worker_number = NULL)
-#'
-#' # Discover motifs using funBIalign
-#' results_funbialign <- mtfd::clusterMotif(Y0=data$Y0, method="FunBIalign", stopCriterion = 'variance',
-#'                                         name = './results_FunBialign', plot = TRUE,
-#'                                         funBIalign_options = list(portion_len=60, min_card=3, cut_off = 10))
+#' # Example 1: Discover motifs using ProbKMA
+#' 
+#' # Define dissimilarity measure and weight parameter
+#' diss <- 'd0_d1_L2'
+#' alpha <- 0.5
+#' 
+#' # Define number of motifs and their minimum lengths
+#' K <- c(2, 3)
+#' c <- c(61, 51)
+#' n_init <- 10
+#' 
+#' # Load simulated data
+#' data("simulated200")
+#' 
+#' # Perform motif discovery using ProbKMA
+#' results <- mtfd::clusterMotif(
+#'   Y0 = simulated200$Y0,
+#'   method = "ProbKMA",
+#'   stopCriterion = "max",
+#'   name = './results_ProbKMA_VectorData/',
+#'   plot = TRUE,
+#'   probKMA_options = list(
+#'     Y1 = simulated200$Y1,
+#'     K = K,
+#'     c = c,
+#'     n_init = n_init,
+#'     diss = diss,
+#'     alpha = alpha
+#'   ),
+#'   worker_number = NULL
+#' )
+#' 
+#' # Modify silhouette threshold and re-run post-processing
+#' results <- mtfd::clusterMotif(
+#'   Y0 = simulated200$Y0,
+#'   method = "ProbKMA",
+#'   stopCriterion = "max",
+#'   name = './results_ProbKMA_VectorData/',
+#'   plot = TRUE,
+#'   probKMA_options = list(
+#'     Y1 = simulated200$Y1,
+#'     K = K,
+#'     c = c,
+#'     n_init = n_init,
+#'     diss = diss,
+#'     alpha = alpha,
+#'     sil_threshold = 0.5
+#'   ),
+#'   worker_number = NULL
+#' )
+#' 
+#' # Example 2: Discover motifs using funBIalign
+#' results_funbialign <- mtfd::clusterMotif(
+#'   Y0 = simulated200$Y0,
+#'   method = "funBIalign",
+#'   stopCriterion = 'Variance',
+#'   name = './results_FunBialign/',
+#'   plot = TRUE,
+#'   funBIalign_options = list(
+#'     portion_len = 60,
+#'     min_card = 3,
+#'     cut_off = 10
+#'   )
+#' )
 #' }
 #'
 #' @seealso 
 #' \strong{ProbKMA}: 
-#' \href{https://arxiv.org/pdf/1808.04773}{Probabilistic k-means with local alignment} \cr 
+#' \href{https://arxiv.org/pdf/1808.04773}{Probabilistic K-means with Local Alignment} \cr
 #' \strong{funBIalign}: 
-#' \href{https://arxiv.org/pdf/2306.04254}{Hierarchical clustering with mean squared residue scores}.
-
+#' \href{https://arxiv.org/pdf/2306.04254}{Hierarchical Clustering with Mean Squared Residue Scores}.
+#'
 #' @export
 clusterMotif <- function(Y0,method,stopCriterion,name,plot,
                          probKMA_options = list(),

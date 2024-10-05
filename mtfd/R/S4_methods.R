@@ -1,18 +1,123 @@
-#' @title generateCurves
-#' @description Generate the curves with the motifs embedded.
-#' @param object An S4 object that has been previously constructed (mandatory).
-#' @param noise_type A string specifying whether to add pointwise error or coefficients ('pointwise' or 'coeff') (mandatory).
-#' @param noise_str A list corresponding to the number of motifs, specifying the structure of noise to be added for each motif. If 'pointwise' is chosen, the user can specify a list of vectors or matrices indicating the amount of noise for each motif. If 'coeff' is selected, a list of individual values or vectors can be provided (mandatory).
-#' @param seed_background An integer specifying the seed for background curve generation (default = 777).
-#' @param seed_motif An integer specifying the seed for motif generation (default = 43213).
-#' @param only_der A logical value indicating whether to add a vertical shift to each motif instance. If set to 'FALSE', a vertical shift is added (default = TRUE).
-#' @param coeff_min_shift A numeric value specifying the minimum vertical shift (default = -10).
-#' @param coeff_max_shift A numeric value specifying the maximum vertical shift (default = 10).
-#' @return a list containing curves with embedded motifs.
-#' @export
+#' @title Generate Functional Curves with Embedded Motifs
+#'
+#' @description
+#' The `generateCurves` function is designed to create synthetic functional data by embedding predefined motifs into background curves. This is particularly useful for testing and benchmarking motif discovery and clustering algorithms in functional data analysis. By allowing the incorporation of various noise types and controlled motif placements, the function provides a flexible framework for simulating realistic scenarios where motifs may or may not be noisy.
+#'
+#' The function supports two types of noise addition:
+#' \itemize{
+#'   \item \strong{Pointwise Noise}: Adds noise directly to the data points of the curves, simulating random fluctuations or measurement errors.
+#'   \item \strong{Coefficient Noise}: Perturbs the coefficients of the basis functions used to represent the curves, allowing for smoother variations and controlled distortions.
+#' }
+#'
+#' Additionally, `generateCurves` allows for the specification of vertical shifts to motifs, enabling the simulation of motifs appearing at different baseline levels within the curves. The function ensures that all generated subcurves meet the minimum motif length requirement, maintaining the integrity of the embedded motifs.
+#'
+#' This function is integral to the `mtfd` package's motif simulation capabilities, providing users with the ability to create complex functional datasets tailored to their specific research or testing needs.
+#'
+#' @param object An S4 object of class `motifSimulation` that has been previously constructed using the `motifSimulationBuilder` function. This object encapsulates all necessary parameters and configurations for curve and motif generation (mandatory).
+#' @param noise_type A character string specifying the type of noise to add to the curves. Acceptable values are `'pointwise'` for adding noise directly to data points or `'coeff'` for perturbing the coefficients of the basis functions (mandatory).
+#' @param noise_str A list detailing the structure and magnitude of the noise to be added for each motif. 
+#'   \itemize{
+#'     \item If `noise_type` is `'pointwise'`, `noise_str` should contain vectors or matrices indicating the noise level for each motif.
+#'     \item If `noise_type` is `'coeff'`, `noise_str` should include individual values or vectors representing the noise to be applied to the coefficients.
+#'   }
+#'   This parameter allows fine-grained control over the noise characteristics applied to each motif (mandatory).
+#' @param seed_background An integer value setting the seed for the random number generator used in background curve generation. This ensures reproducibility of the background curves. Default is `777`.
+#' @param seed_motif An integer value setting the seed for the random number generator used in motif generation. This ensures reproducibility of the motif embedding process. Default is `43213`.
+#' @param only_der A logical value indicating whether to apply only derivative-based modifications to the motifs (`TRUE`) or to add a vertical shift in addition to derivative modifications (`FALSE`). Setting to `FALSE` introduces vertical shifts to each motif instance, allowing motifs to appear at different baseline levels within the curves. Default is `TRUE`.
+#' @param coeff_min_shift A numeric value specifying the minimum vertical shift to be applied to motifs when `only_der` is set to `FALSE`. This parameter controls the lower bound of the vertical displacement of motifs. Default is `-10`.
+#' @param coeff_max_shift A numeric value specifying the maximum vertical shift to be applied to motifs when `only_der` is set to `FALSE`. This parameter controls the upper bound of the vertical displacement of motifs. Default is `10`.
+#'
+#' @return 
+#' A list containing the following components:
+#' \itemize{
+#'   \item \strong{basis}: The basis functions used to represent the curves.
+#'   \item \strong{background}: A list containing the coefficients and the background curves without any motifs.
+#'   \item \strong{no_noise}: A list containing the coefficients and the background curves with embedded motifs but without added noise.
+#'   \item \strong{with_noise}: A list containing the noise structure and the curves with embedded motifs and added noise.
+#'   \item \strong{SNR}: A list of Signal-to-Noise Ratio (SNR) metrics calculated for each motif within each curve, useful for assessing the quality of motif embedding.
+#' }
+#'
 #' @examples
 #' \dontrun{
-#' curves <- mtfd::generateCurves(builder,noise_type = 'pointwise',noise_str)                                
+#' # Example 0: Special case with no motifs
+#' mot_len <- 100
+#' mot_details <- NULL  # or list()
+#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details)
+#' curves <- mtfd::generateCurves(builder)
+#'
+#' # Example 1: Set the motif position and add pointwise noise
+#' # Define motif positions and their respective curves
+#' motif_str <- rbind.data.frame(
+#'   c(1, 1, 20),
+#'   c(2, 1, 2),
+#'   c(2, 7, 1),
+#'   c(2,17,1)
+#' )
+#' names(motif_str) <- c("motif_id", "curve", "start_break_pos")
+#'
+#' # Define motif details
+#' mot1 <- list(
+#'   "len" = mot_len, 
+#'   "coeffs" = NULL, 
+#'   "occurrences" = motif_str %>% filter(motif_id == 1)
+#' )
+#' mot2 <- list(
+#'   "len" = mot_len, 
+#'   "coeffs" = NULL, 
+#'   "occurrences" = motif_str %>% filter(motif_id == 2)
+#' )
+#' mot_details <- list(mot1, mot2)
+#'
+#' # Define noise structure for pointwise noise
+#' noise_str <- list(
+#'   rbind(rep(2, 100), rep(c(rep(0.1, 50), rep(2, 50)), 1)),
+#'   rbind(rep(0.0, 100), rep(0.5, 100))
+#' )
+#'
+#' # Build the simulation object
+#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
+#'
+#' # Generate curves with pointwise noise
+#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
+#'
+#' # Example 2: Set the motif position and add coefficient noise
+#' # Define noise structure for coefficient noise
+#' noise_str <- list(c(0.1, 1.0, 5.0), c(0.0, 0.0, 0.0))
+#'
+#' # Generate curves with coefficient noise without vertical shifts
+#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#'
+#' # Example 3: Random motif positions and add pointwise noise
+#' mot1 <- list(
+#'   "len" = mot_len,
+#'   "coeffs" = NULL,
+#'   "occurrences" = 5
+#' )
+#' mot2 <- list(
+#'   "len" = mot_len,
+#'   "coeffs" = NULL,
+#'   "occurrences" = 6
+#' )
+#' mot_details <- list(mot1, mot2)
+#'
+#' # Define noise structure for pointwise noise
+#' noise_str <- list(
+#'   rbind(rep(2, 100)),
+#'   rbind(rep(0.5, 100))
+#' )
+#'
+#' # Build the simulation object
+#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
+#'
+#' # Generate curves with pointwise noise and vertical shifts
+#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str, only_der = FALSE)
+#'
+#' # Example 4: Random motif positions and add coefficient noise
+#' # Define noise structure for coefficient noise
+#' noise_str <- list(c(0.1, 5.0, 10.0), c(0.1, 5.0, 10.0))
+#'
+#' # Generate curves with coefficient noise and vertical shifts
+#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #' }
 setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL,seed_background = 777,seed_motif = 43213,
                                       only_der = TRUE,coeff_min_shift = -10,coeff_max_shift = 10) {
@@ -182,15 +287,36 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
   return(fd_curves = fd_curves)
 })
 
-#' @title plot_motifs
-#' @description Plot the results of generateCurves.
-#' @param object An S4 object that has been previously constructed (mandatory).
-#' @param curves The result of the previous method (mandatory).
-#' @param path A character string specifying the directory path where the results will be saved (mandatory).
+#' @title Plot Embedded Motifs in Functional Curves
+#'
+#' @description
+#' The `plot_motifs` function visualizes the results generated by the `generateCurves` function. It provides comprehensive plots of functional curves with embedded motifs, allowing users to inspect the placement and characteristics of each motif within the curves. This visualization is crucial for validating the correctness of motif embedding and for gaining insights into the distribution and variability of motifs across different curves.
+#'
+#' The function supports saving the generated plots to a specified directory, facilitating the creation of reports or the sharing of visual results. By plotting motifs in distinct colors or styles, `plot_motifs` ensures that overlapping motifs and their respective curves remain distinguishable, enhancing the clarity and interpretability of the visualizations.
+#'
+#' This plotting utility is an essential tool within the `mtfd` package, aiding users in the exploratory analysis of simulated functional data and the assessment of motif detection algorithms.
+#'
+#' @param object An S4 object of class `motifSimulation` that has been previously constructed using the `motifSimulationBuilder` function. This object contains all necessary parameters and configurations used during curve and motif generation (mandatory).
+#' @param curves The output list from the `generateCurves` function, containing the generated functional curves with embedded motifs. This parameter provides the data to be visualized (mandatory).
+#' @param path A character string specifying the directory path where the generated plots will be saved. The function will save the plots in this directory, allowing for organized storage and easy access to visual results (mandatory).
+#'
+#' @return 
+#' The function does not return any value but generates and saves plots of the functional curves with embedded motifs in the specified directory. Each plot visually represents the motifs within the curves, aiding in the qualitative assessment of motif embedding.
+#'
 #' @export
+#'
 #' @examples
 #' \dontrun{
-#' mtfd::plot_motifs(builder,curves,getwd())                                  
+#' # Example: Plotting motifs in generated curves
+#' # Assume 'builder' has been created and 'curves' have been generated using generateCurves
+#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details)
+#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
+#'
+#' # Specify the directory to save plots
+#' plots_name <- "plots_1"  
+#'
+#' # Generate and save the plots
+#' mtfd::plot_motifs(builder, curves, plots_name)
 #' }
 setGeneric("plot_motifs", function(object,curves,name,path=getwd()) 
   standardGeneric("plot_motifs")
@@ -463,12 +589,13 @@ setMethod("plot_motifs","motifSimulation",
 
 #' @title to_motifDiscovery
 #' @description Transforms the result of generateCurves into a format suitable for clusterMotif.
-#' @param curves A list coming from generateCurves function.
-#' @return A  list containing all curves suitable for clusterMotif input.
+#' @param curves A list coming from the generateCurves function.
+#' @return A list containing all curves formatted to be suitable for input into the clusterMotif function.
 #' @export
 #' @examples
 #' \dontrun{
-#' mtfd::plot(builder,curves,getwd())                                  
+#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#' formatted_curves <- to_motifDiscovery(curves)
 #' }
 setGeneric("to_motifDiscovery", function(curves) 
   standardGeneric("to_motifDiscovery")

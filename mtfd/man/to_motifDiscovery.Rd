@@ -7,16 +7,17 @@
 to_motifDiscovery(curves)
 }
 \arguments{
-\item{curves}{A list coming from generateCurves function.}
+\item{curves}{A list coming from the generateCurves function.}
 }
 \value{
-A  list containing all curves suitable for clusterMotif input.
+A list containing all curves formatted to be suitable for input into the clusterMotif function.
 }
 \description{
 Transforms the result of generateCurves into a format suitable for clusterMotif.
 }
 \examples{
 \dontrun{
-mtfd::plot(builder,curves,getwd())                                  
+curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+formatted_curves <- to_motifDiscovery(curves)
 }
 }

@@ -2,20 +2,36 @@
 % Please edit documentation in R/shiny.R
 \name{motifSimulationApp}
 \alias{motifSimulationApp}
-\title{motifSimulationApp}
+\title{motifSimulationApp: A Shiny-Based GUI for Motif Simulation}
 \usage{
 motifSimulationApp(noise_str, mot_details)
 }
 \arguments{
-\item{noise_str}{A list corresponding to the number of motifs, specifying the structure of noise to be added for each motif. If 'pointwise' is chosen, the user can specify a list of vectors or matrices indicating the amount of noise for each motif. If 'coeff' is selected, a list of individual values or vectors can be provided.}
+\item{noise_str}{A list corresponding to the number of motifs, specifying the noise structure to be applied to each motif. 
+Users can choose between two noise types: 
+\itemize{
+  \item{\code{'pointwise'}}{Allows the specification of noise as a list of vectors or matrices. Each element of the list defines the amount of noise applied pointwise to the corresponding motif.}
+  \item{\code{'coeff'}}{Enables the specification of noise in terms of coefficients, where a list of individual values or vectors can be provided to define the noise level for each motif.}
+}}
 
-\item{mot_details}{A list outlining the definitions of the motifs to be included. Each motif is characterized by its length, a set of coefficients that may be optionally specified, and the number of occurrences. These occurrences can be indicated either by specific positions within the curves or by a total count. In the latter case, the algorithm will randomly position the motifs throughout the curves.}
+\item{mot_details}{A list outlining the specifications for the motifs to be embedded within the functional curves. 
+Each motif is characterized by its:
+\itemize{
+  \item{\code{length}}{The length of the motif (number of points or time steps).}
+  \item{\code{coefficients}}{An optional set of coefficients that can be provided to define the motif’s shape.}
+  \item{\code{occurrences}}{The number of occurrences of each motif within the curves. These can be specified by exact positions within the curves or by providing a total count of occurrences, in which case the algorithm will randomly assign the positions.}
+}}
 }
 \description{
-Shiny app is available, serving as a graphical user interface (GUI) that enables users to execute all the motifSimulation functions in a straightforward and intuitive manner. The app consistently provides summary plots, enhancing the user experience.
+The `motifSimulationApp` is a Shiny-based graphical user interface (GUI) designed to simplify the execution of the `motifSimulation` functions. The app allows users to interact with all motif simulation features in an intuitive and user-friendly manner, offering a seamless experience for generating and analyzing synthetic functional data with embedded motifs. It consistently provides summary plots to enhance data visualization and facilitate analysis.
+}
+\details{
+The app provides an accessible platform for users to experiment with different motif definitions, noise structures, and curve characteristics. By interacting with the app, users can simulate functional data, visualize the results in real-time, and adjust the parameters accordingly to fine-tune the simulation process.
 }
 \examples{
 \dontrun{
-mtfd::motifSimulationApp(noise_str,mot_details)
+# Launch the motifSimulationApp with specified noise structure and motif details
+mtfd::motifSimulationApp(noise_str, mot_details)
 }
+
 }
