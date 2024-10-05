@@ -1,3 +1,13 @@
 ^.git$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*\.RData$
+^.*\.Rhistory$
+^\.DS_Store$
+^\.Rproj\.user$
+^\.Makevars\.swp$
+^..Rcheck$
+^.gitignore$
+^R/.DS_Store$
+^src/.DS_Store$
+^vignettes/.gitignore$
