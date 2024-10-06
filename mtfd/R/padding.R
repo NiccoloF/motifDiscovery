@@ -17,6 +17,7 @@
 #' If `dataMatrix` already has the desired number of rows or more, the original matrix is returned.
 #'
 #' @examples
+#' \dontrun{
 #' # Create a matrix with 3 rows and 2 columns
 #' mat <- matrix(1:6, nrow = 3, ncol = 2)
 #' 
@@ -25,6 +26,7 @@
 #' 
 #' # Check the result
 #' print(padded_mat)
+#' }
 #'
 #' @export
 padding <- function(dataMatrix, maxLen) 

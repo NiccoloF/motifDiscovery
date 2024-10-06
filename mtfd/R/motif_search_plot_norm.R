@@ -23,10 +23,12 @@
 #' @return A plot object displaying the motifs and curves.
 #'
 #' @examples
+#' \dontrun{
 #' # Assuming `results` is the output from `motifs_search`
 #' motifs_search_plot_norm(results, ylab = c("Dimension 1", "Dimension 2"), 
 #'                          freq_threshold = 5, top_n = 10, 
 #'                          plot_curves = TRUE, transformed = FALSE)
+#' }
 #'
 #' @export
 motifs_search_plot_norm <- function(motifs_search_results,ylab='',freq_threshold=5,top_n='all',

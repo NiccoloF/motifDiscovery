@@ -15,6 +15,23 @@ clusterMotif(
   worker_number = NULL
 )
 }
+\arguments{
+\item{Y0}{A list containing N vectors (for univariate curves) or N matrices (for multivariate curves) representing the functional data.}
+
+\item{method}{A character string specifying the motif discovery algorithm to use. Acceptable values are "ProbKMA" for Probabilistic K-means with Local Alignment and "funBIalign" for Functional Bi-directional Alignment.}
+
+\item{stopCriterion}{A character string indicating the convergence criterion for the selected algorithm.}
+
+\item{name}{A character string specifying the name of the output directory where results will be saved.}
+
+\item{plot}{A logical value indicating whether to generate and save plots of the discovered motifs and clustering results.}
+
+\item{probKMA_options}{A list of options specific to the ProbKMA algorithm.}
+
+\item{funBIalign_options}{A list of options specific to the funBIalign algorithm.}
+
+\item{worker_number}{An integer specifying the number of CPU cores to utilize for parallel computations.}
+}
 \value{
 A list containing the discovered motifs and their corresponding statistics, tailored to the selected method:
 \describe{

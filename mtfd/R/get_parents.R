@@ -18,12 +18,14 @@
 #' an empty integer vector.
 #'
 #' @examples
+#' \dontrun{
 #' # Example usage
 #' node_list <- list(c(1, 2), c(2, 3), c(1, 3, 4), c(4, 5))
 #' node <- c(2, 3)
 #' parents <- get_parents(node, node_list)
 #' print(parents) # Should return the index of the parent node(s) that contain 2 and 3
-#'
+#' }
+#' 
 #' @export
 get_parents <- function(node, node_list){
   which(lapply(node_list, function(x){all(node %in% x)}) %>% unlist())

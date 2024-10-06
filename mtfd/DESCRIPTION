@@ -1,11 +1,11 @@
 Package: mtfd
 Type: Package
-Title: Motif discovery in functional data
+Title: Motif Discovery in Functional Data
 Version: 1.0
-Date: 2023-06-01
-Author: Marzia Angela Cremona, Francesca Chiaromonte, Niccolo Feresini, Riccardo Lazzarini
-Maintainer: Niccolo Feresini <niccolo.feresini@gmail.com>, Riccardo Lazzarini<riccardo.lazzarini@mail.polimi.it>
-Description: method to locally cluster curves and discover functional motifs,
+Date: 2024-10-05
+Author: Niccolo Feresini, Riccardo Lazzarini,Marzia Angela Cremona, Francesca Chiaromonte
+Maintainer: Niccolo Feresini <niccolo.feresini@gmail.com>
+Description: Method to locally cluster curves and discover functional motifs,
              i.e. typical “shapes” that may recur several times along and across the curves capturing
              important local characteristics. In order to identify these shared curve portions, such
              method leverages ideas from functional data analysis (joint clustering and alignment of
@@ -23,9 +23,9 @@ Suggests:
     tinytest
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-Imports: Rcpp (>= 1.0.12),dplyr,data.table,parallel,ggplot2,shiny,dendextend,fastcluster,
-         fda,ggtext,methods,purrr,scales,shinyWidgets,shinybusy,shinyjs,stringr,zoo,magrittr,
-         utils
+Imports: Rcpp (>= 1.0.12),dendextend,fastcluster,
+         fda,ggtext,methods,purrr,scales,shinyWidgets,shinybusy,shinyjs,stringr,
+         zoo,utils,class,combinat
 Depends: R (>= 2.10),dplyr,data.table,parallel,ggplot2,shiny
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20

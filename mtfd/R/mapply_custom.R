@@ -21,6 +21,7 @@
 #' based on the availability of a cluster, allowing for more flexible and efficient code.
 #'
 #' @examples
+#' \dontrun{
 #' # Example usage
 #' library(parallel)
 #' cl <- makeCluster(4) # Create a cluster with 4 workers
@@ -40,6 +41,7 @@
 #'
 #' # Stop the cluster after use
 #' stopCluster(cl)
+#' }
 #'
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #'

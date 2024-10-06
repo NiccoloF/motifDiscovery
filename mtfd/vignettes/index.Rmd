@@ -1,0 +1,19 @@
+\documentclass{article}
+---
+title: "Index of Vignettes for mtfd"
+author: "Niccolò Feresini & Riccardo Lazzarini"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Index of Vignettes for mtfd}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+# Vignettes
+
+This package includes the following vignettes:
+
+- [mtfd: Functional Motif Discovery](mtfd_vignette.Rmd)

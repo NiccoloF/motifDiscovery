@@ -51,11 +51,14 @@ to identify positions where the dissimilarity does not exceed the defined thresh
 It handles multidimensional curves and can selectively consider different components of the motifs and curves.
 }
 \examples{
+\dontrun{
 # Example usage
 v <- list(v0 = matrix(runif(100), ncol = 2), v1 = matrix(runif(100), ncol = 2))
 Y <- list(list(Y0 = matrix(runif(200), ncol = 2), Y1 = matrix(runif(200), ncol = 2)))
-result <- .find_occurrences(v = v, Y = Y, R = 0.5, alpha = 0.5, w = c(1, 1), c_k = 5, use0 = TRUE, use1 = TRUE)
+result <- .find_occurrences(v = v, Y = Y, R = 0.5, alpha = 0.5, w = c(1, 1),
+                            c_k = 5, use0 = TRUE, use1 = TRUE)
 print(result)
+}
 
 }
 \author{

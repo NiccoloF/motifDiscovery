@@ -90,6 +90,15 @@
 #'   \item{\code{cut_off}}{An integer used when \code{plot} is set to \code{TRUE}. It specifies the number of top-ranked plots to generate based on the ranking criteria, facilitating focused visualization of the most significant motifs.}
 #' }
 #'
+#' @param Y0 A list containing N vectors (for univariate curves) or N matrices (for multivariate curves) representing the functional data.
+#' @param method A character string specifying the motif discovery algorithm to use. Acceptable values are "ProbKMA" for Probabilistic K-means with Local Alignment and "funBIalign" for Functional Bi-directional Alignment.
+#' @param stopCriterion A character string indicating the convergence criterion for the selected algorithm.
+#' @param name A character string specifying the name of the output directory where results will be saved.
+#' @param plot A logical value indicating whether to generate and save plots of the discovered motifs and clustering results.
+#' @param probKMA_options A list of options specific to the ProbKMA algorithm.
+#' @param funBIalign_options A list of options specific to the funBIalign algorithm.
+#' @param worker_number An integer specifying the number of CPU cores to utilize for parallel computations.
+#'
 #' @return 
 #' A list containing the discovered motifs and their corresponding statistics, tailored to the selected method:
 #' \describe{
@@ -435,9 +444,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
           probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],plot = plot,cleaned=TRUE,transformed=transformed)
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-          silhouette=probKMA_silhouette_plot(results, 
-                                             align=arguments$silhouette_align,
-                                             plot=TRUE)
+          silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
           dev.off()
           save(probKMA_results,time,silhouette,
                file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))

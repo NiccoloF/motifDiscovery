@@ -32,8 +32,8 @@
 
 Rcpp::List Parameters::to_list()
 {
-  Rcpp::CharacterVector names(25);
-  Rcpp::List result(25);
+  Rcpp::CharacterVector names(26);
+  Rcpp::List result(26);
   names[0] = "standardize";
   result[0] = _standardize;
   names[1] = "K";

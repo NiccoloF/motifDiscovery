@@ -36,10 +36,12 @@ The function works as follows:
    removing those that do not.
 }
 \examples{
+\dontrun{
 # Example usage
 window_data <- data.frame(matrix(ncol = 3, nrow = 6))
 rownames(window_data) <- c("1_1", "1_2", "1_3", "2_1", "2_2", "2_3")
 result <- get_accolites("1_2", window_data, portion_len = 4, multiple = TRUE)
 print(result)
+}
 
 }

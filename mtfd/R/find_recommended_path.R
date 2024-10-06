@@ -28,11 +28,13 @@
 #' 6. Recommends nodes based on calculated scores and returns a summary of results.
 #'
 #' @examples
+#' \dontrun{
 #' # Example usage
 #' minidend <- create_tree_structure(...)  # Replace with actual tree creation function
 #' window_data <- data.frame(...)  # Replace with actual data
 #' result <- find_recommended_path(minidend, window_data, min_card = 3)
 #' print(result)
+#' }
 #'
 #' @importFrom dplyr %>%
 #' @importFrom data.table setnames

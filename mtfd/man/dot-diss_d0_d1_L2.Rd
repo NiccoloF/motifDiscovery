@@ -53,6 +53,7 @@ where:
 The function normalizes the inputs based on the specified flags to ensure that all features are comparable.
 }
 \examples{
+\dontrun{
 # Define two curves and their derivatives
 y_curve <- list(matrix(rnorm(100), ncol = 2), matrix(rnorm(100), ncol = 2))
 v_curve <- list(matrix(rnorm(100), ncol = 2), matrix(rnorm(100), ncol = 2))
@@ -63,5 +64,5 @@ diss_index <- .diss_d0_d1_L2(y = y_curve, v = v_curve, w = weights, alpha = 0.5)
 
 # Output the dissimilarity index
 print(diss_index)
-
+}
 }

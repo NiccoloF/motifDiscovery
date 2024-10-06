@@ -11,3 +11,5 @@
 ^R/.DS_Store$
 ^src/.DS_Store$
 ^vignettes/.gitignore$
+^doc$
+^Meta$

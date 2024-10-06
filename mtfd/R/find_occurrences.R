@@ -35,23 +35,18 @@
 #' It handles multidimensional curves and can selectively consider different components of the motifs and curves.
 #' 
 #' @examples
+#' \dontrun{
 #' # Example usage
 #' v <- list(v0 = matrix(runif(100), ncol = 2), v1 = matrix(runif(100), ncol = 2))
 #' Y <- list(list(Y0 = matrix(runif(200), ncol = 2), Y1 = matrix(runif(200), ncol = 2)))
-#' result <- .find_occurrences(v = v, Y = Y, R = 0.5, alpha = 0.5, w = c(1, 1), c_k = 5, use0 = TRUE, use1 = TRUE)
+#' result <- .find_occurrences(v = v, Y = Y, R = 0.5, alpha = 0.5, w = c(1, 1),
+#'                             c_k = 5, use0 = TRUE, use1 = TRUE)
 #' print(result)
+#' }
 #' 
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #' @export
 .find_occurrences <- function(v,Y,R,alpha,w,c_k,use0,use1,transformed=FALSE){
-  # Find occurrences of a motif in a set of curves (dimesion=d), with dissimilarity lower than R.
-  # Return curve id, shift and dissimilarity.
-  # v: list of 2 elements, v0, v1, matrices with d columns.
-  # Y: list of N lists of two elements, Y0, Y1, matrices with d columns.
-  # R: maximum dissimilarity allowed.
-  # alpha: if diss_fun=diss_d0_d1_L2, weight coefficient between d0_L2 and d1_L2.
-  # w: weights for the dissimilarity index in the different dimensions (w>0).
-  # c_k: minimum length of supp(y_shifted) and supp(v) intersection.
   v_dom=.domain(v,use0)
   v_len=length(v_dom)
   SD_motif=lapply(Y,

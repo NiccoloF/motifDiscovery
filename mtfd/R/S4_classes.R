@@ -1,3 +1,6 @@
+
+setClassUnion("charOrNum", c("character", "numeric"))
+
 #' @title motifSimulationS4Class
 #' 
 #' @description 
@@ -34,9 +37,6 @@
 #' @slot min_dist_motifs A numeric value indicating the minimum distance between motifs in the simulated curves. 
 #' This ensures that motifs are not placed too closely, preserving their distinctiveness and reducing overlap during the simulation.
 #' 
-#' @export 
-setClassUnion("charOrNum", c("character", "numeric"))
-
 #' @export 
 setClass("motifSimulation",
          slots = list(

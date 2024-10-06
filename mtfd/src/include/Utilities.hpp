@@ -123,3 +123,4 @@ concept IsArmaVector = std::is_same_v<T, KMA::uvector> ||
 
 
 #endif // __UTILITIES_HPP__
+  

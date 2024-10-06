@@ -41,6 +41,7 @@ This function is useful for switching between parallel and non-parallel executio
 based on the availability of a cluster, allowing for more flexible and efficient code.
 }
 \examples{
+\dontrun{
 # Example usage
 library(parallel)
 cl <- makeCluster(4) # Create a cluster with 4 workers
@@ -60,6 +61,7 @@ print(result_serial) # Prints squared values
 
 # Stop the cluster after use
 stopCluster(cl)
+}
 
 }
 \author{

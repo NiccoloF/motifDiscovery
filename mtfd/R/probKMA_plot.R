@@ -407,7 +407,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                matplot(y_plot,type='l',col=seq_len(N)+1,lwd=2,lty=5,ylab=ylab[j],
                        main=paste('Motif',k,'-',ylab[j],'- Dimension:',j,'\n',
-                                  'Number of occurrences:',dim(y_plot)[2],' − sil_avg:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3)) ))
+                                  'Number of occurrences:',dim(y_plot)[2],' - sil_avg:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3)) ))
                points(v0[,j],type='l',col='black',lwd=5,lty=1)
                par(mar=c(0,0,0,0))
                plot.new()
@@ -421,7 +421,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                matplot(y_plot,type='l',col=seq_len(N)+1,lwd=2,lty=5,ylab=ylab[j],
                        main=paste('Motif',k,'-',ylab[j],' derivative','- Dimension:',j,'\n',
-                                  'Number of occurrences:',dim(y_plot)[2],' − sil:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
+                                  'Number of occurrences:',dim(y_plot)[2],' - sil:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
                points(v1[,j],type='l',col='black',lwd=5,lty=1)
                par(mar=c(0,0,0,0))
                plot.new()

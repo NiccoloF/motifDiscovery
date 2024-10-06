@@ -20,12 +20,14 @@
 #' 3. Cuts the dendrogram at the identified height and returns the lower part of the cut.
 #'
 #' @examples
+#' \dontrun{
 #' # Example usage
 #' # Create a sample adjacency matrix
 #' sample_matrix <- matrix(runif(100), nrow = 10)
 #' adj_fMSR <- dist(sample_matrix) # Convert to a distance object
 #' minidend <- get_minidend(adj_fMSR)
 #' plot(minidend) # Visualize the resulting dendrogram
+#' }
 #'
 #' @importFrom fastcluster hclust
 #' @export

@@ -55,11 +55,14 @@ filtering them using the silhouette criteria. The resulting motifs are sorted by
 in descending order, and the filtered results are returned in a structured list.
 }
 \examples{
+\dontrun{
 # Example usage
 candidate_results <- find_candidate_motif(data)
-filtered_motifs <- filter_candidate_motifs(candidate_results, sil_threshold = 0.6, size_threshold = 3)
+filtered_motifs <- filter_candidate_motifs(candidate_results,
+                                           sil_threshold = 0.6,
+                                           size_threshold = 3)
 
 # Inspect the cleaned candidate motifs
 print(filtered_motifs$V0_clean)
-
+}
 }

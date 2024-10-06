@@ -159,8 +159,7 @@ generate_background_curve <- function(len, dist_knots, norder, weights, add_nois
   if(length(weights) >= basis$nbasis){
     or_coeff <- weights[1:(basis$nbasis)]
   } else {
-    print('A longer vector of "weights" is required')
-    break
+    stop('A longer vector of "weights" is required')
   }
   
   # create fd object

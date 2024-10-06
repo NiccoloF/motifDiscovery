@@ -26,6 +26,7 @@ it pads the matrix with `NA` values until it reaches the specified number of row
 No changes are made if `dataMatrix` has rows equal to or greater than `maxLen`.
 }
 \examples{
+\dontrun{
 # Create a matrix with 3 rows and 2 columns
 mat <- matrix(1:6, nrow = 3, ncol = 2)
 
@@ -34,5 +35,6 @@ padded_mat <- padding(mat, maxLen = 5)
 
 # Check the result
 print(padded_mat)
+}
 
 }

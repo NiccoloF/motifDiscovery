@@ -43,9 +43,11 @@ parameters to tailor the visualization to their specific needs, including filter
 based on frequency and choosing whether to normalize the y-values.
 }
 \examples{
+\dontrun{
 # Assuming `results` is the output from `motifs_search`
 motifs_search_plot_norm(results, ylab = c("Dimension 1", "Dimension 2"), 
                          freq_threshold = 5, top_n = 10, 
                          plot_curves = TRUE, transformed = FALSE)
+}
 
 }

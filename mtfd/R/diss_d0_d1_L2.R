@@ -45,6 +45,7 @@
 #' The function normalizes the inputs based on the specified flags to ensure that all features are comparable.
 #' 
 #' @examples
+#' \dontrun{
 #' # Define two curves and their derivatives
 #' y_curve <- list(matrix(rnorm(100), ncol = 2), matrix(rnorm(100), ncol = 2))
 #' v_curve <- list(matrix(rnorm(100), ncol = 2), matrix(rnorm(100), ncol = 2))
@@ -55,7 +56,7 @@
 #' 
 #' # Output the dissimilarity index
 #' print(diss_index)
-#' 
+#' }
 #' @export
 .diss_d0_d1_L2 <- function(y,v,w,alpha,transform_y=FALSE,transform_v=FALSE){
   # Dissimilarity index for multidimensional curves (dimension=d).
