@@ -86,4 +86,4 @@
 #' @export ProbKMA
 #'
 #' # Load the Rcpp module exposed with RCPP_MODULE( ... ) macro.
-#' loadModule(module = "ProbKMAModule", TRUE)
+loadModule(module = "ProbKMAModule", TRUE)
