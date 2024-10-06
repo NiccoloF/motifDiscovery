@@ -49,7 +49,7 @@ public:
                     _dissfac = dissfac.instantiate(diss); // copy elision
                     _perfac = perfac.instantiate(diss); // copy elision
                     if(not(_motfac and _dissfac and _perfac))
-                      Rcpp::Rcerr<<"Invalid dissimilarity: Choose between L2,H1"<<std::endl;
+                      Rcpp::stop("Invalid dissimilarity: Choose between L2, H1");
                 }
 
     ~_probKMAImp() = default;

@@ -31,3 +31,4 @@ LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20
 LazyData: true
 VignetteBuilder: knitr
+BuildVignettes: true

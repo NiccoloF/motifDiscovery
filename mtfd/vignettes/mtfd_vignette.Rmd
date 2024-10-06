@@ -402,7 +402,7 @@ result <- mtfd::to_motifDiscovery(curves)
 
 Additionally, a Shiny app is available, serving as a graphical user interface (GUI) that enables users to execute all the previously mentioned functions in a straightforward and intuitive manner. The app consistently provides summary plots, enhancing the user experience.
 
-```{r shiny_app}
+```{r shiny_app,eval = FALSE}
 library(mtfd)
 
 motif_str <- rbind.data.frame(c(1, 1, 20),
