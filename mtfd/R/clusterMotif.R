@@ -1280,6 +1280,8 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       valid_pos <- which(vec_of_scores_ordered < cut_off)
       vec_of_scores_ordered <- vec_of_scores_ordered[valid_pos]
       list_of_recommendations_ordered <- list_of_recommendations_ordered[valid_pos] 
+      if(is.null(vec_of_scores_ordered))
+        stop("the value of \'cut_off\' is to high. No motifs discovered. Provide a lower value")
     }
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
