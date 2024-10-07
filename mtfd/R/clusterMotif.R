@@ -438,10 +438,10 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
           }
           transformed=probKMA_results$transformed
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE,transformed=transformed) #transformed
+          probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE, transformed = arguments$transformed)
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],plot = plot,cleaned=TRUE,transformed=transformed)
+          probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],plot = plot,cleaned=TRUE, transformed = arguments$transformed) 
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
           silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
@@ -602,14 +602,16 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
                               plot = TRUE,
                               ylab=names_var,
                               sil_avg = silhouette_results[[4]],
-                              cleaned=FALSE)
+                              cleaned=FALSE,
+                              transformed = arguments$transformed)
           dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
           probKMA_plot(probKMA_results,
                               plot = TRUE,
                               ylab=names_var,
                               sil_avg = silhouette_results[[4]],
-                              cleaned=TRUE)
+                              cleaned=TRUE,
+                              transformed = arguments$transformed)
           dev.off()
 
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
@@ -668,14 +670,16 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
                          plot = TRUE,
                          ylab=names_var,
                          sil_avg = silhouette_results[[4]],
-                         cleaned=FALSE)
+                         cleaned=FALSE,
+                         transformed = arguments$transformed)
             dev.off()
             pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
             probKMA_plot(probKMA_results,
                          plot = TRUE,
                          ylab=names_var,
                          sil_avg = silhouette_results[[4]],
-                         cleaned=TRUE)
+                         cleaned=TRUE,
+                         transformed = arguments$transformed)
             dev.off()
             
             pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)

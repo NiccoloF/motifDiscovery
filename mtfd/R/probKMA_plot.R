@@ -99,7 +99,7 @@
 #' }
 #'
 #' @export
-probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE){
+probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE, transformed = FALSE){
   d=ncol(probKMA_results$Y0[[1]])
   N=nrow(probKMA_results$P)
   K=ncol(probKMA_results$P)
@@ -197,9 +197,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                     })
         return()},probKMA_results$Y0[ has_a_motif] # consider curves with at least one embedded motif
                   ,S_clean_i[ has_a_motif],P_clean_i[has_a_motif],seq_len(N)[has_a_motif])
-      mapply(function(v,v_dom,s_k,p_clean_k,k)
-      { # guardare plot di Marzia 
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+      mapply(function(v,v_dom,s_k,p_clean_k,k){
         keep=which(p_clean_k==1)
         Y_inters_k=mapply(
           function(y,s_k_i,v_dom){
@@ -212,19 +210,38 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                              matrix(NA,nrow=sum(index>y_len),ncol=d))
             return(Y_inters_k)},
           probKMA_results$Y0[keep],s_k[keep],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        Y0_diff_k=lapply(Y0_inters_k,
+                         function(Y0_inters_k){
+                           y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
+                           y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)
+                           y0_diff=y0_max-y0_min
+                           return(y0_diff)
+                         })
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
                  y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y_inters_k))
-                 y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))
-                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=2,lty=5,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
-                 points(v[,j],type='l',col='black',lwd=5,lty=1)
+                 if(transformed){
+                   y_plot[v_dom,]=Reduce('cbind',
+                                         mapply(function(Y_inters_k, Y_diff_k) {
+                                           y0_min=min(Y_inters_k[,j])
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_const = (Y_diff_k[j] == 0)
+                                           y0_norm[,y0_const] = 0.5
+                                           return(y0_norm)},
+                                           Y0_inters_k, Y0_diff_k, SIMPLIFY=FALSE) ) 
+                 }else{
+                   y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))
+                 }
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=1,lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
+                 points(v[,j],type='l',col='black',lwd=7,lty=1)
                  par(mar=c(0,0,0,0))
                  plot.new()
-                 legend('topright',legend=c(paste0('c',keep),'motif center'),
-                        col=c(seq_len(length(keep))+1,'black'),lwd=c(rep(2,length(keep)),4),lty=c(rep(5,length(keep)),1),xpd=TRUE)
+                 legend('left',legend='motif center',col='black',lwd=7,lty=1,bty="n",xpd=TRUE)
                })
-      },probKMA_results$V0_clean,V_dom,S_clean_k,P_clean_k,seq_len(K))
+        return()},
+        probKMA_results$V0_clean,V_dom,S_clean_k,P_clean_k,seq_len(K))
     }else
     {
       ##### Plot curves and derivatives all together with the embedded motifs  ############################################################################################
@@ -373,66 +390,84 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                 probKMA_results$Y1[ has_a_motif],
                 S_clean_i[ has_a_motif],P_clean_i[has_a_motif],seq_len(N)[has_a_motif])
     
-    
-    mapply(function(v0,v1,v_dom,s_k,p_clean_k,k)
-    {
-      layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
-      keep=which(p_clean_k==1)
-      Y0_inters_k=mapply(
-        function(y,s_k_i,v_dom){
-          v_len=length(v_dom)
-          d=ncol(y)
-          y_len=nrow(y)
-          index=max(1,s_k_i)-1+seq_len(v_len-max(0,1-s_k_i))
-          Y_inters_k=rbind(matrix(NA,nrow=max(0,1-s_k_i),ncol=d),
-                           matrix(y[index[index<=y_len],],ncol=d),
-                           matrix(NA,nrow=sum(index>y_len),ncol=d))
-          return(Y_inters_k)},
-        probKMA_results$Y0[keep],s_k[keep],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
-      Y1_inters_k=mapply(
-        function(y,s_k_i,v_dom){
-          v_len=length(v_dom)
-          d=ncol(y)
-          y_len=nrow(y)
-          index=max(1,s_k_i)-1+seq_len(v_len-max(0,1-s_k_i))
-          Y_inters_k=rbind(matrix(NA,nrow=max(0,1-s_k_i),ncol=d),
-                           matrix(y[index[index<=y_len],],ncol=d),
-                           matrix(NA,nrow=sum(index>y_len),ncol=d))
-          return(Y_inters_k)},
-        probKMA_results$Y1[keep],s_k[keep],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
-      lapply(seq_len(d),
-             function(j){
-               par(mar=c(3,4,4,2)+0.1)
-               y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y0_inters_k))
-               y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))
-               matplot(y_plot,type='l',col=seq_len(N)+1,lwd=2,lty=5,ylab=ylab[j],
-                       main=paste('Motif',k,'-',ylab[j],'- Dimension:',j,'\n',
-                                  'Number of occurrences:',dim(y_plot)[2],' - sil_avg:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3)) ))
-               points(v0[,j],type='l',col='black',lwd=5,lty=1)
-               par(mar=c(0,0,0,0))
-               plot.new()
-               legend('topright',legend=c(paste0('c',keep),'motif center'),
-                                      col=c(seq_len(length(keep))+1,'black'),lwd=c(rep(2,length(keep)),4),lty=c(rep(5,length(keep)),1),xpd=TRUE)
-             })
-      lapply(seq_len(d),
-             function(j){
-               par(mar=c(3,4,4,2)+0.1)
-               y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y1_inters_k))
-               y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))
-               matplot(y_plot,type='l',col=seq_len(N)+1,lwd=2,lty=5,ylab=ylab[j],
-                       main=paste('Motif',k,'-',ylab[j],' derivative','- Dimension:',j,'\n',
-                                  'Number of occurrences:',dim(y_plot)[2],' - sil:',ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
-               points(v1[,j],type='l',col='black',lwd=5,lty=1)
-               par(mar=c(0,0,0,0))
-               plot.new()
-               legend('topright',legend=c(paste0('c',keep),'motif center'),
-                      col=c(seq_len(length(keep))+1,'black'),lwd=c(rep(2,length(keep)),4),lty=c(rep(5,length(keep)),1),xpd=TRUE)
-             })
-    },probKMA_results$V0_clean,
-      probKMA_results$V1_clean,
-      V_dom,S_clean_k,P_clean_k,seq_len(K))
+      mapply(function(v0,v1,v_dom,s_k,p_clean_k,k){
+        keep=which(p_clean_k==1)
+        Y0_inters_k=mapply(
+          function(y,s_k_i,v_dom){
+            v_len=length(v_dom)
+            d=ncol(y)
+            y_len=nrow(y)
+            index=max(1,s_k_i)-1+seq_len(v_len-max(0,1-s_k_i))
+            Y_inters_k=rbind(matrix(NA,nrow=max(0,1-s_k_i),ncol=d),
+                             matrix(y[index[index<=y_len],],ncol=d),
+                             matrix(NA,nrow=sum(index>y_len),ncol=d))
+            return(Y_inters_k)},
+          probKMA_results$Y0[keep],s_k[keep],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
+        Y1_inters_k=mapply(
+          function(y,s_k_i,v_dom){
+            v_len=length(v_dom)
+            d=ncol(y)
+            y_len=nrow(y)
+            index=max(1,s_k_i)-1+seq_len(v_len-max(0,1-s_k_i))
+            Y_inters_k=rbind(matrix(NA,nrow=max(0,1-s_k_i),ncol=d),
+                             matrix(y[index[index<=y_len],],ncol=d),
+                             matrix(NA,nrow=sum(index>y_len),ncol=d))
+            return(Y_inters_k)},
+          probKMA_results$Y1[keep],s_k[keep],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        Y0_diff_k=lapply(Y0_inters_k,
+                         function(Y0_inters_k){
+                           y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
+                           y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)
+                           y0_diff=y0_max-y0_min
+                           return(y0_diff)
+                         })
+        lapply(seq_len(d),
+               function(j){
+                 par(mar=c(3,4,4,2)+0.1)
+                 y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y0_inters_k))
+                 if(transformed){
+                   y_plot[v_dom,]=Reduce('cbind',
+                                         mapply(function(Y_inters_k, Y_diff_k) {
+                                           y0_min=min(Y_inters_k[,j])
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_const = (Y_diff_k[j] == 0)
+                                           y0_norm[,y0_const] = 0.5
+                                           return(y0_norm)},
+                                           Y0_inters_k, Y0_diff_k, SIMPLIFY=FALSE) )
+                 }else{
+                   y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))}
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=1,lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
+                 points(v0[,j],type='l',col='black',lwd=7,lty=1)
+                 par(mar=c(0,0,0,0))
+                 plot.new()
+                 legend('left',legend='motif center',col='black',lwd=7,lty=1,bty="n",xpd=TRUE)
+               })
+        lapply(seq_len(d),
+               function(j){
+                 par(mar=c(3,4,4,2)+0.1)
+                 y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y1_inters_k))
+                 if(transformed){
+                   y_plot[v_dom,]=Reduce('cbind',
+                                         mapply(function(Y1_inters_k, Y_diff_k) {
+                                           y1_norm = t( t(Y1_inters_k[,j])/ Y_diff_k[j] )
+                                           y0_const = (Y_diff_k[j] == 0)
+                                           y1_norm[,y0_const] = 0
+                                           return(y1_norm)},
+                                           Y1_inters_k, Y0_diff_k, SIMPLIFY=FALSE)
+                   ) 
+                 }else{
+                   y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))}
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=1,lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j],' derivative'))
+                 points(v1[,j],type='l',col='black',lwd=7,lty=1)
+                 par(mar=c(0,0,0,0))
+                 plot.new()
+                 legend('left',legend='motif center',col='black',lwd=7,lty=1,bty="n",xpd=TRUE)
+               })
+        return()},
+        probKMA_results$V0_clean,probKMA_results$V1_clean,V_dom,S_clean_k,P_clean_k,seq_len(K))
     }
-      
+    
   }
   else
   {
@@ -449,12 +484,29 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
           return(Y_inters_k)},
           probKMA_results$Y0,s_k,MoreArgs=list(v_dom),SIMPLIFY=FALSE)
         layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        Y0_diff_k=lapply(Y0_inters_k,
+                         function(Y0_inters_k){
+                           y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
+                           y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)
+                           y0_diff=y0_max-y0_min
+                           return(y0_diff)
+                         })
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
                  y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y_inters_k))
-                 y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))
-                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif_',k,'-',ylab[j]))
+                 if(transformed){
+                   y_plot[v_dom,]=Reduce('cbind',
+                                         mapply(function(Y_inters_k, Y_diff_k) {
+                                           y0_min=min(Y_inters_k[,j])
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_const = (Y_diff_k[j] == 0)
+                                           y0_norm[,y0_const] = 0.5
+                                           return(y0_norm)},
+                                           Y0_inters_k, Y0_diff_k, SIMPLIFY=FALSE) )
+                 }else{
+                   y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))}
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
                  points(v[,j],type='l',col='black',lwd=7,lty=1)
                  par(mar=c(0,0,0,0))
                  plot.new()
@@ -485,12 +537,29 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
           return(Y_inters_k)},
           probKMA_results$Y1,s_k,MoreArgs=list(v_dom),SIMPLIFY=FALSE)
         layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        Y0_diff_k=lapply(Y0_inters_k,
+                         function(Y0_inters_k){
+                           y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
+                           y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)
+                           y0_diff=y0_max-y0_min
+                           return(y0_diff)
+                         })
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
                  y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y0_inters_k))
-                 y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))
-                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif_',k,'-',ylab[j]))
+                 if(transformed){
+                   y_plot[v_dom,]=Reduce('cbind',
+                                         mapply(function(Y_inters_k, Y_diff_k) {
+                                           y0_min=min(Y_inters_k[,j])
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_const = (Y_diff_k[j] == 0)
+                                           y0_norm[,y0_const] = 0.5
+                                           return(y0_norm)},
+                                           Y0_inters_k, Y0_diff_k, SIMPLIFY=FALSE) )
+                 }else{
+                   y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))}
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
                  points(v0[,j],type='l',col='black',lwd=7,lty=1)
                  par(mar=c(0,0,0,0))
                  plot.new()
@@ -500,8 +569,18 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
                  y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y1_inters_k))
-                 y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))
-                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif_',k,'-',ylab[j],' derivative'))
+                 if(transformed){
+                   y_plot[v_dom,]=Reduce('cbind',
+                                         mapply(function(Y1_inters_k, Y_diff_k) {
+                                           y1_norm = t( t(Y1_inters_k[,j])/ Y_diff_k[j] )
+                                           y0_const = (Y_diff_k[j] == 0)
+                                           y1_norm[,y0_const] = 0
+                                           return(y1_norm)},
+                                           Y1_inters_k, Y0_diff_k, SIMPLIFY=FALSE)
+                   ) 
+                 }else{
+                   y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))}
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j],' derivative'))
                  points(v1[,j],type='l',col='black',lwd=7,lty=1)
                  par(mar=c(0,0,0,0))
                  plot.new()
