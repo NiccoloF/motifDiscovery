@@ -87,7 +87,7 @@
 #' \describe{
 #'   \item{\code{portion_len}}{An integer specifying the length of curve portions to align. This parameter controls the granularity of alignment, allowing the algorithm to focus on specific segments of the curves for motif discovery.}
 #'   \item{\code{min_card}}{An integer representing the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required for a motif to be considered valid. This ensures that only motifs with sufficient representation across the dataset are retained.}
-#'   \item{\code{cut_off}}{An integer used when \code{plot} is set to \code{TRUE}. It specifies the number of top-ranked plots to generate based on the ranking criteria, facilitating focused visualization of the most significant motifs.}
+#'   \item{\code{cut_off}}{A double that specifies the number of top-ranked motifs to keep based on the ranking criteria, facilitating focused visualization of the most significant motifs.}
 #' }
 #'
 #' @param Y0 A list containing N vectors (for univariate curves) or N matrices (for multivariate curves) representing the functional data.
@@ -1200,16 +1200,41 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     
     # get vector of adjusted fMSR
     vec_of_scores <- lapply(all_paths, function(x){x$recommended_node_scores}) %>% unlist()
-
+    
+    resFunBiMeta = list(window_data = window_data,
+                        list_of_recommendations = list_of_recommendations,
+                        vec_of_scores = vec_of_scores)
+    # save results 
+    saveRDS(resFunBiMeta,file = paste0(name,'/resFunBi.rds')) 
+    
+    } else {
+      resFunBiMeta <- readRDS(paste0(name,'/resFunBi.rds'))
+      window_data <- resFunBiMeta$window_data
+      list_of_recommendations <-  resFunBiMeta$list_of_recommendations
+      vec_of_scores <- resFunBiMeta$vec_of_scores
+    }
+    
     ## STEP 4 -----
     # STEP 4: post-processing and rearranging results using different criteria
+    if (stopCriterion == "Variance") {
+      motif_var <- lapply(list_of_recommendations, 
+                          function(x){
+                            temp <- window_data[x,]
+                            temp_mean <- temp %>% colMeans()
+                            ((temp - temp_mean)^2 %>% sum())/(nrow(temp))
+                          }) %>% unlist()
+      
+      var_order <- motif_var %>% order(decreasing = TRUE)
+      vec_of_scores_ordered <- vec_of_scores[var_order]
+      list_of_recommendations_ordered <- list_of_recommendations[var_order]
+    } else {
+      ### CRITERION: adjusted fMSR ----
+      best_order <- vec_of_scores %>% order()
+      vec_of_scores_ordered <- vec_of_scores[best_order]
+      # ordered list_of_recommendations
+      list_of_recommendations_ordered <- list_of_recommendations[best_order]  
+    }
     
-    ### CRITERION: adjusted fMSR ----
-    best_order <- vec_of_scores %>% order()
-    vec_of_scores_ordered <- vec_of_scores[best_order]
-    # ordered list_of_recommendations
-    list_of_recommendations_ordered <- list_of_recommendations[best_order]
- 
     #for every recommended motif, compute all its accolites
     all_accolites <- lapply(list_of_recommendations_ordered,
                             function(x){
@@ -1251,42 +1276,18 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     # we delete the recommended nodes and we order the remaining ones
     list_of_recommendations_ordered <- list_of_recommendations_ordered[-delete]
     vec_of_scores_ordered <- vec_of_scores_ordered[-delete]
-    resFunBi = list(window_data = window_data,
-                    list_of_recommendations_ordered = list_of_recommendations_ordered,
-                    vec_of_scores_ordered = vec_of_scores_ordered)
+    if(!is.null(cut_off)) {
+      valid_pos <- which(vec_of_scores_ordered < cut_off)
+      vec_of_scores_ordered <- vec_of_scores_ordered[valid_pos]
+      list_of_recommendations_ordered <- list_of_recommendations_ordered[valid_pos] 
     }
-    else
-    {
-      resFunBi <- readRDS(paste0(name,'/resFunBi.rds'))
-      window_data <- resFunBi$window_data
-      list_of_recommendations_ordered <-  resFunBi$list_of_recommendations_ordered
-      vec_of_scores_ordered <- resFunBi$vec_of_scores_ordered
-    }
-
-    # CRITERIUM: variance ----
-    # We can order the results by variance too
-    if(stopCriterion == "Variance")
-    {
-      motif_var <- lapply(list_of_recommendations_ordered, 
-                          function(x){
-                            temp <- window_data[x,]
-                            temp_mean <- temp %>% colMeans()
-                            ((temp - temp_mean)^2 %>% sum())/(nrow(temp))
-                          }) %>% unlist()
-      
-      var_order <- motif_var %>% order(decreasing = TRUE)
-      list_of_recommendations_ordered <- list_of_recommendations_ordered[var_order]
-      vec_of_scores_ordered <- vec_of_scores_ordered[var_order]
-    }
-    # save results 
-    saveRDS(resFunBi,file = paste0(name,'/resFunBi.rds')) 
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
     if(plot)
     {
       pdf(paste0(name,"/plot_",stopCriterion,".pdf"),width=10,height=5)
       layout(matrix(1:2,ncol=2,byrow=TRUE),widths=c(8.5,1))
-      for(q in 1:min(length(list_of_recommendations_ordered),cut_off,na.rm=TRUE)){
+      for(q in 1:length(list_of_recommendations_ordered)){
         temp_motif <- list_of_recommendations_ordered[[q]]
         lots_in_motif <- lapply(temp_motif,
                                 function(x){
@@ -1322,7 +1323,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       }
       layout(matrix(1:2,ncol=2,byrow=TRUE),widths=c(5,1))
       ## Plot only the motif -----
-      for(q in 1:min(length(list_of_recommendations_ordered),cut_off,na.rm = TRUE)){
+      for(q in 1:length(list_of_recommendations_ordered)){
         par(mar = c(5, 4, 2, 2) + 0.1)
         temp_motif <- list_of_recommendations_ordered[[q]]
         current_curves <- as.numeric(gsub("[^0-9]", "", substr(temp_motif, 1, 2)))
@@ -1346,8 +1347,9 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       }
       dev.off()
     }
-    return(list(list_of_recommendations_ordered = list_of_recommendations_ordered,
-                vec_of_scores_ordered = vec_of_scores_ordered))
+    resFunBi = list(list_of_recommendations_ordered = list_of_recommendations_ordered,
+                    vec_of_scores_ordered = vec_of_scores_ordered)
+    return(resFunBi)
   } else {
     stop('\'method\' not found. It must be choosen between \'probKMA\' and \'funBIalign\'')
   }
