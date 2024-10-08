@@ -11,7 +11,7 @@ double L2::computeDissimilarity(const KMA::Mfield& Y_i,
 {
     if(_transformed && !_both)
     {
-      const KMA::Mfield & Y_i_transf = util::transform_curves<true>(Y_i);
+      const KMA::Mfield & Y_i_transf = util::transform_curves<false>(Y_i);
       return this->distance(Y_i_transf(0,0),V_i(0,0));
     }
     if(_transformed)

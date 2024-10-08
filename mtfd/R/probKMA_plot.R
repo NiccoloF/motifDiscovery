@@ -106,6 +106,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
   V_dom=lapply(probKMA_results$V0,function(v) rowSums(!is.na(v))!=0)
   S_k=split(probKMA_results$S,rep(seq_len(K),each=N))
   P_k=split(probKMA_results$P,rep(seq_len(K),each=N))
+  
   ### plot motifs with matched curves #######################################################################
   if(cleaned){
     S_clean_k=split(probKMA_results$S_clean,rep(seq_len(K),each=N))
@@ -226,14 +227,15 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    y_plot[v_dom,]=Reduce('cbind',
                                          mapply(function(Y_inters_k, Y_diff_k) {
                                            y0_min=min(Y_inters_k[,j])
-                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min) / Y_diff_k[j] )
                                            y0_const = (Y_diff_k[j] == 0)
                                            y0_norm[,y0_const] = 0.5
                                            return(y0_norm)},
-                                           Y0_inters_k, Y0_diff_k, SIMPLIFY=FALSE) ) 
+                                           Y_inters_k, Y0_diff_k, SIMPLIFY=FALSE) ) 
                  }else{
                    y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))
                  }
+                 
                  matplot(y_plot,type='l',col=seq_len(N)+1,lwd=1,lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
                  points(v[,j],type='l',col='black',lwd=7,lty=1)
                  par(mar=c(0,0,0,0))
@@ -430,7 +432,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    y_plot[v_dom,]=Reduce('cbind',
                                          mapply(function(Y_inters_k, Y_diff_k) {
                                            y0_min=min(Y_inters_k[,j])
-                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min) / Y_diff_k[j] )
                                            y0_const = (Y_diff_k[j] == 0)
                                            y0_norm[,y0_const] = 0.5
                                            return(y0_norm)},
@@ -499,14 +501,14 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    y_plot[v_dom,]=Reduce('cbind',
                                          mapply(function(Y_inters_k, Y_diff_k) {
                                            y0_min=min(Y_inters_k[,j])
-                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min) / Y_diff_k[j] )
                                            y0_const = (Y_diff_k[j] == 0)
                                            y0_norm[,y0_const] = 0.5
                                            return(y0_norm)},
-                                           Y0_inters_k, Y0_diff_k, SIMPLIFY=FALSE) )
+                                           Y_inters_k, Y0_diff_k, SIMPLIFY=FALSE) )
                  }else{
                    y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))}
-                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]),ylim = c(0,1))
                  points(v[,j],type='l',col='black',lwd=7,lty=1)
                  par(mar=c(0,0,0,0))
                  plot.new()
@@ -552,7 +554,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    y_plot[v_dom,]=Reduce('cbind',
                                          mapply(function(Y_inters_k, Y_diff_k) {
                                            y0_min=min(Y_inters_k[,j])
-                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                           y0_norm = t( (t(Y_inters_k[,j]) - y0_min) / Y_diff_k[j] )
                                            y0_const = (Y_diff_k[j] == 0)
                                            y0_norm[,y0_const] = 0.5
                                            return(y0_norm)},
