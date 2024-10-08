@@ -198,6 +198,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
         return()},probKMA_results$Y0[ has_a_motif] # consider curves with at least one embedded motif
                   ,S_clean_i[ has_a_motif],P_clean_i[has_a_motif],seq_len(N)[has_a_motif])
       mapply(function(v,v_dom,s_k,p_clean_k,k){
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
         keep=which(p_clean_k==1)
         Y_inters_k=mapply(
           function(y,s_k_i,v_dom){
@@ -210,8 +211,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                              matrix(NA,nrow=sum(index>y_len),ncol=d))
             return(Y_inters_k)},
           probKMA_results$Y0[keep],s_k[keep],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
-        Y0_diff_k=lapply(Y0_inters_k,
+        Y0_diff_k=lapply(Y_inters_k,
                          function(Y0_inters_k){
                            y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
                            y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)
@@ -484,7 +484,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
           return(Y_inters_k)},
           probKMA_results$Y0,s_k,MoreArgs=list(v_dom),SIMPLIFY=FALSE)
         layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
-        Y0_diff_k=lapply(Y0_inters_k,
+        Y0_diff_k=lapply(Y_inters_k,
                          function(Y0_inters_k){
                            y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
                            y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)

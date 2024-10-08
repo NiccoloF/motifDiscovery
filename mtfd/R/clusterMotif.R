@@ -223,7 +223,6 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
                                     n_subcurves = 10,sil_threshold=0.9,
                                     seed = 1,exe_print = FALSE,set_seed = FALSE,
                                     V_init=NULL, n_init_motif = 0)
-    
     probKMA_options <- modifyList(default_probKMA_options, probKMA_options)
     Y1 <- probKMA_options$Y1
     P0 <- probKMA_options$P0
@@ -436,6 +435,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
             if(iter==iter_max)
               warning('Maximum number of iteration reached. Re-starting.')
           }
+          if(plot) {
           transformed=probKMA_results$transformed
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
           probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE, transformed = arguments$transformed)
@@ -446,6 +446,9 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
           silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
           dev.off()
+          } else {
+            silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
+          }
           save(probKMA_results,time,silhouette,
                file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
           return(list(probKMA_results=probKMA_results,
