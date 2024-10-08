@@ -116,7 +116,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
     has_a_motif <- sapply(P_clean_i,function(p_i){sum(p_i)!=0}) # at least one motif embedded
     if(is.null(probKMA_results$V1[[1]])){
       #### Plot curves all together with the embedded motifs############################################################################################
-        mapply(function(v0,v_dom,s_k,p_clean_k,k)
+      mapply(function(v0,v_dom,s_k,p_clean_k,k)
         {
         layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
         keep=which(p_clean_k==1)
@@ -181,11 +181,15 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    {
                     if(p_clean_i[k]==1)
                     {
-                      # univariate_mat[dom_seq[v_dom]] take max - min 
-                      # univariate_motif[dom_seq[v_dom]] apply transformation with max - min
                       univariate_motif <- probKMA_results$V0_clean[[k]][,j]
                       v_dom <- V_dom[[k]]
                       dom_seq <- seq.int(s_i[k],s_i[k]+max(0,length(v_dom)-1))
+                      if(transformed)
+                      {
+                        max_num = max(univariate_mat[dom_seq[v_dom]], na.rm=TRUE)
+                        min_num = min(univariate_mat[dom_seq[v_dom]], na.rm=TRUE)
+                        univariate_motif[v_dom] = univariate_motif[v_dom]*(max_num - min_num) + min_num
+                      }
                       lines(dom_seq[v_dom], univariate_motif[v_dom], col = col[col_i] ,lwd=2.5)
                       rect(dom_seq[v_dom][1],min(univariate_mat,na.rm=TRUE)-10, tail(dom_seq[v_dom], n=1), max(univariate_mat,na.rm=TRUE)+10,
                                       border = scales::alpha(col[col_i], 0.1), col = scales::alpha(col[col_i], 0.1)) 
@@ -345,6 +349,12 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    univariate_motif <- probKMA_results$V0_clean[[k]][,j]
                    v_dom <- V_dom[[k]]
                    dom_seq <- seq.int(s_i[k],s_i[k]+max(0,length(v_dom)-1))
+                   if(transformed)
+                   {
+                     max_num = max(univariate_mat[dom_seq[v_dom]], na.rm=TRUE)
+                     min_num = min(univariate_mat[dom_seq[v_dom]], na.rm=TRUE)
+                     univariate_motif[v_dom] = univariate_motif[v_dom]*(max_num - min_num) + min_num
+                   }
                    lines(dom_seq[v_dom], univariate_motif[v_dom], col = col[col_i] ,lwd=2.5)
                    rect(dom_seq[v_dom][1],min(univariate_mat,na.rm=TRUE)-10, tail(dom_seq[v_dom], n=1), max(univariate_mat,na.rm=TRUE)+10,
                         border = scales::alpha(col[col_i], 0.1), col = scales::alpha(col[col_i], 0.1)) 
@@ -362,6 +372,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
              function(j)
              {
                par(mar=c(3,4,4,2)+0.1)
+               univariate_mat_curve <- curve_i[,j]
                univariate_mat <- dev_i[,j]
                matplot(univariate_mat,type="l",col='black',lwd=1.0,lty=1,
                        main=paste0('c',i,' - Dimension:',j),
@@ -377,6 +388,12 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                    univariate_motif <- probKMA_results$V1_clean[[k]][,j]
                    v_dom <- V_dom[[k]]
                    dom_seq <- seq.int(s_i[k],s_i[k]+max(0,length(v_dom)-1))
+                   if(transformed)
+                   {
+                     max_num = max(univariate_mat_curve[dom_seq[v_dom]], na.rm=TRUE)
+                     min_num = min(univariate_mat_curve[dom_seq[v_dom]], na.rm=TRUE)
+                     univariate_motif[v_dom] = univariate_motif[v_dom]*(max_num - min_num)
+                   }
                    lines(dom_seq[v_dom], univariate_motif[v_dom], col = col[col_i] ,lwd=2.5)
                    rect(dom_seq[v_dom][1],min(univariate_mat,na.rm=TRUE)-10, tail(dom_seq[v_dom], n=1), max(univariate_mat,na.rm=TRUE)+10,
                         border = scales::alpha(col[col_i], 0.1), col = scales::alpha(col[col_i], 0.1)) 
