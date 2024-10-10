@@ -65,7 +65,7 @@
 #' @importFrom dplyr %>%
 #' @importFrom data.table as.data.table setnames
 #' @export
-motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,top_n='all',plot_curves=TRUE){
+motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,top_n='all',plot_curves=TRUE,transformed = FALSE){
   # Plot the results of motifs_search.
   # motifs_search_results: output of motifs_search function.
   # freq_threshold: plot only motifs with frequency at least equal to freq_threshold.
@@ -141,11 +141,29 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
         return(Y_inters_k)},  # c('curve','shift','diss')
         motifs_search_results$Y0[v_occurrences[,1]],v_occurrences[,2],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
       layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+      Y0_diff_k=lapply(Y_inters_k,
+                       function(Y0_inters_k){
+                         y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
+                         y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)
+                         y0_diff=y0_max-y0_min
+                         return(y0_diff)
+                       })
       lapply(seq_len(d),
              function(j){
                par(mar=c(3,4,4,2)+0.1)
                y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y_inters_k))
-               y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))
+               if(transformed){
+                 y_plot[v_dom,]=Reduce('cbind',
+                                       mapply(function(Y_inters_k, Y_diff_k) {
+                                         y0_min=min(Y_inters_k[,j])
+                                         y0_norm = t( (t(Y_inters_k[,j]) - y0_min) / Y_diff_k[j] )
+                                         y0_const = (Y_diff_k[j] == 0)
+                                         y0_norm[,y0_const] = 0.5
+                                         return(y0_norm)},
+                                         Y_inters_k, Y0_diff_k, SIMPLIFY=FALSE) )
+               } else {
+                 y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))
+               }
                matplot(y_plot,type='l',col=v_occurrences[,1]+1,lwd=round(-4/R_motif*v_occurrences[,3]+5,2),
                        lty=1,ylab=ylab,main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab,"-","Dimension:",j))
                points(v[,j],type='l',col='black',lwd=7,lty=1)
@@ -169,11 +187,30 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
           return(Y_inters_k)},
         motifs_search_results$Y1[v_occurrences[,1]],v_occurrences[,2],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
       layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+      Y0_diff_k=lapply(Y0_inters_k,
+                       function(Y0_inters_k){
+                         y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
+                         y0_max=apply(Y0_inters_k, 2, max, na.rm = TRUE)
+                         y0_diff=y0_max-y0_min
+                         return(y0_diff)
+                       })
       lapply(seq_len(d),
              function(j){
                par(mar=c(3,4,4,2)+0.1)
                y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y0_inters_k))
-               y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))
+               if(transformed){
+                 y_plot[v_dom,]=Reduce('cbind',
+                                       mapply(function(Y_inters_k, Y_diff_k) {
+                                         y0_min=min(Y_inters_k[,j])
+                                         y0_norm = t( (t(Y_inters_k[,j]) - y0_min[j]) / Y_diff_k[j] )
+                                         y0_const = (Y_diff_k[j] == 0)
+                                         y0_norm[,y0_const] = 0.5
+                                         return(y0_norm)},
+                                         Y0_inters_k, Y0_diff_k, SIMPLIFY=FALSE) 
+                 )
+               } else {
+                 y_plot[v_dom,]=Reduce('cbind',lapply(Y0_inters_k,function(Y_inters_k) Y_inters_k[,j]))
+               }
                matplot(y_plot,type='l',col=v_occurrences[,1]+1,lwd=round(-4/R_motif*v_occurrences[,3]+5,2),
                        lty=1,ylab=ylab,main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab,"-","Dimension:",j))
                points(v0[,j],type='l',col='black',lwd=7,lty=1)
@@ -185,7 +222,18 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
              function(j){
                par(mar=c(3,4,4,2)+0.1)
                y_plot=matrix(NA,nrow=length(v_dom),ncol=length(Y1_inters_k))
-               y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))
+               if(transformed){
+                 y_plot[v_dom,]=Reduce('cbind',
+                                       mapply(function(Y1_inters_k, Y_diff_k) {
+                                         y1_norm = t( t(Y1_inters_k[,j])/ Y_diff_k[j] )
+                                         y0_const = (Y_diff_k[j] == 0)
+                                         y1_norm[,y0_const] = 0
+                                         return(y1_norm)},
+                                         Y1_inters_k, Y0_diff_k, SIMPLIFY=FALSE)
+                 ) 
+               } else {
+                 y_plot[v_dom,]=Reduce('cbind',lapply(Y1_inters_k,function(Y_inters_k) Y_inters_k[,j]))
+               }               
                matplot(y_plot,type='l',col=v_occurrences[,1]+1,lwd=round(-4/R_motif*v_occurrences[,3]+5,2),
                        lty=1,ylab=ylab,main=paste0('Motif ',k,' (',v_frequencies,' occurrences) - ',ylab,"-","Dimension:",j,' derivative'))
                points(v1[,j],type='l',col='black',lwd=7,lty=1)

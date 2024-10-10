@@ -209,6 +209,13 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
   
   if(method == 'ProbKMA')
   {
+    
+    pb <- progress_bar$new(
+      format = "Progress [:bar] :percent | Elapsed: :elapsed | ETA: :eta",
+      total = 5,  
+      width = 50
+    )
+    
     default_probKMA_options <- list(K=NULL,c=NULL,diss="d0_L2",alpha=0,
                                     Y1=NULL,P0=matrix(),S0=matrix(),
                                     n_init=10,return_options=TRUE,names_var='x(t)',
@@ -396,6 +403,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       }else{
         cl_find=NULL
       }
+    pb$update(0.1)
     ### run probKMA ##########################################################################################
     i_c_K = expand.grid(seq_len(n_init),c,K)
     vector_seed = seq(1,length(i_c_K$Var1))
@@ -747,7 +755,6 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       }
       dev.off()
     }
-    
     ### plot processing time ####################################################################################
     times=lapply(results,
                  function(results){
@@ -994,13 +1001,15 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     }
     ### filter candidate motifs based on silhouette average and size
     silhouette_average = Reduce(rbind, Reduce(rbind, find_candidate_motifs_results$silhouette_average_sd))[ , 1] # retrieve silhouette average for all candidate motifs
+    pb$update(0.5)
     filter_candidate_motifs_results = filter_candidate_motifs(find_candidate_motifs_results,
                                                               sil_threshold = quantile(silhouette_average, probKMA_options$sil_threshold),
                                                               size_threshold = 2)
-    
     ### cluster candidate motifs based on their distance and select radii
+    pb$update(0.75)
     cluster_candidate_motifs_results = cluster_candidate_motifs(filter_candidate_motifs_results,
-                                                                       motif_overlap = 0.6)
+                                                                motif_overlap = 0.6,
+                                                                worker_number = worker_number)
     cluster_candidate_motifs_results$transformed = probKMA_options$transformed
     ### plot cluster candidate motifs results
     pdf(paste0(name,'FMD_clustering_candidate_motifs.pdf'), height = 12, width = 9)
@@ -1009,17 +1018,22 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     ### search selected motifs
     cluster_candidate_motifs_results$Y0 <- Y0
     cluster_candidate_motifs_results$Y1 <- Y1
+    
+    pb$update(0.9)
     motifs_search_results = motifs_search(cluster_candidate_motifs_results,
-                                          use_real_occurrences = FALSE, length_diff = +Inf)
+                                          use_real_occurrences = FALSE, length_diff = +Inf,
+                                          worker_number = worker_number)
     
     ### plot FMD results (NB: no threshold of frequencies of motif found!)
     pdf(paste0(name,'FMD_results.pdf'), height = 7, width = 17)
-    motifs_search_plot(motifs_search_results, ylab = 'x(t)', freq_threshold = 1)
+    motifs_search_plot(motifs_search_results, ylab = 'x(t)', freq_threshold = 1,
+                       transformed = probKMA_options$transformed)
     dev.off()
     
     save(find_candidate_motifs_results, silhouette_average, filter_candidate_motifs_results,
          cluster_candidate_motifs_results, motifs_search_results,
          file=paste0(name,'FMD_results.RData'))
+    pb$update(1.0)
     return(list(find_candidate_motifs_results = find_candidate_motifs_results,
                 silhouette_average = silhouette_average,
                 filter_candidate_motifs_results = filter_candidate_motifs_results,
@@ -1039,6 +1053,13 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     if(missing(min_card) || is.null(min_card))
       stop('min_card attribute must be specified')
     
+    pb <- progress_bar$new(
+      format = "Progress [:bar] :percent | Elapsed: :elapsed | ETA: :eta",
+      total = 5,  
+      width = 50
+    )
+    
+    pb$update(0.1)
     #compute maximum length
     maxLen <- max(sapply(Y0, nrow))
     full_data <- sapply(Y0, padding, maxLen,simplify = FALSE)
@@ -1103,7 +1124,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     window_data_list <- createWindow(full_data,portion_len,worker_number)
     window_data <- window_data_list[[1]]
     rownames(window_data) <- window_data_list[[2]]
-
+    pb$update(0.3)
     # set it as a matrix and omit rows with NAs
     window_data <- na.omit(window_data)
     
@@ -1187,6 +1208,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
 }',depends = "RcppArmadillo")
 # step 2: compute fMRS-based dissimilarity matrix
     D_fmsr <- createDistance(window_data,numerosity,worker_number)
+    pb$update(0.5)
     rownames(D_fmsr) <- colnames(D_fmsr) <- rownames(window_data)
     ## STEP 3 -----
     # step 3: get the sub-trees (tree_s)
@@ -1195,7 +1217,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
 
     all_paths   <- get_path_complete(minidend, window_data, min_card = min_card,worker_number = worker_number)
     all_paths   <- all_paths[!(lapply(all_paths, is.null) %>% unlist())] 
-    
+    pb$update(0.65)
     # step 3: get recommended nodes and their info (cardinality and score)
     # collect all recommended nodes (as an array of portion ids)
     all_recommended_labels <- lapply(all_paths, function(x){x$recommended_node_labels})
@@ -1223,6 +1245,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
     
     ## STEP 4 -----
     # STEP 4: post-processing and rearranging results using different criteria
+    pb$update(0.8)
     if (stopCriterion == "Variance") {
       motif_var <- lapply(list_of_recommendations, 
                           function(x){
@@ -1290,6 +1313,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       if(is.null(vec_of_scores_ordered))
         stop("the value of \'cut_off\' is to high. No motifs discovered. Provide a lower value")
     }
+    pb$update(0.9)
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
     if(plot)
@@ -1356,6 +1380,7 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
       }
       dev.off()
     }
+    pb$update(1.0)
     resFunBi = list(list_of_recommendations_ordered = list_of_recommendations_ordered,
                     vec_of_scores_ordered = vec_of_scores_ordered)
     return(resFunBi)
