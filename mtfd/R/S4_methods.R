@@ -545,7 +545,7 @@ setMethod("plot_motifs","motifSimulation",
         motif_x = lapply(curves[[k]]$with_noise$noise_y,function(curve){return(curve[motif_t + 1])})
         
         return(lapply(motif_x,function(motif){ data.frame(t = motif_t, x = motif, motif_id = factor(paste(id_motif, instance, sep = "_")),
-                                                          initial_number = str_extract(as.character(id_motif), "^[^_]+"),
+                                                          initial_number = stringr::str_extract(as.character(id_motif), "^[^_]+"),
                                                           xmin = (pos_motif - 1) * object@dist_knots,
                                                           xmax = (pos_motif - 1) * object@dist_knots + object@mot_details[[id_motif]]$len)}))
       }, object@motifs_in_curves[[k]]$motif_id, object@motifs_in_curves[[k]]$starting_coeff_pos, seq_along(object@motifs_in_curves[[k]]$motif_id), SIMPLIFY = FALSE)

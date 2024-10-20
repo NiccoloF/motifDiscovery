@@ -24,7 +24,7 @@ Suggests:
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Imports: Rcpp (>= 1.0.12),dendextend,fastcluster,
-         fda,ggtext,methods,purrr,scales,shinyWidgets,shinybusy,shinyjs,stringr,
+         fda,ggtext,methods,purrr,scales,shinyWidgets,shinybusy,shinyjs,
          zoo,utils,class,combinat
 Depends: R (>= 2.10),dplyr,data.table,parallel,ggplot2,shiny,progress
 LinkingTo: Rcpp, RcppArmadillo
