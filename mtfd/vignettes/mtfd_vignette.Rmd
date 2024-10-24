@@ -28,15 +28,15 @@ suppressPackageStartupMessages(library(mtfd))
 
 ## Introduction
 
-The **`clusterMotif`** function serves as the core of the package, offering a robust and efficient implementation of two advanced algorithms: **ProbKMA** and **FunBiAlign**. Together, these algorithms provide a comprehensive solution for the detection and clustering of recurring patterns within functional data.
+The **`discoverMotifs`** function serves as the core of the package, offering a robust and efficient implementation of two advanced algorithms: **ProbKMA**(Cremona and Chiaromonte, 2020) and **FunBiAlign**(Di Iorio, Cremona,and Chiaromonte, 2023). Together, these algorithms provide a comprehensive solution for the detection and clustering of recurring patterns within functional data.
 
 In addition to motif discovery, **`mtfd`** allows users to **simulate functional curves with embedded motifs**. The package provides several functions for generating synthetic functional data, which can be useful for testing and benchmarking the motif discovery algorithms. These simulated curves are customizable, allowing users to control the number, length, and complexity of the motifs.
 
 By the end of this vignette, users will be guide through practical examples and equipped with a solid understanding of how to effectively utilize `mtfd` package for their pattern detection needs.
 
-## Overview of clusterMotif
+## Overview of discoverMotifs
 
-The `clusterMotif` function allows users to:
+The `discoverMotifs` function allows users to:
 
 -   Choose to run **ProbKMA** multiple times with varying numbers of motifs (`K`) and minimum motif lengths (`c`), or **FunBiAlign** specifying the length (`portion_len`) and the minimum cardinality (`min_card`) of the motifs.
 
@@ -59,7 +59,7 @@ The following parameters are shared between both algorithms:
 
 ### Key Arguments for ProbKMA
 
-Below is an overview of the key arguments for the `ProbKMA` algorithm in the `clusterMotif` function:
+Below is an overview of the key arguments for the `ProbKMA` algorithm in the `discoverMotifs` function:
 
 | **Parameter**      | **Description**                                                                                                                                   | **Default** |
 |--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
@@ -97,7 +97,7 @@ Below is an overview of the key arguments for the `ProbKMA` algorithm in the `cl
 
 ### Example Usage
 
-Here is an example showing a possible use of `clusterMotif` with **ProbKMA** :
+Here is an example showing a possible use of `discoverMotifs` with **ProbKMA** :
 
 ```{r basic example of Probkma,eval = FALSE}
 library(mtfd)
@@ -111,18 +111,18 @@ n_init = 10
 
 data("simulated200") # load simulated data
 
-results = mtfd::clusterMotif(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
+results = mtfd::discoverMotifs(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
                              name = './results_ProbKMA_VectorData/',plot = TRUE,
                              probKMA_options = list(Y1=simulated200$Y1,K=K,c=c,n_init=n_init,
                                                     diss=diss,alpha=alpha),
                              worker_number = NULL)
 ```
 
-In this scenario, all plots generated during the algorithm's execution will be saved in the folder specified by the 'name' parameter. Additionally, the function handles the entire post-processing phase, including filtering patterns and searching for occurrences within the curves, presenting both intermediate and final results along with their corresponding plots. If the user chooses to only perform the post-processing by adjusting parameters like 'sil_threshold,' it is sufficient to call the same clusterMotif function with the updated parameters. The algorithm will automatically load the previously computed results (which are computationally expensive) and proceed with the post-processing, returning updated plots and results.
+In this scenario, all plots generated during the algorithm's execution will be saved in the folder specified by the 'name' parameter. Additionally, the function handles the entire post-processing phase, including filtering patterns and searching for occurrences within the curves, presenting both intermediate and final results along with their corresponding plots. If the user chooses to only perform the post-processing by adjusting parameters like 'sil_threshold,' it is sufficient to call the same discoverMotifs function with the updated parameters. The algorithm will automatically load the previously computed results (which are computationally expensive) and proceed with the post-processing, returning updated plots and results.
 
 ```{r Post-processing,eval = FALSE}
 # change the value of sil_threshold and re-run the post-processing part.
-results = mtfd::clusterMotif(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
+results = mtfd::discoverMotifs(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
                              name = './results_ProbKMA_VectorData/',plot = TRUE,
                              probKMA_options = list(Y1=simulated200$Y1,K=K,c=c,n_init=n_init,
                                                     diss=diss,alpha=alpha,sil_threshold=0.5),
@@ -131,27 +131,27 @@ results = mtfd::clusterMotif(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="
 
 ### Key Arguments for funBIalign
 
-Below is an overview of the key arguments for the `ProbKMA` algorithm in the `clusterMotif` function:
+Below is an overview of the key arguments for the `ProbKMA` algorithm in the `discoverMotifs` function:
 
 | **Parameter**   | **Description**                                                                                                                              | **Default** |
 |-----------------|----------------------------------------------------------------------------------------------------------------------------------------------|-------------|
 | **portion_len** | An integer specifying the length of the curve portions to be aligned.                                                                        | mandatory   |
 | **min_card**    | An integer specifying the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required.                             | mandatory   |
-| **cut_off**     | Used when `plot` is set to `TRUE`. This parameter limits the number of plots generated to the first 'cut_off' based on the ranking criteria. | `NULL`      |
+| **cut_off**     | Used when `plot` is set to `TRUE`. A double that specifies the number of top-ranked motifs to keep based on the ranking criteria. In particular, all motifs that rank below the cut_off are retained. | `NULL`      |
 
 ### Example Usage
 
-Here is an example showing a possible use of `clusterMotif` with **funBIalign** :
+Here is an example showing a possible use of `discoverMotifs` with **funBIalign** :
 
 ```{r example_funbialign,eval = FALSE}
 library(mtfd)
 
 data("simulated200") # load simulated data
 
-funBialignResult <- mtfd::clusterMotif(Y0=simulated200$Y0,method="FunBIalign",
+funBialignResult <- mtfd::discoverMotifs(Y0=simulated200$Y0,method="FunBIalign",
                                        stopCriterion = 'fMRS',
                                        name = './results_FunBialign',plot = TRUE,
-                                       funBIalign_options = list(portion_len=60,min_card=3,cut_off = 10))
+                                       funBIalign_options = list(portion_len=60,min_card=3,cut_off = 1.0))
 ```
 
 As previously discussed for 'ProbKMA', if the user intends to execute only the post-processing phase related to the re-ranking of discovered motifs, they can simply call the same function, specifying the updated re-ranking criterion and, if necessary, adjusting the new cut_off value.
@@ -173,7 +173,7 @@ Below is an overview of the key arguments:
 | **N**               | The number of background curves to be generated.                                                                                                                                                                                                                                                                                                                                                   | mandatory                 |
 | **len**             | The length of the background curves.                                                                                                                                                                                                                                                                                                                                                               | mandatory                 |
 | **mot_details**     | A list outlining the definitions of the motifs to be included. Each motif is characterized by its length, a set of coefficients that may be optionally specified, and the number of occurrences. These occurrences can be indicated either by specific positions within the curves or by a total count. In the latter case, the algorithm will randomly position the motifs throughout the curves. | mandatory                 |
-| **norder**          | Integer specifying the order of the B-splines.                                                                                                                                                                                                                                                                                                                                                     | mandatory                 |
+| **norder**          | Integer specifying the order of the B-splines.                                                                                                                                                                                                                                                                                                                                                     | 3                 |
 | **coeff_min**       | Additive coefficients to be incorporated into the generation of coefficients for the background curves.                                                                                                                                                                                                                                                                                            | `-15`                     |
 | **coeff_max**       | Additive coefficients to be incorporated into the generation of coefficients for the background curves.                                                                                                                                                                                                                                                                                            | `15`                      |
 | **dist_knots**      | Integer specifying the distance between two consecutive knots.                                                                                                                                                                                                                                                                                                                                     | `10`                      |
@@ -394,7 +394,7 @@ knitr::include_graphics("plots_4.pdf")
 
 ### Additional functions
 
-In addition to the functions previously described, the package includes a helper function that facilitates the direct transformation of the output from 'generateCurves' into a format suitable for 'clusterMotif'. This function generates a comprehensive list that encompasses all curves, each containing the embedded patterns corresponding to various tested noise levels.
+In addition to the functions previously described, the package includes a helper function that facilitates the direct transformation of the output from 'generateCurves' into a format suitable for 'discoverMotifs'. This function generates a comprehensive list that encompasses all curves, each containing the embedded patterns corresponding to various tested noise levels.
 
 ```{r to_motifDiscovery,eval = FALSE}
 result <- mtfd::to_motifDiscovery(curves)
@@ -435,4 +435,4 @@ mtfd::motifSimulationApp(noise_str,mot_details)
 
 ### Conclusion
 
-The **`clusterMotif`** function is a powerful tool for discovering functional motifs in complex datasets. With its flexibility, users can run multiple initializations, customize clustering parameters, simulate functional curves with motifs, and visualize the results in an intuitive way. Whether using **ProbKMA** or **funBIalign**, the `mtfd` package provides a robust solution for analyzing functional data and uncovering hidden patterns.
+The **`discoverMotifs`** function is a powerful tool for discovering functional motifs in complex datasets. With its flexibility, users can run multiple initializations, customize clustering parameters, simulate functional curves with motifs, and visualize the results in an intuitive way. Whether using **ProbKMA** or **funBIalign**, the `mtfd` package provides a robust solution for analyzing functional data and uncovering hidden patterns.

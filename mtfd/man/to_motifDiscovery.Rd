@@ -10,10 +10,10 @@ to_motifDiscovery(curves)
 \item{curves}{A list coming from the generateCurves function.}
 }
 \value{
-A list containing all curves formatted to be suitable for input into the clusterMotif function.
+A list containing all curves formatted to be suitable for input into the discoverMotifs function.
 }
 \description{
-Transforms the result of generateCurves into a format suitable for clusterMotif.
+Transforms the result of generateCurves into a format suitable for discoverMotifs
 }
 \examples{
 \dontrun{

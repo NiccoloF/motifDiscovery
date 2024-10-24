@@ -1,38 +1,78 @@
 #' @docType class
 #' @title ProbKMA Class
-#'
-#' @description
-#' The `ProbKMA` class is an R wrapper for the C++ implementation of the Probabilistic K-means Algorithm (ProbKMA) with local alignment.
-#' This class facilitates local clustering of functional data and functional motif discovery, as proposed in the paper
-#' `Probabilistic K-means with local alignment for clustering and motif discovery in functional data`,
+#' @description 
+#' The `ProbKMA` class is an R wrapper for the C++ implementation of the 
+#' Probabilistic K-means Algorithm (ProbKMA) with local alignment. This class 
+#' facilitates local clustering of functional data and functional motif discovery, 
+#' as proposed in the paper 
+#' `Probabilistic K-means with local alignment for clustering and motif discovery in functional data`, 
 #' authored by Marzia A. Cremona and Francesca Chiaromonte.
-#'
-#' Create a `ProbKMA` object from the ProbKMA C++ class.
-#'
-#' @return
+#' 
+#' @section Constructor:
+#' Create a `ProbKMA` object using the following constructor:
+#' 
+#' \preformatted{
+#' prok <- new(ProbKMA, data$Y, data$V, params, data$P0, data$S0, "H1")
+#' }
+#' 
+#' @return 
 #' A `ProbKMA` object from the C++ ProbKMA class.
-#'
-#' @param Y A list containing functional data and possibly derivatives.
-#' @param Parameters An instance of the Parameters class, containing algorithm settings.
-#' @param P0 A matrix representing the initial membership probabilities.
-#' @param S0 A matrix representing the initial shift warping parameters.
-#' @param diss A character string specifying the dissimilarity measure. Possible choices are:
-#'   - `'d0_L2'`
-#'   - `'d1_L2'`
-#'   - `'d0_d1_L2'`
-#'
+#' 
+#' @section Parameters:
+#' \describe{
+#'   \item{Y}{A list containing functional data and possibly derivatives.}
+#'   \item{params}{An instance of the Parameters class, containing algorithm settings.}
+#'   \item{P0}{A matrix representing the initial membership probabilities.}
+#'   \item{S0}{A matrix representing the initial shift warping parameters.}
+#'   \item{diss}{A character string specifying the dissimilarity measure. Possible choices are: 
+#'     \itemize{
+#'       \item `'d0_L2'`
+#'       \item `'d1_L2'`
+#'       \item `'d0_d1_L2'`
+#'     }}
+#' }
+#' 
+#' @section Usage:
+#' You can access and modify the `ProbKMA` object with the following methods:
+#' \describe{
+#'   \item{Getters:}{
+#'     \describe{
+#'       \item{prok$get_parameters()}{Returns a list of parameters.}
+#'       \item{prok$get_motifs()}{Returns a list containing the motifs found.}
+#'     }
+#'   }
+#'   \item{Setters:}{
+#'     \describe{
+#'       \item{prok$set_P0(P)}{Sets the membership matrix.}
+#'       \item{prok$set_S0(S)}{Sets the shift warping matrix.}
+#'       \item{prok$set_parameters(param)}{Sets parameters field by passing a list of parameters.}
+#'     }
+#'   }
+#'   \item{Initialize Motifs:}{
+#'     \describe{
+#'       \item{prok$reinit_motifs(c, d)}{Reinitializes (empty) K motifs with dimension c_k x d.}
+#'     }
+#'   }
+#'   \item{Run ProbKMA algorithm:}{
+#'     \describe{
+#'       \item{prok$probKMA_run()}{Runs the algorithm.}
+#'     }
+#'   }
+#' }
+#' 
 #' @examples
 #' \dontrun{
+#' # Example usage
 #' # Seed for random initialization of P0 and S0
 #' seed <- 1
-#'
+#' 
 #' # Set type of distance
 #' diss <- 'd0_d1_L2'  # options: 'd0_L2', 'd1_L2', 'd0_d1_L2'
-#'
-#' # Null matrix for random initialization
-#' P0 <- matrix() 
-#' S0 <- matrix() 
-#'
+#' 
+#' # Null matrices for random initialization
+#' P0 <- matrix()
+#' S0 <- matrix()
+#' 
 #' # Define parameters for the algorithm
 #' params <- list(standardize = TRUE, K = 2, c = 61, c_max = 71,
 #'                iter_max = 1000, quantile = 0.25,
@@ -43,47 +83,22 @@
 #'                quantile4clean = 1/2, return_options = TRUE,
 #'                m = 2, w = 1, alpha = 0.5, seed = seed, exe_print = TRUE,
 #'                set_seed = TRUE)
-#'
+#' 
 #' # Check input data
-#' a <- ProbKMAcpp::initialChecks(simulated200$Y0, simulated200$Y1, P0, S0, params, diss, seed)
-#'
+#' a <- initialChecks(simulated200$Y0, simulated200$Y1, P0, S0, params, diss, seed)
+#' 
 #' # Get data and parameters
 #' params <- a$Parameters
 #' data <- a$FuncData
-#'
+#' 
 #' # Create an object of the class ProbKMA
-#' prok <- new(ProbKMAcpp::ProbKMA, data$Y, data$V, params, data$P0, data$S0, "H1")
-#'
+#' prok <- new(ProbKMA, data$Y, data$V, params, data$P0, data$S0, "H1")
+#' 
 #' # Run ProbKMA algorithm
 #' output <- prok$probKMA_run()
 #' }
-#'
-#' ##################
-#' ## Constructor
-#' prok <- new(ProbKMA, data$Y, data$V, params, data$P0, data$S0, "H1")  # or 'L2'
-#'
-#' ##################
-#' ## Getters
-#' prok$get_parameters()  # returns a list of parameters
-#' prok$get_motifs()      # returns a list containing the motifs found
-#'
-#' ##################
-#' ## Setters
-#' prok$set_P0(P)         # set membership matrix
-#' prok$set_S0(S)         # set shift warping matrix
-#' prok$set_parameters(param)  # set parameters field by passing a list of parameters
-#'
-#' ##################
-#' ## Initialize Motifs
-#' prok$reinit_motifs(c, d)  # reinitialize (empty) K motifs with dimension c_k x d
-#'
-#' ##################
-#' ## Run ProbKMA algo
-#' prok$probKMA_run()  # run the algorithm
-#'
+#' 
 #' @author Niccolò Feresini and Riccardo Lazzarini
 #' @name ProbKMA
 #' @export ProbKMA
-#'
-#' # Load the Rcpp module exposed with RCPP_MODULE( ... ) macro.
 loadModule(module = "ProbKMAModule", TRUE)

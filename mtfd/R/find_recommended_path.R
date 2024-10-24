@@ -48,14 +48,14 @@ find_recommended_path <- function(minidend, window_data, min_card){
   node_leaves  <- node_list %>%
     lapply(length) %>%
     unlist() %>%
-    as.data.table() %>%
-    setnames('node_leaves')
+    data.table::as.data.table() %>%
+    data.table::setnames('node_leaves')
   
   # get branches heights
   node_heights <- minidend %>%
     get_nodes_xy() %>%
-    as.data.table() %>%
-    setnames(c('x','y'))
+    data.table::as.data.table() %>%
+    data.table::setnames(c('x','y'))
   
   node_heights <- node_heights[,'y']
   

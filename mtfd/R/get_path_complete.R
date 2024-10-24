@@ -42,7 +42,7 @@ get_path_complete <- function(minidend, window_data, min_card,worker_number){
   
   # Load necessary libraries on each worker
   clusterEvalQ(cl, {
-    library(dplyr) 
+    library(dplyr)
     library(data.table)
   })
   

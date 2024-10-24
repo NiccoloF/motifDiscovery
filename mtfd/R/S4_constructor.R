@@ -3,7 +3,7 @@
 #' @param N An integer specifying the number of background curves to be generated (mandatory).
 #' @param len An integer specifying the length of the background curves (mandatory).
 #' @param mot_details A list outlining the definitions of the motifs to be included. Each motif is characterized by its length, a set of coefficients that may be optionally specified, and the number of occurrences. These occurrences can be indicated either by specific positions within the curves or by a total count. In the latter case, the algorithm will randomly position the motifs throughout the curves (mandatory).
-#' @param norder An integer specifying the order of the B-splines (mandatory).
+#' @param norder An integer specifying the order of the B-splines (default = 3).
 #' @param coeff_min Additive coefficients to be incorporated into the generation of coefficients for the background curves (default = -15).
 #' @param coeff_max Additive coefficients to be incorporated into the generation of coefficients for the background curves (default = 15).
 #' @param dist_knots An integer specifying the distance between two consecutive knots (default = 10).

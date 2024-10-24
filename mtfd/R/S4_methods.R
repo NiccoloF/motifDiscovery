@@ -264,9 +264,9 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
     stop("\'noise_type\' must be choosen between \'coeff\' and \'pointiwse\'")
   } 
   if(is.null(noise_type)) {
-    noise_type <- "pointwise" # to generate background curves
+    noise_type <- "pointwise" # to generate background curves without noise
   }
-  if(!is.null(noise_type) && noise_type == 'coeff') {
+  if(noise_type == 'coeff') {
     tryCatch({
       # Attempt to coerce the input to a numeric vector
       noise_str <- lapply(noise_str,function(error){return(as.numeric(error))})
@@ -359,7 +359,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
                   background = list(or_coeff = or_coeff,no_error_y = or_y_no_error)))
     },object@motifs_in_curves,object@norder-1+rep(object@len/object@dist_knots,length.out=object@N),basis,1:object@N,MoreArgs = list(len_motifs),SIMPLIFY=FALSE)
     
-  }else if(!is.null(noise_type) && noise_type == 'pointwise'){
+  }else if(noise_type == 'pointwise'){
     if(length(noise_str) != length(object@mot_details)) {
       stop("\'noise_str\' must have the same length of \'mot_details\'") 
     }
@@ -402,7 +402,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
                                   coeff_max_shift = coeff_max_shift)
     }
     fd_curves <- .transform_list(fd_curves,noise_str)
-  } else if(!is.null(noise_type)){
+  } else {
     stop("\'noise_type\' must be choosen between \'coeff\' and \'pointwise\'")
   }
   return(fd_curves = fd_curves)
@@ -741,9 +741,9 @@ setMethod("plot_motifs","motifSimulation",
 })
 
 #' @title to_motifDiscovery
-#' @description Transforms the result of generateCurves into a format suitable for clusterMotif.
+#' @description Transforms the result of generateCurves into a format suitable for discoverMotifs
 #' @param curves A list coming from the generateCurves function.
-#' @return A list containing all curves formatted to be suitable for input into the clusterMotif function.
+#' @return A list containing all curves formatted to be suitable for input into the discoverMotifs function.
 #' @export
 #' @examples
 #' \dontrun{
@@ -755,9 +755,9 @@ setGeneric("to_motifDiscovery", function(curves)
 )
 
 #' @title to_motifDiscovery
-#' @description Transforms the result of generateCurves into a format suitable for clusterMotif.
+#' @description Transforms the result of generateCurves into a format suitable for discoverMotifs
 #' @param curves A list coming from the generateCurves function.
-#' @return A list containing all curves formatted to be suitable for input into the clusterMotif function.
+#' @return A list containing all curves formatted to be suitable for input into the discoverMotifs function.
 #' @export
 #' @examples
 #' \dontrun{

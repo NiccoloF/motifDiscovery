@@ -3,19 +3,23 @@ Type: Package
 Title: Motif Discovery in Functional Data
 Version: 1.0
 Date: 2024-10-05
-Author: Niccolo Feresini, Riccardo Lazzarini,Marzia Angela Cremona, Francesca Chiaromonte
-Maintainer: Niccolo Feresini <niccolo.feresini@gmail.com>
-Description: Method to locally cluster curves and discover functional motifs,
-             i.e. typical “shapes” that may recur several times along and across the curves capturing
-             important local characteristics. In order to identify these shared curve portions, such
-             method leverages ideas from functional data analysis (joint clustering and alignment of
-             curves), bioinformatics (local alignment through the extension of high similarity seeds)
-             and fuzzy clustering (curves belonging to more than one cluster, if they contain more
-             than one typical “shape”). It can employ various dissimilarity measures and incorporate 
-             derivatives in the discovery process, thus exploiting complex facets of shapes.
-             Additionally, the package includes functionality to simulate functional data with embedded motifs. 
-             This feature allows users to create benchmark datasets to test the algorithms, 
-             ensuring robust validation and comparison of motif discovery methods.
+Author: Marzia Angela Cremona, Francesca Chiaromonte, Jacopo Di Iorio, Niccolo Feresini, 
+        Riccardo Lazzarini
+Maintainer: Jacopo Di Iorio <jacopo.di.iorio@emory.edu>
+Description: 
+    This package provides tools for discovering functional motifs and clustering misaligned curves 
+    by implementing two complementary algorithms: ProbKMA and FunBIalign. 
+    ProbKMA (Cremona and Chiaromonte, 2020) is a probabilistic K-means algorithm that leverages 
+    local alignment and fuzzy clustering to identify recurring patterns or motifs across and 
+    within curves, allowing portions of curves to belong to multiple clusters. It efficiently 
+    handles the alignment of curve portions and adapts motif lengths in a data-driven manner, 
+    making it highly flexible for complex functional data. FunBIalign (Di Iorio, Cremona, and 
+    Chiaromonte, 2023) uses hierarchical agglomerative clustering with a functional 
+    generalization of the Mean Squared Residue Score to discover motifs in both single curves 
+    and sets of curves. This approach is particularly adept at identifying local structures and 
+    relationships among curves, with no need for multiple initializations or re-running the algorithm. 
+    The package also includes functionality to simulate functional data with embedded motifs, 
+    allowing users to create benchmark datasets to validate and compare motif discovery methods.
 License: GPL (>= 2)
 Suggests: 
     knitr,
@@ -25,8 +29,8 @@ Encoding: UTF-8
 RoxygenNote: 7.3.2
 Imports: Rcpp (>= 1.0.12),dendextend,fastcluster,
          fda,ggtext,methods,purrr,scales,shinyWidgets,shinybusy,shinyjs,
-         zoo,utils,class,combinat
-Depends: R (>= 2.10),dplyr,data.table,parallel,ggplot2,shiny,progress
+         zoo,utils,class,combinat,data.table,stringr
+Depends: R (>= 2.10),dplyr,parallel,ggplot2,shiny,progress
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20
 LazyData: true

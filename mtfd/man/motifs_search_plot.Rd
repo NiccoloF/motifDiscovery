@@ -9,7 +9,8 @@ motifs_search_plot(
   ylab = "",
   freq_threshold = 5,
   top_n = "all",
-  plot_curves = TRUE
+  plot_curves = TRUE,
+  transformed = FALSE
 )
 }
 \arguments{

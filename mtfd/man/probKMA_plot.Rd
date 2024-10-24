@@ -4,7 +4,14 @@
 \alias{probKMA_plot}
 \title{Plot the Results of probKMA}
 \usage{
-probKMA_plot(probKMA_results, plot, ylab = "", sil_avg = NULL, cleaned = FALSE)
+probKMA_plot(
+  probKMA_results,
+  plot,
+  ylab = "",
+  sil_avg = NULL,
+  cleaned = FALSE,
+  transformed = FALSE
+)
 }
 \arguments{
 \item{probKMA_results}{A list containing the output from the `probKMA` function. This list should include elements such as:

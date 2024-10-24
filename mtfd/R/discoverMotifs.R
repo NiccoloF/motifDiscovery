@@ -1,7 +1,7 @@
-#' @title Functional Motif Discovery with Local Clustering and Alignment
+#' @title Functional Motif Discovery
 #'
 #' @description
-#' The `clusterMotif` function facilitates the discovery of recurring patterns, or motifs, within functional data by employing two sophisticated algorithms: 
+#' The `discoverMotifs` function facilitates the discovery of recurring patterns, or motifs, within functional data by employing two sophisticated algorithms: 
 #' \code{ProbKMA} (Probabilistic K-means with Local Alignment) and \code{funBIalign}. 
 #' These algorithms are designed to identify and cluster functional motifs across multiple curves, leveraging advanced clustering and alignment techniques to handle complex data structures.
 #'
@@ -11,11 +11,11 @@
 #' On the other hand, \code{funBIalign} utilizes hierarchical clustering based on mean squared residue scores to uncover motifs. 
 #' This approach effectively captures the additive nature of functional motifs, considering both portion-specific adjustments and time-varying components to accurately identify recurring patterns.
 #'
-#' By providing a flexible interface that accommodates different clustering paradigms, `clusterMotif` empowers users to perform robust motif discovery tailored to their specific data characteristics and analytical requirements. 
+#' By providing a flexible interface that accommodates different clustering paradigms, `discoverMotifs` empowers users to perform robust motif discovery tailored to their specific data characteristics and analytical requirements. 
 #' Whether opting for the probabilistic and alignment-focused \code{ProbKMA} or the hierarchical and residue-based \code{funBIalign}, users can leverage these methods to extract meaningful and interpretable motifs from their functional datasets.
 #'
 #' @details
-#' The `clusterMotif` function dynamically switches between two advanced motif discovery algorithms based on the user's specification. 
+#' The `discoverMotifs` function dynamically switches between two advanced motif discovery algorithms based on the user's specification. 
 #' Each algorithm employs distinct strategies to identify and cluster motifs within functional data, offering flexibility and adaptability to various analytical scenarios.
 #'
 #' @section Theoretical Background for ProbKMA:
@@ -87,7 +87,8 @@
 #' \describe{
 #'   \item{\code{portion_len}}{An integer specifying the length of curve portions to align. This parameter controls the granularity of alignment, allowing the algorithm to focus on specific segments of the curves for motif discovery.}
 #'   \item{\code{min_card}}{An integer representing the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required for a motif to be considered valid. This ensures that only motifs with sufficient representation across the dataset are retained.}
-#'   \item{\code{cut_off}}{A double that specifies the number of top-ranked motifs to keep based on the ranking criteria, facilitating focused visualization of the most significant motifs.}
+#'   \item{\code{cut_off}}{A double that specifies the number of top-ranked motifs to keep based on the ranking criteria, facilitating focused visualization of the most significant motifs.
+#'                         In particular, all motifs that rank below the cut_off are retained.}
 #' }
 #'
 #' @param Y0 A list containing N vectors (for univariate curves) or N matrices (for multivariate curves) representing the functional data.
@@ -125,7 +126,7 @@
 #' data("simulated200")
 #' 
 #' # Perform motif discovery using ProbKMA
-#' results <- mtfd::clusterMotif(
+#' results <- mtfd::discoverMotifs(
 #'   Y0 = simulated200$Y0,
 #'   method = "ProbKMA",
 #'   stopCriterion = "max",
@@ -143,7 +144,7 @@
 #' )
 #' 
 #' # Modify silhouette threshold and re-run post-processing
-#' results <- mtfd::clusterMotif(
+#' results <- mtfd::discoverMotifs(
 #'   Y0 = simulated200$Y0,
 #'   method = "ProbKMA",
 #'   stopCriterion = "max",
@@ -162,7 +163,7 @@
 #' )
 #' 
 #' # Example 2: Discover motifs using funBIalign
-#' results_funbialign <- mtfd::clusterMotif(
+#' results_funbialign <- mtfd::discoverMotifs(
 #'   Y0 = simulated200$Y0,
 #'   method = "funBIalign",
 #'   stopCriterion = 'Variance',
@@ -171,7 +172,7 @@
 #'   funBIalign_options = list(
 #'     portion_len = 60,
 #'     min_card = 3,
-#'     cut_off = 10
+#'     cut_off = 1.0
 #'   )
 #' )
 #' }
@@ -183,7 +184,7 @@
 #' \href{https://arxiv.org/pdf/2306.04254}{Hierarchical Clustering with Mean Squared Residue Scores}.
 #'
 #' @export
-clusterMotif <- function(Y0,method,stopCriterion,name,plot,
+discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                          probKMA_options = list(),
                          funBIalign_options = list(portion_len = NULL,min_card = NULL,cut_off=NULL),
                          worker_number = NULL){
@@ -1120,7 +1121,6 @@ clusterMotif <- function(Y0,method,stopCriterion,name,plot,
   return Rcpp::List::create(windowData,window_rownames);
 }',depends = "RcppArmadillo")
     # step 1
-    
     window_data_list <- createWindow(full_data,portion_len,worker_number)
     window_data <- window_data_list[[1]]
     rownames(window_data) <- window_data_list[[2]]
