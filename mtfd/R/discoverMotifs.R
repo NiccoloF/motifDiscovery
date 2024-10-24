@@ -1129,7 +1129,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
     window_data <- na.omit(window_data)
     
     # compute numerosity 
-    numerosity <- rep(dim(Y0)[2] - portion_len + 1,times = dim(Y0)[1])
+    numerosity <- rep(dim(full_data)[2] - portion_len + 1,times = dim(full_data)[1])
     removed_rows <- setdiff(window_data_list[[2]],rownames(window_data))
     curve_indices <- as.numeric(gsub("^(\\d+)_.*", "\\1", removed_rows))
     tab <- table(curve_indices)
@@ -1182,7 +1182,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
       // check for right accolites
       arma::uword start = i+1;
       arma::uword end = std::min<int>(i+overlap,outrows-1);
-      scoreData(i,arma::span(start,end)) += M;
+      scoreData(arma::span(start,end),i) += M;
     }
     
     // Multiple curves
@@ -1198,7 +1198,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
       for(int i = until_here; i < until_here + numerosity[j]-1;++i)
       {
         arma::uword start = i+1;
-        arma::uword end = std::min<int>(std::min<int>(i+overlap ,i + (num--)),outrows);
+        arma::uword end = std::min<int>(std::min<int>(i+overlap ,i + (num--)),outrows-1);
         scoreData(arma::span(start,end),i) += M;
       }
       until_here += numerosity[j];
