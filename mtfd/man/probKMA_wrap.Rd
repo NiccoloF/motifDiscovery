@@ -99,13 +99,13 @@ probKMA_wrap(
 
 \item{diss}{Dissimilarity measure to be used. Default is 'd0_2'.}
 
-\item{transformed}{A logical value indicating whether the data has been transformed. Default is `FALSE`.}
-
-\item{v_init}{Initial values for the motifs. Default is `NULL`.}
+\item{transformed}{A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.}
 
 \item{align}{A logical value indicating whether to align the curves. Default is `TRUE`.}
 
 \item{n_threads}{Number of threads to use for parallel processing. Default is 1.}
+
+\item{V_init}{Initial values for the motifs. Default is `NULL`.}
 }
 \value{
 A list containing:

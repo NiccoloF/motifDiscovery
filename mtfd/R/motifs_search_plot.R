@@ -27,6 +27,8 @@
 #'   motifs highlighted. If `TRUE`, the function overlays motifs on the curves for better visualization.
 #'   Default is `TRUE`.
 #'
+#' @param transformed A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.
+#'
 #' @return
 #' The function does not return a value but generates plots visualizing the motifs and their occurrences
 #' across different dimensions. It creates separate plots for each dimension and includes legends for
@@ -103,7 +105,6 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
   V_frequencies=motifs_search_results$V_frequencies[index_plot]
   V_mean_diss=motifs_search_results$V_mean_diss[index_plot]
   R_motifs=motifs_search_results$R_motifs[index_plot]
-  browser()
   ### plot motifs ############################################################################################
   layout(matrix(c(seq_len(d),rep(d+1,d)),ncol=2),widths=c(7,1))
   lapply(seq_len(d),
@@ -264,6 +265,8 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
                  plot(y0[,j],type='l',main=paste('Region',i,'-',ylab,"-","Dimension:",j),ylab=ylab)
                  for(k in seq_along(motifs_in_curve)){
                    lines(s_i[k]-1+seq_len(V_length[motifs_in_curve[k]]),Y_inters_k[[k]][,j],col=rainbow(K)[motifs_in_curve[k]],lwd=5)
+                   rect(s_i[k], min(y0[,j],na.rm=TRUE)-10, tail(s_i[k]-1+seq_len(V_length[motifs_in_curve[k]]), n=1), max(y0[,j],na.rm=TRUE)+10,
+                        border = scales::alpha(rainbow(K)[motifs_in_curve[k]], 0.05), col = scales::alpha(rainbow(K)[motifs_in_curve[k]], 0.05))
                  }
                })
         plot.new()

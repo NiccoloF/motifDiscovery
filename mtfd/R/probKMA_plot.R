@@ -32,6 +32,8 @@
 #'
 #' @param cleaned A logical value indicating whether to plot only the cleaned motifs (`TRUE`) or all motifs (`FALSE`). When set to `TRUE`, the function highlights motifs that have been cleaned based on predefined criteria. Defaults to `FALSE`.
 #'
+#' @param transformed A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.
+#'
 #' @return 
 #' The function generates a series of plots visualizing:
 #' \itemize{
@@ -118,7 +120,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
       #### Plot curves all together with the embedded motifs############################################################################################
       mapply(function(v0,v_dom,s_k,p_clean_k,k)
         {
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
         keep=which(p_clean_k==1)
         # matrix extension (eventually)
         full_mat <- probKMA_results$Y0
@@ -140,7 +142,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
-                 matplot(full_mat[,seq(j,ncol(full_mat),by = d)],col=scales::alpha('gray30',0.15),lwd=1.5,lty=1,type = 'l',
+                 matplot(full_mat[,seq(j,ncol(full_mat),by = d)],col=scales::alpha('gray30',0.30),lwd=1.5,lty=1,type = 'l',
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
                                      ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
@@ -152,7 +154,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                  for (i in 1:ncol(dom_sequence)) {
                    lines(dom_sequence[,i],univariate_mat[dom_sequence[,i],i], col = 'red',lwd=2.5)
                    rect(dom_sequence[1,i], min(univariate_mat,na.rm=TRUE)-10, tail(dom_sequence[,i], n=1), max(univariate_mat,na.rm=TRUE)+10,
-                        border = scales::alpha("firebrick3", 0.05), col = scales::alpha("firebrick3", 0.05))
+                        border = scales::alpha(rainbow(length(keep))[i], 0.05), col = scales::alpha(rainbow(length(keep))[i], 0.05))
                  }
                  title(sub = paste('Curves & ', 'Motif:', k, ' - Dimension:', j))
                  par(mar=c(0,0,0,0))
@@ -164,7 +166,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
     
       #### for each curve plot the embedded motifs  ############################################################################################
       mapply(function(curve_i,s_i,p_clean_i,i){
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
         lapply(seq_len(d),
                function(j)
                  {
@@ -203,7 +205,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
         return()},probKMA_results$Y0[ has_a_motif] # consider curves with at least one embedded motif
                   ,S_clean_i[ has_a_motif],P_clean_i[has_a_motif],seq_len(N)[has_a_motif])
       mapply(function(v,v_dom,s_k,p_clean_k,k){
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
         keep=which(p_clean_k==1)
         Y_inters_k=mapply(
           function(y,s_k_i,v_dom){
@@ -253,7 +255,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
       ##### Plot curves and derivatives all together with the embedded motifs  ############################################################################################
       mapply(function(v0,v1,v_dom,s_k,p_clean_k,k)
       {
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
         keep=which(p_clean_k==1)
         # matrix extension (eventually)
         full_mat <- probKMA_results$Y0
@@ -278,7 +280,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
-                 matplot(full_mat[,seq(j,ncol(full_mat),by = d)],col=scales::alpha('gray30',0.15),lwd=1.5,lty=1,type = 'l',
+                 matplot(full_mat[,seq(j,ncol(full_mat),by = d)],col=scales::alpha('gray30',0.30),lwd=1.5,lty=1,type = 'l',
                          main=paste0('Curves & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
                                      ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
@@ -290,7 +292,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                  for (i in 1:ncol(dom_sequence)) {
                    lines(dom_sequence[,i],univariate_mat[dom_sequence[,i],i], col = 'red',lwd=2.5)
                    rect(dom_sequence[1,i], min(univariate_mat,na.rm=TRUE)-10, tail(dom_sequence[,i], n=1), max(univariate_mat,na.rm=TRUE)+10,
-                        border = scales::alpha("firebrick3", 0.05), col = scales::alpha("firebrick3", 0.05))
+                        border = scales::alpha(rainbow(length(keep))[i], 0.05), col = scales::alpha(rainbow(length(keep))[i], 0.05))
                  }
                  title(sub = paste('Curves & ', 'Motif_', k, ' - Dimension:', j))
                  par(mar=c(0,0,0,0))
@@ -302,7 +304,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
         lapply(seq_len(d),
                function(j){
                  par(mar=c(3,4,4,2)+0.1)
-                 matplot(full_mat_dev[,seq(j,ncol(full_mat_dev),by = d)],col=scales::alpha('gray30',0.15),lwd=1.5,lty=1,type = 'l',
+                 matplot(full_mat_dev[,seq(j,ncol(full_mat_dev),by = d)],col=scales::alpha('gray30',0.30),lwd=1.5,lty=1,type = 'l',
                          main=paste0('Derivatives & ','Motif_',k,' - Dimension:',j,'\n',
                                      'Number of instances: ',ncol(dom_sequence),' - sil_avg: ',
                                      ifelse(is.null(sil_avg),"",round(sil_avg[k], digits = 3))))
@@ -314,7 +316,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                  for (i in 1:ncol(dom_sequence)) {
                    lines(dom_sequence[,i],univariate_mat[dom_sequence[,i],i], col = 'red',lwd=2.5)
                    rect(dom_sequence[1,i], min(univariate_mat,na.rm=TRUE)-10, tail(dom_sequence[,i], n=1), max(univariate_mat,na.rm=TRUE)+10,
-                        border = scales::alpha("firebrick3", 0.05), col = scales::alpha("firebrick3", 0.05))
+                        border = scales::alpha(rainbow(length(keep))[i], 0.05), col = scales::alpha(rainbow(length(keep))[i], 0.05))
                  }
                  title(sub = paste('Derivatives & ', 'Motif:', k, ' - Dimension:', j))
                  par(mar=c(0,0,0,0))
@@ -329,7 +331,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
     ##### for each curve plot the embedded motifs  ############################################################################################
     mapply(function(curve_i,dev_i,s_i,p_clean_i,i){
       #plot curve with embedded motif 
-      layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+      layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
       lapply(seq_len(d),
              function(j)
              {
@@ -367,7 +369,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
              })
       
       #plot derivative with embedded motif 
-      layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+      layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
       lapply(seq_len(d),
              function(j)
              {
@@ -433,7 +435,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                              matrix(NA,nrow=sum(index>y_len),ncol=d))
             return(Y_inters_k)},
           probKMA_results$Y1[keep],s_k[keep],MoreArgs=list(v_dom),SIMPLIFY=FALSE)
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
         Y0_diff_k=lapply(Y0_inters_k,
                          function(Y0_inters_k){
                            y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
@@ -502,7 +504,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                            matrix(NA,nrow=sum(index>y_len),ncol=d))
           return(Y_inters_k)},
           probKMA_results$Y0,s_k,MoreArgs=list(v_dom),SIMPLIFY=FALSE)
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
         Y0_diff_k=lapply(Y_inters_k,
                          function(Y0_inters_k){
                            y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
@@ -525,7 +527,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                                            Y_inters_k, Y0_diff_k, SIMPLIFY=FALSE) )
                  }else{
                    y_plot[v_dom,]=Reduce('cbind',lapply(Y_inters_k,function(Y_inters_k) Y_inters_k[,j]))}
-                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]),ylim = c(0,1))
+                 matplot(y_plot,type='l',col=seq_len(N)+1,lwd=round(5*p_k,2),lty=1,ylab=ylab[j],main=paste('Motif',k,'-',ylab[j]))
                  points(v[,j],type='l',col='black',lwd=7,lty=1)
                  par(mar=c(0,0,0,0))
                  plot.new()
@@ -555,7 +557,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
                            matrix(NA,nrow=sum(index>y_len),ncol=d))
           return(Y_inters_k)},
           probKMA_results$Y1,s_k,MoreArgs=list(v_dom),SIMPLIFY=FALSE)
-        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+        layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
         Y0_diff_k=lapply(Y0_inters_k,
                          function(Y0_inters_k){
                            y0_min=apply(Y0_inters_k, 2, min, na.rm = TRUE)
@@ -610,7 +612,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
     }
   }
   
-  layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+  layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
   ### plot motifs ############################################################################################
   if(cleaned){
     lapply(seq_len(d),
@@ -640,7 +642,7 @@ probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE
              return()})
   }
   if(!is.null(probKMA_results$V1[[1]])){
-    layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(7,1))
+    layout(matrix(1:(2*d),ncol=2,byrow=TRUE),widths=c(8.5,1))
     if(cleaned){
       lapply(seq_len(d),
              function(j){

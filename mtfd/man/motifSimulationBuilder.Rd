@@ -23,7 +23,7 @@ motifSimulationBuilder(
 
 \item{mot_details}{A list outlining the definitions of the motifs to be included. Each motif is characterized by its length, a set of coefficients that may be optionally specified, and the number of occurrences. These occurrences can be indicated either by specific positions within the curves or by a total count. In the latter case, the algorithm will randomly position the motifs throughout the curves (mandatory).}
 
-\item{norder}{An integer specifying the order of the B-splines (mandatory).}
+\item{norder}{An integer specifying the order of the B-splines (default = 3).}
 
 \item{coeff_min}{Additive coefficients to be incorporated into the generation of coefficients for the background curves (default = -15).}
 

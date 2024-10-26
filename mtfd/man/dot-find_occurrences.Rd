@@ -32,7 +32,7 @@ of the shifted motif and the curves.}
 
 \item{use1}{A logical value indicating whether to use the second component of the curves (i.e., \( Y1 \) and \( v1 \)).}
 
-\item{transformed}{A logical value indicating whether the curves have been normalized prior to dissimilarity calculation.}
+\item{transformed}{A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.}
 }
 \value{
 A matrix with three columns:

@@ -6,8 +6,7 @@ Date: 2024-10-05
 Author: Marzia Angela Cremona, Francesca Chiaromonte, Jacopo Di Iorio, Niccolo Feresini, 
         Riccardo Lazzarini
 Maintainer: Jacopo Di Iorio <jacopo.di.iorio@emory.edu>
-Description: 
-    This package provides tools for discovering functional motifs and clustering misaligned curves 
+Description: This package provides tools for discovering functional motifs and clustering misaligned curves 
     by implementing two complementary algorithms: ProbKMA and FunBIalign. 
     ProbKMA (Cremona and Chiaromonte, 2020) is a probabilistic K-means algorithm that leverages 
     local alignment and fuzzy clustering to identify recurring patterns or motifs across and 

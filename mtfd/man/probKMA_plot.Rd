@@ -38,6 +38,8 @@ probKMA_plot(
 \item{sil_avg}{A numeric vector containing the average silhouette scores for each embedded motif. This parameter is used to annotate the plots with silhouette information. Defaults to `NULL`, meaning no silhouette scores are displayed.}
 
 \item{cleaned}{A logical value indicating whether to plot only the cleaned motifs (`TRUE`) or all motifs (`FALSE`). When set to `TRUE`, the function highlights motifs that have been cleaned based on predefined criteria. Defaults to `FALSE`.}
+
+\item{transformed}{A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.}
 }
 \value{
 The function generates a series of plots visualizing:
