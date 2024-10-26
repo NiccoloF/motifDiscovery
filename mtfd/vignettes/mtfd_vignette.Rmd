@@ -1,18 +1,24 @@
-\documentclass{article}
 ---
 title: "mtfd: Functional Motif Discovery"
 author: "Niccolò Feresini & Riccardo Lazzarini"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
+  rmarkdown::html_vignette: 
     toc: true
     toc_depth: 2
-vignette: >
-  %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{mtfd: Functional Motif Discovery}
-  %\VignetteEngine{knitr::rmarkdown}
+    vignette: > 
+      %\VignetteEncoding{UTF-8}
+      %\VignetteIndexEntry{mtfd: Functional Motif Discovery}
+      %\VignetteEngine{knitr::rmarkdown}
 runtime: shiny
 ---
+
+<style>
+  /* Hide the title, author, and date in the HTML output */
+  h1 {
+    display: none;
+  }
+</style>
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -91,9 +97,10 @@ Below is an overview of the key arguments for the `ProbKMA` algorithm in the `di
 | **set_seed**       | If 'TRUE', sets a random seed to ensure reproducibility.                                                                                          | `FALSE`     |
 | **seed**           | The random seed for initialization (used if set_seed=TRUE).                                                                                       | `1`         |
 | **exe_print**      | If 'TRUE' and worker_number is equal to one, prints execution details for each iteration.                                                         | `FALSE`     |
-| **transformed**    | mandatory                                                                                                                                         | mandatory   |
-| **V_init**         | mandatory                                                                                                                                         | mandatory   |
-| **n_init_motif**   | mandatory                                                                                                                                         | mandatory   |
+| **transformed**    | A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes.
+                                                                                                                                         | NULL   |
+| **V_init**         | A list of motif sets provided as specific initializations for clustering rather than using random initializations. If `n_init` is specified as greater than `n_init_motif`, the remaining initializations will be randomly. generated.                                                                                                                                         | NULL   |
+| **n_init_motif**   | The number of initial motif sets from `V_init` to be used directly as starting points in clustering.                                                                                                                                         | NULL   |
 
 ### Example Usage
 
@@ -102,11 +109,11 @@ Here is an example showing a possible use of `discoverMotifs` with **ProbKMA** :
 ```{r basic example of Probkma,eval = FALSE}
 library(mtfd)
 
-diss = 'd0_d1_L2' 
-alpha = 0.5
+diss <- 'd0_d1_L2' 
+alpha <- 0.5
 # run probKMA multiple times (2x3x10=60 times)
-K = c(2,3) 
-c = c(61,51) 
+K <- c(2,3) 
+c <- c(61,51) 
 n_init = 10 
 
 data("simulated200") # load simulated data
@@ -120,13 +127,49 @@ results = mtfd::discoverMotifs(Y0=simulated200$Y0,method="ProbKMA",stopCriterion
 
 In this scenario, all plots generated during the algorithm's execution will be saved in the folder specified by the 'name' parameter. Additionally, the function handles the entire post-processing phase, including filtering patterns and searching for occurrences within the curves, presenting both intermediate and final results along with their corresponding plots. If the user chooses to only perform the post-processing by adjusting parameters like 'sil_threshold,' it is sufficient to call the same discoverMotifs function with the updated parameters. The algorithm will automatically load the previously computed results (which are computationally expensive) and proceed with the post-processing, returning updated plots and results.
 
-```{r Post-processing,eval = FALSE}
-# change the value of sil_threshold and re-run the post-processing part.
-results = mtfd::discoverMotifs(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
-                             name = './results_ProbKMA_VectorData/',plot = TRUE,
-                             probKMA_options = list(Y1=simulated200$Y1,K=K,c=c,n_init=n_init,
-                                                    diss=diss,alpha=alpha,sil_threshold=0.5),
-                             worker_number = NULL)
+Below is an example of how to call `discoverMotifs` with a customized `V_init` and `transformed = TRUE`:
+
+```{r example_V_init_transformed, eval = FALSE}
+library(mtfd)
+
+# Define parameters
+c <- 5                
+K <- 2                
+n_init <- 2
+diss <- 'd0_d1_L2' 
+alpha <- 0.5
+
+# Load sample data
+data("simulated200")
+
+motif1 <- list(v0 = matrix(runif(c * 4), nrow = c, ncol = 1))
+motif2 <- list(v0 = matrix(runif(c * 4), nrow = c, ncol = 1))
+
+# Optional: Include `v1` if using a dissimilarity measure that requires it
+motif1$v1 <- matrix(runif(c * 4), nrow = c, ncol = 1)
+motif2$v1 <- matrix(runif(c * 4), nrow = c, ncol = 1)
+
+# Define V_init with multiple initial motif sets, matching `K` motifs per initialization
+V_init <- list(
+  list(motif1, motif2),   # Initialization 1 with 2 motifs
+  list(motif1, motif2)    # Initialization 2 with 2 motifs
+)
+
+# Run discoverMotifs 
+results <- mtfd::discoverMotifs(
+  Y0 = simulated200$Y0,
+  method = "ProbKMA",
+  stopCriterion = "max",
+  name = './results_ProbKMA_VectorData/',
+  plot = TRUE,
+  probKMA_options = list(
+    Y1 = simulated200$Y1, K = K, c = c, n_init = n_init,
+    diss = diss, alpha = alpha, sil_threshold = 0.5,
+    V_init = V_init,          
+    transformed = TRUE        
+  ),
+  worker_number = NULL
+)
 ```
 
 ### Key Arguments for funBIalign

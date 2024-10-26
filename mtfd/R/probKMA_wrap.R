@@ -31,8 +31,8 @@
 #' @param exe_print A logical value indicating whether to print execution details. Default is `FALSE`.
 #' @param set_seed A logical value indicating whether to set the random seed. Default is `FALSE`.
 #' @param diss Dissimilarity measure to be used. Default is 'd0_2'.
-#' @param transformed A logical value indicating whether the data has been transformed. Default is `FALSE`.
-#' @param v_init Initial values for the motifs. Default is `NULL`.
+#' @param transformed A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.
+#' @param V_init Initial values for the motifs. Default is `NULL`.
 #' @param align A logical value indicating whether to align the curves. Default is `TRUE`.
 #' @param n_threads Number of threads to use for parallel processing. Default is 1.
 #'

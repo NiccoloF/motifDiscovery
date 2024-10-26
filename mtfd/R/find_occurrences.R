@@ -21,7 +21,7 @@
 #'             of the shifted motif and the curves.
 #' @param use0 A logical value indicating whether to use the first component of the curves (i.e., \( Y0 \) and \( v0 \)).
 #' @param use1 A logical value indicating whether to use the second component of the curves (i.e., \( Y1 \) and \( v1 \)).
-#' @param transformed A logical value indicating whether the curves have been normalized prior to dissimilarity calculation.
+#' @param transformed A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.
 #' 
 #' @return A matrix with three columns:
 #'         - \code{curve}: The ID of the curve where the motif was found.

@@ -35,7 +35,7 @@
 #'    \item \code{seed} Seed for random number generation.
 #'    \item \code{exe_print} Boolean to control printing of execution messages.
 #'    \item \code{set_seed} Boolean to control whether to set a random seed.
-#'    \item \code{transformed} Logical indicating if the data is transformed.
+#'    \item{\code{transformed}}{A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.}
 #'    \item \code{n_threads} Number of threads for parallel processing.
 #'  }
 #' @param diss A character string indicating the type of dissimilarity measure to be used. 

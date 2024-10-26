@@ -19,7 +19,7 @@
 #'     \item{hclust_res}{A hierarchical clustering object obtained from `hclust`.}
 #'     \item{R_all}{A numeric value representing the global radius used for dendrogram cutting.}
 #'     \item{w}{A numeric vector of weights for the dissimilarity index across different dimensions.}
-#'     \item{transformed}{A logical value indicating if the data has been normalized.}
+#'     \item{transformed}{A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.}
 #'     \item{max_gap}{A numeric value defining the maximum allowed gap in distances for cluster separation.}
 #'     \item{k_knn}{An integer specifying the number of neighbors for K-Nearest Neighbors classification.}
 #'     \item{votes_knn_Rm}{A numeric value defining the probability threshold for KNN-based radius determination.}

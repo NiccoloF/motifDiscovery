@@ -103,7 +103,7 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
   V_frequencies=motifs_search_results$V_frequencies[index_plot]
   V_mean_diss=motifs_search_results$V_mean_diss[index_plot]
   R_motifs=motifs_search_results$R_motifs[index_plot]
-  
+  browser()
   ### plot motifs ############################################################################################
   layout(matrix(c(seq_len(d),rep(d+1,d)),ncol=2),widths=c(7,1))
   lapply(seq_len(d),
