@@ -1,6 +1,6 @@
 \documentclass{article}
 ---
-title: "Index of Vignettes for mtfd"
+title: "Index of Vignettes for funMoDisco"
 author: "Niccolò Feresini & Riccardo Lazzarini"
 output:  
   rmarkdown::html_vignette:  
@@ -8,14 +8,14 @@ output:
     toc_depth: 2  
 vignette: >  
   %\VignetteEncoding{UTF-8}  
-  %\VignetteIndexEntry{Index of Vignettes for mtfd}  
+  %\VignetteIndexEntry{Index of Vignettes for funMoDisco}  
   %\VignetteEngine{knitr::rmarkdown}  
 ---
 
 # Vignettes
 
 This package includes the following vignettes:
-- [mtfd: Functional Motif Discovery](mtfd_vignette.Rmd)
+- [funMoDisco: Functional Motif Discovery](funMoDisco_vignette.Rmd)
 
 # References
 

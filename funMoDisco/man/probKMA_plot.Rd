@@ -85,7 +85,7 @@ It also supports the visualization of cleaned motifs, which are motifs that have
 \examples{
 \dontrun{
 # Load necessary libraries
-library(mtfd)
+library(funMoDisco)
 
 # Assume `results` is the output from the `probKMA` function
 # and it contains all necessary components.

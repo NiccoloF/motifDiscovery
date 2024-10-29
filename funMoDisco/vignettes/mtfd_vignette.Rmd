@@ -1,5 +1,5 @@
 ---
-title: "mtfd: Functional Motif Discovery"
+title: "funMoDisco: Functional Motif Discovery"
 author: "Niccolò Feresini & Riccardo Lazzarini"
 date: "`r Sys.Date()`"
 output: 
@@ -8,7 +8,7 @@ output:
     toc_depth: 2
     vignette: > 
       %\VignetteEncoding{UTF-8}
-      %\VignetteIndexEntry{mtfd: Functional Motif Discovery}
+      %\VignetteIndexEntry{funMoDisco: Functional Motif Discovery}
       %\VignetteEngine{knitr::rmarkdown}
 runtime: shiny
 ---
@@ -29,16 +29,16 @@ knitr::opts_chunk$set(
 )
 
 # Load the package without startup messages
-suppressPackageStartupMessages(library(mtfd))
+suppressPackageStartupMessages(library(funMoDisco))
 ```
 
 ## Introduction
 
 The **`discoverMotifs`** function serves as the core of the package, offering a robust and efficient implementation of two advanced algorithms: **ProbKMA**(Cremona and Chiaromonte, 2020) and **FunBiAlign**(Di Iorio, Cremona,and Chiaromonte, 2023). Together, these algorithms provide a comprehensive solution for the detection and clustering of recurring patterns within functional data.
 
-In addition to motif discovery, **`mtfd`** allows users to **simulate functional curves with embedded motifs**. The package provides several functions for generating synthetic functional data, which can be useful for testing and benchmarking the motif discovery algorithms. These simulated curves are customizable, allowing users to control the number, length, and complexity of the motifs.
+In addition to motif discovery, **`funMoDisco`** allows users to **simulate functional curves with embedded motifs**. The package provides several functions for generating synthetic functional data, which can be useful for testing and benchmarking the motif discovery algorithms. These simulated curves are customizable, allowing users to control the number, length, and complexity of the motifs.
 
-By the end of this vignette, users will be guide through practical examples and equipped with a solid understanding of how to effectively utilize `mtfd` package for their pattern detection needs.
+By the end of this vignette, users will be guide through practical examples and equipped with a solid understanding of how to effectively utilize `funMoDisco` package for their pattern detection needs.
 
 ## Overview of discoverMotifs
 
@@ -107,7 +107,7 @@ Below is an overview of the key arguments for the `ProbKMA` algorithm in the `di
 Here is an example showing a possible use of `discoverMotifs` with **ProbKMA** :
 
 ```{r basic example of Probkma,eval = FALSE}
-library(mtfd)
+library(funMoDisco)
 
 diss <- 'd0_d1_L2' 
 alpha <- 0.5
@@ -118,7 +118,7 @@ n_init = 10
 
 data("simulated200") # load simulated data
 
-results = mtfd::discoverMotifs(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
+results = funMoDisco::discoverMotifs(Y0=simulated200$Y0,method="ProbKMA",stopCriterion="max",
                              name = './results_ProbKMA_VectorData/',plot = TRUE,
                              probKMA_options = list(Y1=simulated200$Y1,K=K,c=c,n_init=n_init,
                                                     diss=diss,alpha=alpha),
@@ -130,7 +130,7 @@ In this scenario, all plots generated during the algorithm's execution will be s
 Below is an example of how to call `discoverMotifs` with a customized `V_init` and `transformed = TRUE`:
 
 ```{r example_V_init_transformed, eval = FALSE}
-library(mtfd)
+library(funMoDisco)
 
 # Define parameters
 c <- 5                
@@ -156,7 +156,7 @@ V_init <- list(
 )
 
 # Run discoverMotifs 
-results <- mtfd::discoverMotifs(
+results <- funMoDisco::discoverMotifs(
   Y0 = simulated200$Y0,
   method = "ProbKMA",
   stopCriterion = "max",
@@ -187,11 +187,11 @@ Below is an overview of the key arguments for the `ProbKMA` algorithm in the `di
 Here is an example showing a possible use of `discoverMotifs` with **funBIalign** :
 
 ```{r example_funbialign,eval = FALSE}
-library(mtfd)
+library(funMoDisco)
 
 data("simulated200") # load simulated data
 
-funBialignResult <- mtfd::discoverMotifs(Y0=simulated200$Y0,method="FunBIalign",
+funBialignResult <- funMoDisco::discoverMotifs(Y0=simulated200$Y0,method="FunBIalign",
                                        stopCriterion = 'fMRS',
                                        name = './results_FunBialign',plot = TRUE,
                                        funBIalign_options = list(portion_len=60,min_card=3,cut_off = 1.0))
@@ -259,16 +259,16 @@ The five main types of use are considered below.
 ### 0) Special case: No motifs
 
 ```{r no_motifs}
-library(mtfd)
+library(funMoDisco)
 
 mot_len <- 100
 mot_details <- NULL # or list()
 
-builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details)
+builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details)
 
-curves <- mtfd::generateCurves(builder) 
+curves <- funMoDisco::generateCurves(builder) 
 
-mtfd::plot_motifs(builder,curves,name = "plots_0")
+funMoDisco::plot_motifs(builder,curves,name = "plots_0")
 ```
 
 ```{r display_pdf_0, echo=FALSE, out.width="100%",out.height="100%"}
@@ -278,7 +278,7 @@ knitr::include_graphics("plots_0.pdf")
 ### 1) Set the motif position and add pointwise noise
 
 ```{r motif_position_pointiwise_error}
-library(mtfd)
+library(funMoDisco)
 
 mot_len <- 100 
 # struct specifying the motif ID,the number of curve and the relative knot position
@@ -315,12 +315,12 @@ noise_str <- list(rbind(
     rep(1.0, 100), 
     rep(5.0, 100)))
   
-builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
+builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details,
                                         distribution = 'beta')
 
-curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str=noise_str) 
+curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str=noise_str) 
 
-mtfd::plot_motifs(builder,curves,"plots_1")
+funMoDisco::plot_motifs(builder,curves,"plots_1")
 ```
 
 ```{r display_pdf_1, echo=FALSE, out.width="100%",out.height="100%"}
@@ -330,7 +330,7 @@ knitr::include_graphics("plots_1.pdf")
 ### 2) Set the motif position and add coeff noise
 
 ```{r motif_position_coeff_error}
-library(mtfd)
+library(funMoDisco)
 
 mot_len <- 100
 # struct specifying the motif ID,the number of curve and the relative knot position
@@ -359,12 +359,12 @@ mot_details <- list(mot1,mot2)
 # VECTOR NOISE 
 noise_str <- list(c(0.1,1.0,5.0),c(0.0,0.0,0.0))
 
-builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
+builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details,
                                         distribution = 'beta')
 
-curves <- mtfd::generateCurves(builder,noise_type = 'coeff',noise_str,only_der = FALSE)
+curves <- funMoDisco::generateCurves(builder,noise_type = 'coeff',noise_str,only_der = FALSE)
 
-mtfd::plot_motifs(builder,curves,"plots_2")
+funMoDisco::plot_motifs(builder,curves,"plots_2")
 ```
 
 ```{r display_pdf_2, echo=FALSE, out.width="100%",out.height="100%"}
@@ -374,7 +374,7 @@ knitr::include_graphics("plots_2.pdf")
 ### 3) Random motif position and add pointwse noise
 
 ```{r random_position_pointiwise_error}
-library(mtfd)
+library(funMoDisco)
 
 mot_len <- 100
 
@@ -391,12 +391,12 @@ mot_details <- list(mot1,mot2)
 noise_str <- list(rbind(rep(2, 100)), 
                   rbind(rep(0.5, 100)))
 
-builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
+builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details,
                                         distribution = 'beta')
 
-curves <- mtfd::generateCurves(builder,noise_type = 'pointwise',noise_str,only_der = FALSE)
+curves <- funMoDisco::generateCurves(builder,noise_type = 'pointwise',noise_str,only_der = FALSE)
 
-mtfd::plot_motifs(builder,curves,"plots_3")
+funMoDisco::plot_motifs(builder,curves,"plots_3")
 ```
 
 ```{r display_pdf_3, echo=FALSE, out.width="100%",out.height="100%"}
@@ -406,7 +406,7 @@ knitr::include_graphics("plots_3.pdf")
 ### 4) Random motif position and add coeff noise
 
 ```{r random_position_coeff_error}
-library(mtfd)
+library(funMoDisco)
 
 mot_len <- 100
 mot1 <- list("len" = mot_len, 
@@ -423,12 +423,12 @@ mot_details <- list(mot1,mot2)
 # VECTOR NOISE 
 noise_str <- list(c(0.1,5.0,10.0),c(0.1,5.0,10.0))
 
-builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
+builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details,
                                         distribution = 'beta')
 
-curves <- mtfd::generateCurves(builder,noise_type = 'coeff',noise_str,only_der = FALSE)
+curves <- funMoDisco::generateCurves(builder,noise_type = 'coeff',noise_str,only_der = FALSE)
 
-mtfd::plot_motifs(builder,curves,"plots_4")
+funMoDisco::plot_motifs(builder,curves,"plots_4")
 ```
 
 ```{r display_pdf_4, echo=FALSE, out.width="100%",out.height="100%"}
@@ -440,13 +440,13 @@ knitr::include_graphics("plots_4.pdf")
 In addition to the functions previously described, the package includes a helper function that facilitates the direct transformation of the output from 'generateCurves' into a format suitable for 'discoverMotifs'. This function generates a comprehensive list that encompasses all curves, each containing the embedded patterns corresponding to various tested noise levels.
 
 ```{r to_motifDiscovery,eval = FALSE}
-result <- mtfd::to_motifDiscovery(curves)
+result <- funMoDisco::to_motifDiscovery(curves)
 ```
 
 Additionally, a Shiny app is available, serving as a graphical user interface (GUI) that enables users to execute all the previously mentioned functions in a straightforward and intuitive manner. The app consistently provides summary plots, enhancing the user experience.
 
 ```{r shiny_app,eval = FALSE}
-library(mtfd)
+library(funMoDisco)
 
 motif_str <- rbind.data.frame(c(1, 1, 20),
                               c(1, 1, 2),
@@ -473,9 +473,9 @@ mot_details <- list(mot1,mot2)
 noise_str <- list(rbind(rep(2, 100),c(rep(0.1,50),rep(2, 50))), 
                   rbind(rep(0.0, 150),rep(5.0, 150)))
   
-mtfd::motifSimulationApp(noise_str,mot_details)
+funMoDisco::motifSimulationApp(noise_str,mot_details)
 ```
 
 ### Conclusion
 
-The **`discoverMotifs`** function is a powerful tool for discovering functional motifs in complex datasets. With its flexibility, users can run multiple initializations, customize clustering parameters, simulate functional curves with motifs, and visualize the results in an intuitive way. Whether using **ProbKMA** or **funBIalign**, the `mtfd` package provides a robust solution for analyzing functional data and uncovering hidden patterns.
+The **`discoverMotifs`** function is a powerful tool for discovering functional motifs in complex datasets. With its flexibility, users can run multiple initializations, customize clustering parameters, simulate functional curves with motifs, and visualize the results in an intuitive way. Whether using **ProbKMA** or **funBIalign**, the `funMoDisco` package provides a robust solution for analyzing functional data and uncovering hidden patterns.

@@ -1,4 +1,4 @@
-useDynLib(mtfd, .registration = TRUE)
+useDynLib(funMoDisco, .registration = TRUE)
 
 import(Rcpp)
 import(progress)

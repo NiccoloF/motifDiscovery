@@ -126,7 +126,7 @@
 #' data("simulated200")
 #' 
 #' # Perform motif discovery using ProbKMA
-#' results <- mtfd::discoverMotifs(
+#' results <- funMoDisco::discoverMotifs(
 #'   Y0 = simulated200$Y0,
 #'   method = "ProbKMA",
 #'   stopCriterion = "max",
@@ -144,7 +144,7 @@
 #' )
 #' 
 #' # Modify silhouette threshold and re-run post-processing
-#' results <- mtfd::discoverMotifs(
+#' results <- funMoDisco::discoverMotifs(
 #'   Y0 = simulated200$Y0,
 #'   method = "ProbKMA",
 #'   stopCriterion = "max",
@@ -163,7 +163,7 @@
 #' )
 #' 
 #' # Example 2: Discover motifs using funBIalign
-#' results_funbialign <- mtfd::discoverMotifs(
+#' results_funbialign <- funMoDisco::discoverMotifs(
 #'   Y0 = simulated200$Y0,
 #'   method = "funBIalign",
 #'   stopCriterion = 'Variance',

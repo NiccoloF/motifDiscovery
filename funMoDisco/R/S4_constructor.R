@@ -40,7 +40,7 @@
 #' noise_str <- list(rbind(rep(2, 100)),
 #'                   rbind(rep(0.0, 100)))
 #' 
-#' builder <- mtfd::motifSimulationBuilder(N = 20,len = 300,mot_details,
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details,
 #'                                         distribution = 'beta')
 #' }
 

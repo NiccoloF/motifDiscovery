@@ -31,7 +31,7 @@ The app provides an accessible platform for users to experiment with different m
 \examples{
 \dontrun{
 # Launch the motifSimulationApp with specified noise structure and motif details
-mtfd::motifSimulationApp(noise_str, mot_details)
+funMoDisco::motifSimulationApp(noise_str, mot_details)
 }
 
 }

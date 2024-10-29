@@ -24,7 +24,7 @@
 #' @examples 
 #' \dontrun{
 #' # Launch the motifSimulationApp with specified noise structure and motif details
-#' mtfd::motifSimulationApp(noise_str, mot_details)
+#' funMoDisco::motifSimulationApp(noise_str, mot_details)
 #' }
 #' 
 #' @export
@@ -241,7 +241,7 @@ motifSimulationApp <- function(noise_str,mot_details) {
           stop("Invalid directory path.")
         }
 
-        builder <- mtfd::motifSimulationBuilder(N = N,len = len,
+        builder <- funMoDisco::motifSimulationBuilder(N = N,len = len,
                                                 mot_details = mot_details,
                                                 norder = norder,
                                                 coeff_min = coeff_min,
@@ -249,7 +249,7 @@ motifSimulationApp <- function(noise_str,mot_details) {
                                                 dist_knots = dist_knots,
                                                 min_dist_motifs = min_dist_motifs,
                                                 distribution = distribution)
-        curves <- mtfd::generateCurves(builder,noise_type = noise_type,noise_str=noise_str)
+        curves <- funMoDisco::generateCurves(builder,noise_type = noise_type,noise_str=noise_str)
         
         output_file <- file.path(input$path, "plots.pdf")
         

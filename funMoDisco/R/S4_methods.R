@@ -11,7 +11,7 @@
 #'
 #' Additionally, `generateCurves` allows for the specification of vertical shifts to motifs, enabling the simulation of motifs appearing at different baseline levels within the curves. The function ensures that all generated subcurves meet the minimum motif length requirement, maintaining the integrity of the embedded motifs.
 #'
-#' This function is integral to the `mtfd` package's motif simulation capabilities, providing users with the ability to create complex functional datasets tailored to their specific research or testing needs.
+#' This function is integral to the `funMoDisco` package's motif simulation capabilities, providing users with the ability to create complex functional datasets tailored to their specific research or testing needs.
 #'
 #' @param object An S4 object of class `motifSimulation` that has been previously constructed using the `motifSimulationBuilder` function. This object encapsulates all necessary parameters and configurations for curve and motif generation (mandatory).
 #' @param noise_type A character string specifying the type of noise to add to the curves. Acceptable values are `'pointwise'` for adding noise directly to data points or `'coeff'` for perturbing the coefficients of the basis functions (mandatory).
@@ -42,8 +42,8 @@
 #' # Example 0: Special case with no motifs
 #' mot_len <- 100
 #' mot_details <- NULL  # or list()
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details)
-#' curves <- mtfd::generateCurves(builder)
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)
+#' curves <- funMoDisco::generateCurves(builder)
 #'
 #' # Example 1: Set the motif position and add pointwise noise
 #' # Define motif positions and their respective curves
@@ -75,17 +75,17 @@
 #' )
 #'
 #' # Build the simulation object
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
 #'
 #' # Generate curves with pointwise noise
-#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
 #'
 #' # Example 2: Set the motif position and add coefficient noise
 #' # Define noise structure for coefficient noise
 #' noise_str <- list(c(0.1, 1.0, 5.0), c(0.0, 0.0, 0.0))
 #'
 #' # Generate curves with coefficient noise without vertical shifts
-#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #'
 #' # Example 3: Random motif positions and add pointwise noise
 #' mot1 <- list(
@@ -107,17 +107,17 @@
 #' )
 #'
 #' # Build the simulation object
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
 #'
 #' # Generate curves with pointwise noise and vertical shifts
-#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str, only_der = FALSE)
 #'
 #' # Example 4: Random motif positions and add coefficient noise
 #' # Define noise structure for coefficient noise
 #' noise_str <- list(c(0.1, 5.0, 10.0), c(0.1, 5.0, 10.0))
 #'
 #' # Generate curves with coefficient noise and vertical shifts
-#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #' }
 setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL,seed_background = 777,seed_motif = 43213,
                                       only_der = TRUE,coeff_min_shift = -10,coeff_max_shift = 10) {
@@ -138,7 +138,7 @@ setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL
 #'
 #' Additionally, `generateCurves` allows for the specification of vertical shifts to motifs, enabling the simulation of motifs appearing at different baseline levels within the curves. The function ensures that all generated subcurves meet the minimum motif length requirement, maintaining the integrity of the embedded motifs.
 #'
-#' This function is integral to the `mtfd` package's motif simulation capabilities, providing users with the ability to create complex functional datasets tailored to their specific research or testing needs.
+#' This function is integral to the `funMoDisco` package's motif simulation capabilities, providing users with the ability to create complex functional datasets tailored to their specific research or testing needs.
 #'
 #' @param object An S4 object of class `motifSimulation` that has been previously constructed using the `motifSimulationBuilder` function. This object encapsulates all necessary parameters and configurations for curve and motif generation (mandatory).
 #' @param noise_type A character string specifying the type of noise to add to the curves. Acceptable values are `'pointwise'` for adding noise directly to data points or `'coeff'` for perturbing the coefficients of the basis functions (mandatory).
@@ -169,8 +169,8 @@ setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL
 #' # Example 0: Special case with no motifs
 #' mot_len <- 100
 #' mot_details <- NULL  # or list()
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details)
-#' curves <- mtfd::generateCurves(builder)
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)
+#' curves <- funMoDisco::generateCurves(builder)
 #'
 #' # Example 1: Set the motif position and add pointwise noise
 #' # Define motif positions and their respective curves
@@ -202,17 +202,17 @@ setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL
 #' )
 #'
 #' # Build the simulation object
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
 #'
 #' # Generate curves with pointwise noise
-#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
 #'
 #' # Example 2: Set the motif position and add coefficient noise
 #' # Define noise structure for coefficient noise
 #' noise_str <- list(c(0.1, 1.0, 5.0), c(0.0, 0.0, 0.0))
 #'
 #' # Generate curves with coefficient noise without vertical shifts
-#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #'
 #' # Example 3: Random motif positions and add pointwise noise
 #' mot1 <- list(
@@ -234,17 +234,17 @@ setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL
 #' )
 #'
 #' # Build the simulation object
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = 'beta')
 #'
 #' # Generate curves with pointwise noise and vertical shifts
-#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str, only_der = FALSE)
 #'
 #' # Example 4: Random motif positions and add coefficient noise
 #' # Define noise structure for coefficient noise
 #' noise_str <- list(c(0.1, 5.0, 10.0), c(0.1, 5.0, 10.0))
 #'
 #' # Generate curves with coefficient noise and vertical shifts
-#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #' }
 setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL, noise_str = NULL,seed_background = 777,seed_motif = 43213,
                                                         only_der = TRUE,coeff_min_shift = -10,coeff_max_shift = 10) {
@@ -415,7 +415,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
 #'
 #' The function supports saving the generated plots to a specified directory, facilitating the creation of reports or the sharing of visual results. By plotting motifs in distinct colors or styles, `plot_motifs` ensures that overlapping motifs and their respective curves remain distinguishable, enhancing the clarity and interpretability of the visualizations.
 #'
-#' This plotting utility is an essential tool within the `mtfd` package, aiding users in the exploratory analysis of simulated functional data and the assessment of motif detection algorithms.
+#' This plotting utility is an essential tool within the `funMoDisco` package, aiding users in the exploratory analysis of simulated functional data and the assessment of motif detection algorithms.
 #'
 #' @param object An S4 object of class `motifSimulation` that has been previously constructed using the `motifSimulationBuilder` function. This object contains all necessary parameters and configurations used during curve and motif generation (mandatory).
 #' @param name Name of the output file.
@@ -431,14 +431,14 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
 #' \dontrun{
 #' # Example: Plotting motifs in generated curves
 #' # Assume 'builder' has been created and 'curves' have been generated using generateCurves
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details)
-#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
 #'
 #' # Specify the directory to save plots
 #' plots_name <- "plots_1"  
 #'
 #' # Generate and save the plots
-#' mtfd::plot_motifs(builder, curves, plots_name)
+#' funMoDisco::plot_motifs(builder, curves, plots_name)
 #' }
 setGeneric("plot_motifs", function(object,curves,name,path=getwd()) 
   standardGeneric("plot_motifs")
@@ -451,7 +451,7 @@ setGeneric("plot_motifs", function(object,curves,name,path=getwd())
 #'
 #' The function supports saving the generated plots to a specified directory, facilitating the creation of reports or the sharing of visual results. By plotting motifs in distinct colors or styles, `plot_motifs` ensures that overlapping motifs and their respective curves remain distinguishable, enhancing the clarity and interpretability of the visualizations.
 #'
-#' This plotting utility is an essential tool within the `mtfd` package, aiding users in the exploratory analysis of simulated functional data and the assessment of motif detection algorithms.
+#' This plotting utility is an essential tool within the `funMoDisco` package, aiding users in the exploratory analysis of simulated functional data and the assessment of motif detection algorithms.
 #'
 #' @param object An S4 object of class `motifSimulation` that has been previously constructed using the `motifSimulationBuilder` function. This object contains all necessary parameters and configurations used during curve and motif generation (mandatory).
 #' @param curves The output list from the `generateCurves` function, containing the generated functional curves with embedded motifs. This parameter provides the data to be visualized (mandatory).
@@ -467,14 +467,14 @@ setGeneric("plot_motifs", function(object,curves,name,path=getwd())
 #' \dontrun{
 #' # Example: Plotting motifs in generated curves
 #' # Assume 'builder' has been created and 'curves' have been generated using generateCurves
-#' builder <- mtfd::motifSimulationBuilder(N = 20, len = 300, mot_details)
-#' curves <- mtfd::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
+#' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
 #'
 #' # Specify the directory to save plots
 #' plots_name <- "plots_1"  
 #'
 #' # Generate and save the plots
-#' mtfd::plot_motifs(builder, curves, plots_name)
+#' funMoDisco::plot_motifs(builder, curves, plots_name)
 #' }
 setMethod("plot_motifs","motifSimulation",
           function(object,curves,name,path=getwd()) {
@@ -747,7 +747,7 @@ setMethod("plot_motifs","motifSimulation",
 #' @export
 #' @examples
 #' \dontrun{
-#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #' formatted_curves <- to_motifDiscovery(curves)
 #' }
 setGeneric("to_motifDiscovery", function(curves) 
@@ -761,7 +761,7 @@ setGeneric("to_motifDiscovery", function(curves)
 #' @export
 #' @examples
 #' \dontrun{
-#' curves <- mtfd::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+#' curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #' formatted_curves <- to_motifDiscovery(curves)
 #' }
 setMethod("to_motifDiscovery",c(curves = "list"), function(curves) {
