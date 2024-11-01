@@ -37,6 +37,5 @@ vignettes/*.pdf
 
 # pdf
 *.pdf
-inst/doc
 /doc/
 /Meta/

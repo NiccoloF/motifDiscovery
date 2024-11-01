@@ -40,14 +40,14 @@
 #'  }
 #' @param diss A character string indicating the type of dissimilarity measure to be used. 
 #' Possible values are: \code{'d0_L2'}, \code{'d1_L2'}, \code{'d0_d1_L2'}.
-#' @param v_init A list containing initial values for the clusters. If provided, it must match the expected structure based on \code{K}.
+#' @param V_init A list containing initial values for the clusters. If provided, it must match the expected structure based on \code{K}.
 #' 
 #' @return A list containing:
 #' \item{FuncData}{A list of processed curves and derivatives after performing the checks.}
 #' \item{Parameters}{A list of validated parameters ready for use in initializing the ProbKMA object.}
 #' 
 #' @export
-initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
+initialChecks <- function(Y0,Y1,P0,S0,params,diss,V_init){
   ### Unpacking #############################################################################
   standardize = params$standardize
   K = params$K
@@ -222,17 +222,17 @@ initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
   if(sum(c<=1))
     stop('Minimum motif lengths should be at least 2.')
   
-  #check v_init
-  if(!is.null(v_init)){
-    if(length(v_init)!=K){
-      v_init=NULL
+  #check V_init
+  if(!is.null(V_init)){
+    if(length(V_init)!=K){
+      V_init=NULL
       warning('The length of the list does not represent the number of clusters. The random
          initialization will be used.')
     }
-    for(i in 1:length(v_init)){
-      if((nrow(v_init[[i]][[1]])!=c)&(nrow(v_init[[i]][[2]])!=c)){ 
+    for(i in 1:length(V_init)){
+      if((nrow(V_init[[i]][[1]])!=c)&(nrow(V_init[[i]][[2]])!=c)){ 
         #use nrow instead of length so it will work in a d-dimensional case as well.
-        v_init=NULL
+        V_init=NULL
         warning('The length of the list does not represent the number of clusters. The random
          initialization will be used.')  
       }
@@ -240,8 +240,8 @@ initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
     
   }
   
-  if(!is.null(v_init)){
-    v_init <- list(lapply(v_init,Y0_f), lapply(v_init,Y1_f))
+  if(!is.null(V_init)){
+    V_init <- list(lapply(V_init,Y0_f), lapply(V_init,Y1_f))
   }
   
   c=rep(c,length.out=K)
@@ -410,7 +410,7 @@ initialChecks <- function(Y0,Y1,P0,S0,params,diss,v_init){
   
   Y <- list("Y0" = lapply(Y,Y0_f),"Y1" = lapply(Y,Y1_f))
 
-  return(list("FuncData" = list("Y"=Y,"P0"=P0,"S0"=S0,"v_init"=v_init),
+  return(list("FuncData" = list("Y"=Y,"P0"=P0,"S0"=S0,"V_init"=V_init),
               "Parameters" = list("standardize"=standardize,"K"=K,"c"=c,"c_max"=c_max,
                                   "iter_max"=iter_max,"quantile"=quantile,
                                   "stopCriterion"=stop_criterion,"m"=m,"w"=w,

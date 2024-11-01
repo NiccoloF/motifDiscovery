@@ -1,35 +1,4 @@
----
-title: "funMoDisco: Functional Motif Discovery"
-author: "Niccolò Feresini"
-date: "`r Sys.Date()`"
-output:
-  pdf_document:
-    toc: true
-    toc_depth: 2
-  html_document:
-    toc: true
-    toc_depth: 2
-vignette: > 
-  %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{funMoDisco: Functional Motif Discovery}
-  %\VignetteEngine{knitr::rmarkdown}
-fontsize: 11pt
-header-includes:
-  - \usepackage{longtable}
-  - \usepackage{tabularx}
-  - \usepackage{geometry} 
-  - \usepackage{booktabs}
-  - \usepackage{xcolor}
----
-
-<style>
-  /* Hide the title, author, and date in the HTML output */
-  h1 {
-    display: none;
-  }
-</style>
-
-```{r setup, include = FALSE}
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -39,27 +8,8 @@ knitr::opts_chunk$set(
 
 # Load the package without startup messages
 suppressPackageStartupMessages(library(funMoDisco))
-```
 
-## Introduction
-
-The **`discoverMotifs`** function serves as the core of the package, offering a robust and efficient implementation of two advanced algorithms: **ProbKMA**(Cremona and Chiaromonte, 2020) and **FunBiAlign**(Di Iorio, Cremona,and Chiaromonte, 2023). Together, these algorithms provide a comprehensive solution for the detection and clustering of recurring patterns within functional data.
-In addition to motif discovery, **`funMoDisco`** allows users to **simulate functional curves with embedded motifs**. The package provides several functions for generating synthetic functional data, which can be useful for testing and benchmarking the motif discovery algorithms. These simulated curves are customizable, allowing users to control the number, length, and complexity of the motifs.
-By the end of this vignette, users will be guide through practical examples and equipped with a solid understanding of how to effectively utilize `funMoDisco` package for their pattern detection needs.
-
-## Overview of discoverMotifs
-
-The `discoverMotifs` function allows users to:
-
--   Choose to run **ProbKMA** multiple times with varying numbers of motifs (`K`) and minimum motif lengths (`c`), or **FunBiAlign** specifying the length (`portion_len`) and the minimum cardinality (`min_card`) of the motifs.
--   Perform clustering based on local alignments of curve segments.
--   Control the clustering process through a wide range of hyperparameters.
-
-## Common Parameters
-
-The following parameters are shared between both algorithms:
-
-```{r table, echo=FALSE, results='asis'}
+## ----table, echo=FALSE, results='asis'----------------------------------------
 library(knitr)
 library(kableExtra)
 
@@ -85,13 +35,8 @@ kable(params, format = "latex", booktabs = TRUE, longtable = TRUE, escape = TRUE
   column_spec(2, width = "25em", background = "#e2e3e5") %>%  # Background for Description
   column_spec(3, width = "10em", background = "#e2e3e5") %>%  # Background for Default
   row_spec(0, bold = TRUE, color = "black", background = "#8DADB8") 
-```
 
-### Key Arguments for ProbKMA
-
-Below is an overview of the key arguments for the `ProbKMA` algorithm in the `discoverMotifs` function:
-
-```{r, message=FALSE, warning=FALSE,echo=FALSE}
+## ----message=FALSE, warning=FALSE,echo=FALSE----------------------------------
 library(knitr)
 
 # Data for the table
@@ -145,95 +90,80 @@ kable(params, format = "latex", booktabs = TRUE, longtable = TRUE, escape = TRUE
   column_spec(2, width = "20em", background = "#e2e3e5") %>%  # Background for Description
   column_spec(3, width = "8em", background = "#e2e3e5") %>%  # Background for Default
   row_spec(0, bold = TRUE, color = "black", background = "#8DADB8") 
-```
 
-### Example Usage
+## ----basic example of Probkma,eval = FALSE------------------------------------
+#  library(funMoDisco)
+#  
+#  diss <- 'd0_d1_L2'
+#  alpha <- 0.5
+#  # run probKMA multiple times (2x3x10=60 times)
+#  K <- c(2,3)
+#  c <- c(61,51)
+#  n_init = 10
+#  
+#  data("simulated200") # load simulated data
+#  
+#  results = funMoDisco::discoverMotifs(
+#    Y0 = simulated200$Y0,
+#    method = "ProbKMA",
+#    stopCriterion = "max",
+#    name = './results_ProbKMA_VectorData/',
+#    plot = TRUE,
+#    probKMA_options = list(
+#      Y1 = simulated200$Y1,
+#      K = K,
+#      c = c,
+#      n_init = n_init,
+#      diss = diss,
+#      alpha = alpha
+#    ),
+#    worker_number = NULL
+#  )
 
-Here is an example showing a possible use of `discoverMotifs` with **ProbKMA** :
+## ----example_V_init_transformed, eval = FALSE---------------------------------
+#  library(funMoDisco)
+#  
+#  # Define parameters
+#  c <- 5
+#  K <- 2
+#  n_init <- 2
+#  diss <- 'd0_d1_L2'
+#  alpha <- 0.5
+#  
+#  # Load sample data
+#  data("simulated200")
+#  
+#  motif1 <- list(v0 = matrix(runif(c * 4), nrow = c, ncol = 1))
+#  motif2 <- list(v0 = matrix(runif(c * 4), nrow = c, ncol = 1))
+#  
+#  # Optional: Include `v1` if using a dissimilarity measure that requires it
+#  motif1$v1 <- matrix(runif(c * 4), nrow = c, ncol = 1)
+#  motif2$v1 <- matrix(runif(c * 4), nrow = c, ncol = 1)
+#  
+#  # Define V_init with multiple initial motif sets, matching `K` motifs
+#  # per initialization
+#  V_init <- list(
+#    list(motif1, motif2),   # Initialization 1 with 2 motifs
+#    list(motif1, motif2)    # Initialization 2 with 2 motifs
+#  )
+#  
+#  # Run discoverMotifs
+#  results <- funMoDisco::discoverMotifs(
+#    Y0 = simulated200$Y0,
+#    method = "ProbKMA",
+#    stopCriterion = "max",
+#    name = './results_ProbKMA_VectorData/',
+#    plot = TRUE,
+#    probKMA_options = list(
+#      Y1 = simulated200$Y1, K = K, c = c, n_init = n_init,
+#      diss = diss, alpha = alpha, sil_threshold = 0.5,
+#      V_init = V_init,
+#      transformed = TRUE
+#    ),
+#    worker_number = NULL
+#  )
 
-```{r basic example of Probkma,eval = FALSE}
-library(funMoDisco)
-
-diss <- 'd0_d1_L2' 
-alpha <- 0.5
-# run probKMA multiple times (2x3x10=60 times)
-K <- c(2,3) 
-c <- c(61,51) 
-n_init = 10 
-
-data("simulated200") # load simulated data
-
-results = funMoDisco::discoverMotifs(
-  Y0 = simulated200$Y0,
-  method = "ProbKMA",
-  stopCriterion = "max",
-  name = './results_ProbKMA_VectorData/',
-  plot = TRUE,
-  probKMA_options = list(
-    Y1 = simulated200$Y1,
-    K = K,
-    c = c,
-    n_init = n_init,
-    diss = diss,
-    alpha = alpha
-  ),
-  worker_number = NULL
-)
-```
-
-In this scenario, all plots generated during the algorithm's execution will be saved in the folder specified by the 'name' parameter. Additionally, the function handles the entire post-processing phase, including filtering patterns and searching for occurrences within the curves, presenting both intermediate and final results along with their corresponding plots. If the user chooses to only perform the post-processing by adjusting parameters like 'sil_threshold,' it is sufficient to call the same discoverMotifs function with the updated parameters. The algorithm will automatically load the previously computed results (which are computationally expensive) and proceed with the post-processing, returning updated plots and results.
-
-Below is an example of how to call `discoverMotifs` with a customized `V_init` and `transformed = TRUE`:
-
-```{r example_V_init_transformed, eval = FALSE}
-library(funMoDisco)
-
-# Define parameters
-c <- 5                
-K <- 2                
-n_init <- 2
-diss <- 'd0_d1_L2' 
-alpha <- 0.5
-
-# Load sample data
-data("simulated200")
-
-motif1 <- list(v0 = matrix(runif(c * 4), nrow = c, ncol = 1))
-motif2 <- list(v0 = matrix(runif(c * 4), nrow = c, ncol = 1))
-
-# Optional: Include `v1` if using a dissimilarity measure that requires it
-motif1$v1 <- matrix(runif(c * 4), nrow = c, ncol = 1)
-motif2$v1 <- matrix(runif(c * 4), nrow = c, ncol = 1)
-
-# Define V_init with multiple initial motif sets, matching `K` motifs 
-# per initialization
-V_init <- list(
-  list(motif1, motif2),   # Initialization 1 with 2 motifs
-  list(motif1, motif2)    # Initialization 2 with 2 motifs
-)
-
-# Run discoverMotifs 
-results <- funMoDisco::discoverMotifs(
-  Y0 = simulated200$Y0,
-  method = "ProbKMA",
-  stopCriterion = "max",
-  name = './results_ProbKMA_VectorData/',
-  plot = TRUE,
-  probKMA_options = list(
-    Y1 = simulated200$Y1, K = K, c = c, n_init = n_init,
-    diss = diss, alpha = alpha, sil_threshold = 0.5,
-    V_init = V_init,          
-    transformed = TRUE        
-  ),
-  worker_number = NULL
-)
-```
-
-### Key Arguments for funBIalign
-
-Below is an overview of the key arguments for the `ProbKMA` algorithm in the `discoverMotifs` function:
-
-```{r, message=FALSE, warning=FALSE,echo=FALSE}
+## ----message=FALSE, warning=FALSE,echo=FALSE----------------------------------
 library(knitr)
 
 # Data for the table
@@ -256,46 +186,26 @@ kable(params, format = "latex", booktabs = TRUE, longtable = TRUE, escape = TRUE
   column_spec(2, width = "18em", background = "#e2e3e5") %>%  # Background for Description
   column_spec(3, width = "8em", background = "#e2e3e5") %>%  # Background for Default
   row_spec(0, bold = TRUE, color = "black", background = "#8DADB8") 
-```
 
-### Example Usage
+## ----example_funbialign,eval = FALSE------------------------------------------
+#  library(funMoDisco)
+#  
+#  data("simulated200") # load simulated data
+#  
+#  funBialignResult <- funMoDisco::discoverMotifs(
+#    Y0 = simulated200$Y0,
+#    method = "FunBIalign",
+#    stopCriterion = 'fMRS',
+#    name = './results_FunBialign',
+#    plot = TRUE,
+#    funBIalign_options = list(
+#      portion_len = 60,
+#      min_card = 3,
+#      cut_off = 1.0
+#    )
+#  )
 
-Here is an example showing a possible use of `discoverMotifs` with **funBIalign** :
-
-```{r example_funbialign,eval = FALSE}
-library(funMoDisco)
-
-data("simulated200") # load simulated data
-
-funBialignResult <- funMoDisco::discoverMotifs(
-  Y0 = simulated200$Y0,
-  method = "FunBIalign",
-  stopCriterion = 'fMRS',
-  name = './results_FunBialign',
-  plot = TRUE,
-  funBIalign_options = list(
-    portion_len = 60,
-    min_card = 3,
-    cut_off = 1.0
-  )
-)
-```
-
-As previously discussed for 'ProbKMA', if the user intends to execute only the post-processing phase related to the re-ranking of discovered motifs, they can simply call the same function, specifying the updated re-ranking criterion and, if necessary, adjusting the new cut_off value.
-
-## Motif Simulation
-
-As previously noted, the package offers the capability to generate synthetic curves embedded with patterns. This functionality facilitates the testing of both algorithms and provides a reliable reference benchmark for performance evaluation.
-
-The algorithm begins by generating random curves utilizing B-splines as the foundational tools. Subsequently, it incorporates either random or positional patterns into these curves. Finally, noise is introduced, which can manifest as either pointwise noise or noise applied to the expansion coefficients of the B-splines. This process effectively simulates real-world scenarios in which each measurement is associated with a degree of noise.
-
-### Key Arguments for motifSimulationBuilder
-
-'motifSimulationBuilder' represents the first function to be called. In particular, it represents the constructor of the S4 class 'motifSimulation'.
-
-Below is an overview of the key arguments:
-
-```{r, message=FALSE, warning=FALSE,echo=FALSE}
+## ----message=FALSE, warning=FALSE,echo=FALSE----------------------------------
 library(knitr)
 
 # Data for the table
@@ -324,15 +234,8 @@ kable(params, format = "latex", booktabs = TRUE, longtable = TRUE, escape = TRUE
   column_spec(2, width = "20em", background = "#e2e3e5") %>%  # Background for Description
   column_spec(3, width = "8em", background = "#e2e3e5") %>%  # Background for Default
   row_spec(0, bold = TRUE, color = "black", background = "#8DADB8") 
-```
 
-### Key Arguments for generateCurves
-
-After calling the constructor of the class, it is then possible to generate the curves with the motifs embedded.
-
-Below is an overview of the key arguments:
-
-```{r, message=FALSE, warning=FALSE,echo=FALSE}
+## ----message=FALSE, warning=FALSE,echo=FALSE----------------------------------
 library(knitr)
 
 # Data for the table
@@ -360,15 +263,8 @@ kable(params, format = "latex", booktabs = TRUE, longtable = TRUE, escape = TRUE
   column_spec(2, width = "20em", background = "#e2e3e5") %>%  # Background for Description
   column_spec(3, width = "8em", background = "#e2e3e5") %>%  # Background for Default
   row_spec(0, bold = TRUE, color = "black", background = "#8DADB8") 
-```
 
-### Key Arguments for plot_motifs
-
-This is the final function to be called. As indicated by its name, it generates summary plots. Each plot displays the background curve, the motif without noise, and the motif with noise highlighted within a shaded region.
-
-Below is an overview of the key arguments:
-
-```{r, message=FALSE, warning=FALSE,echo=FALSE}
+## ----message=FALSE, warning=FALSE,echo=FALSE----------------------------------
 library(knitr)
 
 # Data for the table
@@ -391,15 +287,8 @@ kable(params, format = "latex", booktabs = TRUE, longtable = TRUE, escape = TRUE
   column_spec(2, width = "20em", background = "#e2e3e5") %>%  # Background for Description
   column_spec(3, width = "8em", background = "#e2e3e5") %>%  # Background for Default
   row_spec(0, bold = TRUE, color = "black", background = "#8DADB8") 
-```
 
-## Examples
-
-The five main types of use are considered below.
-
-### 0) Special case: No motifs
-
-```{r no_motifs,message = FALSE, warning = FALSE}
+## ----no_motifs,message = FALSE, warning = FALSE-------------------------------
 library(funMoDisco)
 
 mot_len <- 100
@@ -410,15 +299,11 @@ builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details)
 curves <- funMoDisco::generateCurves(builder) 
 
 funMoDisco::plot_motifs(builder,curves,name = "plots_0")
-```
 
-```{r display_pdf_0, echo=FALSE, out.width="100%",out.height="100%"}
+## ----display_pdf_0, echo=FALSE, out.width="100%",out.height="100%"------------
 knitr::include_graphics("plots_0.pdf")
-```
 
-### 1) Set the motif position and add pointwise noise
-
-```{r motif_position_pointiwise_error,message = FALSE, warning = FALSE}
+## ----motif_position_pointiwise_error,message = FALSE, warning = FALSE---------
 library(funMoDisco)
 
 mot_len <- 100  
@@ -482,15 +367,11 @@ curves <- funMoDisco::generateCurves(
 ) 
 
 funMoDisco::plot_motifs(builder, curves, "plots_1")
-```
 
-```{r display_pdf_1, echo=FALSE, out.width="100%",out.height="100%"}
+## ----display_pdf_1, echo=FALSE, out.width="100%",out.height="100%"------------
 knitr::include_graphics("plots_1.pdf")
-```
 
-### 2) Set the motif position and add coeff noise
-
-```{r motif_position_coeff_error, message=FALSE, warning=FALSE}
+## ----motif_position_coeff_error, message=FALSE, warning=FALSE-----------------
 library(funMoDisco)
 
 mot_len <- 100  
@@ -545,15 +426,11 @@ curves <- funMoDisco::generateCurves(
 )
 
 funMoDisco::plot_motifs(builder, curves, "plots_2")
-```
 
-```{r display_pdf_2, echo=FALSE, out.width="100%",out.height="100%"}
+## ----display_pdf_2, echo=FALSE, out.width="100%",out.height="100%"------------
 knitr::include_graphics("plots_2.pdf")
-```
 
-### 3) Random motif position and add pointwse noise
-
-```{r random_position_pointiwise_error,message = FALSE, warning = FALSE}
+## ----random_position_pointiwise_error,message = FALSE, warning = FALSE--------
 library(funMoDisco)
 
 mot_len <- 100  
@@ -597,15 +474,11 @@ curves <- funMoDisco::generateCurves(
 
 # Plot motifs
 funMoDisco::plot_motifs(builder, curves, "plots_3")
-```
 
-```{r display_pdf_3, echo=FALSE, out.width="100%",out.height="100%"}
+## ----display_pdf_3, echo=FALSE, out.width="100%",out.height="100%"------------
 knitr::include_graphics("plots_3.pdf")
-```
 
-### 4) Random motif position and add coeff noise
-
-```{r random_position_coeff_error,message = FALSE, warning = FALSE}
+## ----random_position_coeff_error,message = FALSE, warning = FALSE-------------
 library(funMoDisco)
 
 mot_len <- 100  
@@ -649,65 +522,52 @@ curves <- funMoDisco::generateCurves(
 
 # Plot motifs
 funMoDisco::plot_motifs(builder, curves, "plots_4")
-```
 
-```{r display_pdf_4, echo=FALSE, out.width="100%",out.height="100%"}
+## ----display_pdf_4, echo=FALSE, out.width="100%",out.height="100%"------------
 knitr::include_graphics("plots_4.pdf")
-```
 
-### Additional functions
+## ----to_motifDiscovery,eval = FALSE-------------------------------------------
+#  result <- funMoDisco::to_motifDiscovery(curves)
 
-In addition to the functions previously described, the package includes a helper function that facilitates the direct transformation of the output from 'generateCurves' into a format suitable for 'discoverMotifs'. This function generates a comprehensive list that encompasses all curves, each containing the embedded patterns corresponding to various tested noise levels.
+## ----shiny_app,eval = FALSE---------------------------------------------------
+#  library(funMoDisco)
+#  
+#  # Define motif structure
+#  motif_str <- rbind.data.frame(
+#    c(1, 1, 20),
+#    c(1, 1, 2),
+#    c(1, 3, 1),
+#    c(1, 2, 1),
+#    c(1, 2, 15),
+#    c(1, 4, 1),
+#    c(1, 5, 1),
+#    c(1, 7, 1),
+#    c(2, 17, 1)
+#  )
+#  
+#  names(motif_str) <- c("motif_id", "curve", "start_break_pos")
+#  
+#  # Define motifs
+#  mot1 <- list(
+#    "len" = 100,                   # Length
+#    "weights" = NULL,              # Weights for the motif
+#    "appearance" = motif_str %>% filter(motif_id == 1)
+#  )
+#  
+#  mot2 <- list(
+#    "len" = 150,
+#    "weights" = NULL,
+#    "appearance" = motif_str %>% filter(motif_id == 2)
+#  )
+#  
+#  mot_details <- list(mot1, mot2)
+#  
+#  # Define noise structure
+#  noise_str <- list(
+#    rbind(rep(2, 100), c(rep(0.1, 50), rep(2, 50))),
+#    rbind(rep(0.0, 150), rep(5.0, 150))
+#  )
+#  
+#  # Run motif simulation app
+#  funMoDisco::motifSimulationApp(noise_str, mot_details)
 
-```{r to_motifDiscovery,eval = FALSE}
-result <- funMoDisco::to_motifDiscovery(curves)
-```
-
-Additionally, a Shiny app is available, serving as a graphical user interface (GUI) that enables users to execute all the previously mentioned functions in a straightforward and intuitive manner. The app consistently provides summary plots, enhancing the user experience.
-
-```{r shiny_app,eval = FALSE}
-library(funMoDisco)
-
-# Define motif structure
-motif_str <- rbind.data.frame(
-  c(1, 1, 20),
-  c(1, 1, 2),
-  c(1, 3, 1),
-  c(1, 2, 1),
-  c(1, 2, 15),
-  c(1, 4, 1),
-  c(1, 5, 1),
-  c(1, 7, 1),
-  c(2, 17, 1)
-)
-
-names(motif_str) <- c("motif_id", "curve", "start_break_pos")
-
-# Define motifs
-mot1 <- list(
-  "len" = 100,                   # Length
-  "weights" = NULL,              # Weights for the motif
-  "appearance" = motif_str %>% filter(motif_id == 1)
-)
-
-mot2 <- list(
-  "len" = 150,
-  "weights" = NULL,
-  "appearance" = motif_str %>% filter(motif_id == 2)
-)
-
-mot_details <- list(mot1, mot2)
-
-# Define noise structure
-noise_str <- list(
-  rbind(rep(2, 100), c(rep(0.1, 50), rep(2, 50))),
-  rbind(rep(0.0, 150), rep(5.0, 150))
-)
-
-# Run motif simulation app
-funMoDisco::motifSimulationApp(noise_str, mot_details)
-```
-
-### Conclusion
-
-The **`discoverMotifs`** function is a powerful tool for discovering functional motifs in complex datasets. With its flexibility, users can run multiple initializations, customize clustering parameters, simulate functional curves with motifs, and visualize the results in an intuitive way. Whether using **ProbKMA** or **funBIalign**, the `funMoDisco` package provides a robust solution for analyzing functional data and uncovering hidden patterns.

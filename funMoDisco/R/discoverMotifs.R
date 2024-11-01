@@ -386,7 +386,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                      seed = seed, K = NULL, c = NULL, 
                      quantile4clean = probKMA_options$quantile4clean,
                      exe_print = exe_print, set_seed = set_seed, 
-                     diss = diss, transformed = probKMA_options$transformed, v_init = NULL,
+                     diss = diss, transformed = probKMA_options$transformed, V_init = NULL,
                      align = probKMA_options$silhouette_align,
                      n_threads = worker_number)
       
@@ -433,7 +433,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
             arguments$K = K
             arguments$c = c
             arguments$quantile4clean = 1/K
-            arguments$v_init = v_init
+            arguments$V_init = v_init
             results = do.call(probKMA_wrap,arguments)
             probKMA_results = results[[1]]
             silhouette_results = results[[2]]
@@ -633,7 +633,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
             silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
           }
 
-          probKMA_results["v_init"] <- NULL # delete v_init components
+          probKMA_results["V_init"] <- NULL # delete V_init components
           save(probKMA_results,time,silhouette,
                file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
            return(list(probKMA_results=probKMA_results,
@@ -701,7 +701,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
             silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
           }
           
-          probKMA_results["v_init"] <- NULL # delete v_init components
+          probKMA_results["V_init"] <- NULL # delete V_init components
           save(probKMA_results,time,silhouette,
                file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
           return(list(probKMA_results=probKMA_results,

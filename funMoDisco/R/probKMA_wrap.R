@@ -49,7 +49,7 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                          iter4clean = 50, tol4clean = 1e-4,m = 2,w = 1, seed = 1, 
                          K = 2, c = 40, quantile4clean = 1/K, exe_print = FALSE,
                          set_seed = FALSE,diss = 'd0_2', 
-                         transformed = FALSE, v_init = NULL,align = TRUE,n_threads = 1){
+                         transformed = FALSE, V_init = NULL,align = TRUE,n_threads = 1){
   params = list(standardize=standardize,c_max = c_max,iter_max = iter_max,
                 iter4elong = iter4elong,trials_elong = trials_elong,
                 return_options = return_options, alpha = alpha,
@@ -60,15 +60,15 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                 tol4clean = tol4clean,quantile4clean = quantile4clean, 
                 m = m, w = w, seed = seed, K = K, c = c, exe_print = exe_print,
                 set_seed = set_seed, 
-                transformed = transformed, v_init = v_init,n_threads = n_threads) 
-  checked_data <- initialChecks(Y0,Y1,P0,S0,params,diss,v_init)
+                transformed = transformed, V_init = V_init,n_threads = n_threads) 
+  checked_data <- initialChecks(Y0,Y1,P0,S0,params,diss,V_init)
   params <- checked_data$Parameters
   
   data <- checked_data$FuncData
   string_diss <- ifelse(alpha == 0 || alpha == 1,"L2","H1")
   prok <- NULL
-  if (!is.null(data$v_init)) {
-    prok <- new(ProbKMA, data$Y, params, data$P0, data$S0, string_diss, data$v_init)
+  if (!is.null(data$V_init)) {
+    prok <- new(ProbKMA, data$Y, params, data$P0, data$S0, string_diss, data$V_init)
   } else {
     prok <- new(ProbKMA, data$Y, params, data$P0, data$S0, string_diss)
   }
@@ -76,7 +76,7 @@ probKMA_wrap <- function(Y0 = NULL,Y1 = NULL,P0 = matrix(),S0 = matrix(),
                            Y1 = data$Y$Y1,
                            diss = diss, w = w, 
                            alpha = alpha, 
-                           v_init = data$v_init, 
+                           V_init = data$V_init, 
                            transformed = transformed)
   
   probKMA_results_2 = prok$probKMA_run() 

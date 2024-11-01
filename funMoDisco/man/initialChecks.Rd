@@ -4,7 +4,7 @@
 \alias{initialChecks}
 \title{Initial Checks for ProbKMA}
 \usage{
-initialChecks(Y0, Y1, P0, S0, params, diss, v_init)
+initialChecks(Y0, Y1, P0, S0, params, diss, V_init)
 }
 \arguments{
 \item{Y0}{A list of matrices or vectors representing the curves.}
@@ -48,7 +48,7 @@ initialChecks(Y0, Y1, P0, S0, params, diss, v_init)
 \item{diss}{A character string indicating the type of dissimilarity measure to be used. 
 Possible values are: \code{'d0_L2'}, \code{'d1_L2'}, \code{'d0_d1_L2'}.}
 
-\item{v_init}{A list containing initial values for the clusters. If provided, it must match the expected structure based on \code{K}.}
+\item{V_init}{A list containing initial values for the clusters. If provided, it must match the expected structure based on \code{K}.}
 }
 \value{
 A list containing:
