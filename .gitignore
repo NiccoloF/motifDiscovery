@@ -33,3 +33,4 @@
 .Rproj.use
 *.swp
 .Rproj.user
+.Rhistory

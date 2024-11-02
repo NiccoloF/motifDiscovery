@@ -15,7 +15,8 @@ Suggests:
     knitr,
     rmarkdown,
     tinytest,
-    kableExtra
+    kableExtra,
+    R.rsp
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Imports: Rcpp (>= 1.0.12),dendextend,fastcluster,
@@ -25,5 +26,5 @@ Depends: R (>= 2.10),dplyr,parallel,ggplot2,shiny,progress
 LinkingTo: Rcpp, RcppArmadillo
 SystemRequirements: C++20
 LazyData: true
-VignetteBuilder: knitr
+VignetteBuilder: R.rsp
 BuildVignettes: true
