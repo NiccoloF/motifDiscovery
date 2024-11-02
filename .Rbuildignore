@@ -16,3 +16,4 @@
 ^README.md
 ^.Rhistory
 ^\.github$
+^cran-comments.md
