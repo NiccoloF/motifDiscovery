@@ -1,0 +1,24 @@
+\documentclass{article}
+---
+title: "Index of Vignettes for funMoDisco"
+author: "Niccolò Feresini & Riccardo Lazzarini"
+output:  
+  rmarkdown::html_vignette:  
+    toc: true  
+    toc_depth: 2  
+vignette: >  
+  %\VignetteEncoding{UTF-8}  
+  %\VignetteIndexEntry{Index of Vignettes for funMoDisco}  
+  %\VignetteEngine{knitr::rmarkdown}  
+---
+
+# Vignettes
+
+This package includes the following vignettes:
+- [funMoDisco: Functional Motif Discovery](funMoDisco_vignette.Rmd)
+
+# References
+
+1. Cremona, M. A., and Chiaromonte, F. (2023). *Probabilistic K-means with Local Alignment for Clustering and Motif Discovery in Functional Data*. Journal of Computational and Graphical Statistics, 32(3), 1119-1130. Taylor & Francis. DOI: [10.1080/10618600.2022.2156522](https://doi.org/10.1080/10618600.2022.2156522).
+
+2. Di Iorio, J., Cremona, M. A., and Chiaromonte, F. (2023). *funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based on Mean Squared Residue Scores*. arXiv:2306.04254. Available at [https://arxiv.org/abs/2306.04254](https://arxiv.org/abs/2306.04254).
