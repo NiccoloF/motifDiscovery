@@ -17,33 +17,33 @@ initialChecks(Y0, Y1, P0, S0, params, diss, V_init)
 
 \item{params}{A list containing various parameters for ProbKMA, including:
 \itemize{
-  \item \code{standardize} Logical indicating whether to standardize the curves.
-  \item \code{K} Number of motifs.
-  \item \code{c} Minimum motif length.
-  \item \code{c_max} Maximum motif length.
-  \item \code{iter_max} Maximum number of iterations.
-  \item \code{quantile} Quantile value for stopping criterion.
-  \item \code{alpha} A numeric value related to the dissimilarity measure.
-  \item \code{w} Weights used in the algorithm.
-  \item \code{stopCriterion} Stopping criterion for the algorithm.
-  \item \code{m} Weighting exponent.
-  \item \code{tol} Tolerance level for stopping criteria.
-  \item \code{iter4elong} Maximum iterations for elongation.
-  \item \code{tol4elong} Tolerance for elongation.
-  \item \code{max_elong} Maximum elongation allowed.
-  \item \code{trials_elong} Number of trials for elongation.
-  \item \code{deltaJK_elong} Threshold for elongation.
-  \item \code{max_gap} Maximum gap allowed.
-  \item \code{iter4clean} Number of iterations for cleaning.
-  \item \code{tol4clean} Tolerance for cleaning.
-  \item \code{quantile4clean} Quantile for cleaning.
-  \item \code{return_options} Options for returning results.
-  \item \code{seed} Seed for random number generation.
-  \item \code{exe_print} Boolean to control printing of execution messages.
-  \item \code{set_seed} Boolean to control whether to set a random seed.
-  \item{\code{transformed}}{A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.}
-  \item \code{n_threads} Number of threads for parallel processing.
-}}
+   \item \code{standardize} Logical indicating whether to standardize the curves.
+   \item \code{K} Number of motifs.
+   \item \code{c} Minimum motif length.
+   \item \code{c_max} Maximum motif length.
+   \item \code{iter_max} Maximum number of iterations.
+   \item \code{quantile} Quantile value for stopping criterion.
+   \item \code{alpha} A numeric value related to the dissimilarity measure.
+   \item \code{w} Weights used in the algorithm.
+   \item \code{stopCriterion} Stopping criterion for the algorithm.
+   \item \code{m} Weighting exponent.
+   \item \code{tol} Tolerance level for stopping criteria.
+   \item \code{iter4elong} Maximum iterations for elongation.
+   \item \code{tol4elong} Tolerance for elongation.
+   \item \code{max_elong} Maximum elongation allowed.
+   \item \code{trials_elong} Number of trials for elongation.
+   \item \code{deltaJK_elong} Threshold for elongation.
+   \item \code{max_gap} Maximum gap allowed.
+   \item \code{iter4clean} Number of iterations for cleaning.
+   \item \code{tol4clean} Tolerance for cleaning.
+   \item \code{quantile4clean} Quantile for cleaning.
+   \item \code{return_options} Options for returning results.
+   \item \code{seed} Seed for random number generation.
+   \item \code{exe_print} Boolean to control printing of execution messages.
+   \item \code{set_seed} Boolean to control whether to set a random seed.
+   \item{\code{transformed}} A logical value indicating whether to normalize the curve segments to the interval [0,1] before applying the dissimilarity measure. Setting `transformed = TRUE` scales each curve segment between 0 and 1, which allows for the identification of motifs with consistent shapes but different amplitudes. This normalization is useful for cases where motif occurrences may vary in amplitude but have similar shapes, enabling better pattern recognition across diverse data scales.
+   \item \code{n_threads} Number of threads for parallel processing.
+ }}
 
 \item{diss}{A character string indicating the type of dissimilarity measure to be used. 
 Possible values are: \code{'d0_L2'}, \code{'d1_L2'}, \code{'d0_d1_L2'}.}

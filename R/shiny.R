@@ -6,16 +6,16 @@
 #' @param noise_str A list corresponding to the number of motifs, specifying the noise structure to be applied to each motif. 
 #' Users can choose between two noise types: 
 #' \itemize{
-#'   \item{\code{'pointwise'}}{Allows the specification of noise as a list of vectors or matrices. Each element of the list defines the amount of noise applied pointwise to the corresponding motif.}
-#'   \item{\code{'coeff'}}{Enables the specification of noise in terms of coefficients, where a list of individual values or vectors can be provided to define the noise level for each motif.}
+#'   \item \code{'pointwise'} Allows the specification of noise as a list of vectors or matrices. Each element of the list defines the amount of noise applied pointwise to the corresponding motif.
+#'   \item \code{'coeff'} Enables the specification of noise in terms of coefficients, where a list of individual values or vectors can be provided to define the noise level for each motif.
 #' }
 #' 
 #' @param mot_details A list outlining the specifications for the motifs to be embedded within the functional curves. 
 #' Each motif is characterized by its:
 #' \itemize{
-#'   \item{\code{length}}{The length of the motif (number of points or time steps).}
-#'   \item{\code{coefficients}}{An optional set of coefficients that can be provided to define the motif’s shape.}
-#'   \item{\code{occurrences}}{The number of occurrences of each motif within the curves. These can be specified by exact positions within the curves or by providing a total count of occurrences, in which case the algorithm will randomly assign the positions.}
+#'   \item \code{length} The length of the motif (number of points or time steps).
+#'   \item \code{coefficients} An optional set of coefficients that can be provided to define the motif’s shape.
+#'   \item \code{occurrences} The number of occurrences of each motif within the curves. These can be specified by exact positions within the curves or by providing a total count of occurrences, in which case the algorithm will randomly assign the positions.
 #' }
 #' 
 #' @details 
