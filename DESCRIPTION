@@ -3,8 +3,13 @@ Type: Package
 Title: Motif Discovery in Functional Data
 Version: 1.0.0
 Date: 2024-10-05
-Author: Marzia Angela Cremona, Francesca Chiaromonte, Jacopo Di Iorio, Niccolo Feresini, 
-        Riccardo Lazzarini
+Author: Authors@R: c(
+    person(given = c("Marzia", "Angela"), family = "Cremona", role = "aut"),
+    person(given = "Francesca", family = "Chiaromonte", role = "aut"),
+    person(given = c("Jacopo", "Di"), family = "Iorio", role = c("aut", "cre"),
+           email = "jacopo.di.iorio@emory.edu"),
+    person(given = "Niccolo", family = "Feresini", role = "aut"),
+    person(given = "Riccardo", family = "Lazzarini", role = "aut"))
 Maintainer: Jacopo Di Iorio <jacopo.di.iorio@emory.edu>
 Description: Tools for discovering motifs in functional data, efficiently implementing two complementary methodologies: ProbKMA and FunBIalign. 
     ProbKMA (Cremona and Chiaromonte, 2023) is a probabilistic K-means algorithm that leverages local alignment and fuzzy clustering to identify recurring patterns (candidate functional motifs) across and within curves, allowing different portions of the same curve to belong to different clusters. It includes a family of distances and a normalization to discover various motif types and learns motif lengths in a data-driven manner. It can also be used for local clustering of misaligned data. 

@@ -1,10 +1,10 @@
 citHeader("Please cite the following papers when using this package:")
 
 # Citation for ProbKMA paper
-citEntry(
-  entry = "article",
+bibentry(
+  bibtype = "Article",
   title = "Probabilistic K-means with Local Alignment for Clustering and Motif Discovery in Functional Data",
-  author = as.person("Marzia A. Cremona and Francesca Chiaromonte"),
+  author = c(person("Marzia A.", "Cremona"), person("Francesca", "Chiaromonte")),
   journal = "Journal of Computational and Graphical Statistics",
   volume = "32",
   number = "3",
@@ -17,10 +17,10 @@ citEntry(
 )
 
 # Citation for funBIalign paper
-citEntry(
-  entry = "misc",
+bibentry(
+  bibtype = "Misc",
   title = "funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based on Mean Squared Residue Scores",
-  author = as.person("Jacopo Di Iorio, Marzia A. Cremona, and Francesca Chiaromonte"),
+  author = c(person("Jacopo", "Di Iorio"), person("Marzia A.", "Cremona"), person("Francesca", "Chiaromonte")),
   year = "2023",
   eprint = "2306.04254",
   archivePrefix = "arXiv",
