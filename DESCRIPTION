@@ -33,3 +33,4 @@ SystemRequirements: C++20
 LazyData: true
 VignetteBuilder: R.rsp
 BuildVignettes: true
+Language: en-US
