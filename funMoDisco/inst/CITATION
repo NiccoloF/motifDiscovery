@@ -4,10 +4,7 @@ citHeader("Please cite the following papers when using this package:")
 citEntry(
   entry = "article",
   title = "Probabilistic K-means with Local Alignment for Clustering and Motif Discovery in Functional Data",
-  author = list(
-    person(given = "Marzia A.", family = "Cremona"),
-    person(given = "Francesca", family = "Chiaromonte")
-  ),
+  author = as.person("Marzia A. Cremona and Francesca Chiaromonte"),
   journal = "Journal of Computational and Graphical Statistics",
   volume = "32",
   number = "3",
@@ -16,34 +13,20 @@ citEntry(
   publisher = "Taylor & Francis",
   doi = "10.1080/10618600.2022.2156522",
   url = "https://doi.org/10.1080/10618600.2022.2156522",
-  textVersion = paste(
-    "Cremona, M. A., and Chiaromonte, F. (2023).",
-    "Probabilistic K-means with Local Alignment for Clustering and Motif Discovery",
-    "in Functional Data. Journal of Computational and Graphical Statistics, 32(3),",
-    "1119-1130. Taylor & Francis. DOI: 10.1080/10618600.2022.2156522."
-  )
+  textVersion = "Cremona and Chiaromonte, 2023. Probabilistic K-means with Local Alignment for Clustering and Motif Discovery in Functional Data. Journal of Computational and Graphical Statistics, 32(3), 1119-1130. Taylor & Francis. DOI: 10.1080/10618600.2022.2156522."
 )
 
 # Citation for funBIalign paper
 citEntry(
   entry = "misc",
   title = "funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based on Mean Squared Residue Scores",
-  author = list(
-    person(given = "Jacopo", family = "Di Iorio"),
-    person(given = "Marzia A.", family = "Cremona"),
-    person(given = "Francesca", family = "Chiaromonte")
-  ),
+  author = as.person("Jacopo Di Iorio, Marzia A. Cremona, and Francesca Chiaromonte"),
   year = "2023",
   eprint = "2306.04254",
   archivePrefix = "arXiv",
   primaryClass = "stat.ME",
   url = "https://arxiv.org/abs/2306.04254",
-  textVersion = paste(
-    "Di Iorio, J., Cremona, M. A., and Chiaromonte, F. (2023).",
-    "funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based",
-    "on Mean Squared Residue Scores. arXiv:2306.04254. Available at",
-    "https://arxiv.org/abs/2306.04254."
-  )
+  textVersion = "Di Iorio et al, 2023. funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based on Mean Squared Residue Scores. arXiv preprint arXiv:2306.04254. Available at https://arxiv.org/abs/2306.04254."
 )
 
 citFooter("Thank you for citing our work!")
