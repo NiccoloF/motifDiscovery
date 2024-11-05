@@ -1106,7 +1106,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
   {
     // fill in my data
 #ifdef _OPENMP
-#pragma omp parallel for collapse(2) num_threads(worker_number)
+#pragma omp parallel for collapse(2) num_threads(worker_number) schedule(static)
 #endif
       for(arma::uword k = 0; k < totobs; ++k)
       {
@@ -1155,7 +1155,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
   arma::mat scoreData(result.begin(),outrows,outrows,false,true);
   
 #ifdef _OPENMP
-#pragma omp parallel for collapse(2) num_threads(worker_number)
+#pragma omp parallel for num_threads(worker_number) schedule(static)
 #endif
   for (arma::uword i = 1; i < outrows; ++i) { // for any functional observation
     const arma::rowvec& x_i = windowDataRef.row(i); // curve i 
@@ -1192,10 +1192,11 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
     for(int j = 0; j <numerosity_size;++j)
     {
       int num = numerosity[j] - 1;
+      int loop_end = until_here + num;
 #ifdef _OPENMP
-#pragma omp parallel for num_threads(worker_number)
+#pragma omp parallel for num_threads(worker_number) schedule(static)
 #endif
-      for(int i = until_here; i < until_here + numerosity[j]-1;++i)
+      for(int i = until_here; i < loop_end ;++i)
       {
         arma::uword start = i+1;
         arma::uword end = std::min<int>(std::min<int>(i+overlap ,i + (num--)),outrows-1);
