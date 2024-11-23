@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulated200.R
 \name{simulated200}
 \alias{simulated200}
-\title{Simulated database for local clustering}
+\title{Simulated data for local clustering}
 \usage{
 data(simulated200)
 }

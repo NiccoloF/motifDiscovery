@@ -1,4 +1,4 @@
-#' @title Simulated database for local clustering 
+#' @title Simulated data for local clustering 
 #'
 #' @description
 #' 18 curves of length 200 (corresponding to 201 evaluation points), each
