@@ -49,14 +49,3 @@ This function performs the following steps:
 4. Determines a global radius (`R_all`) using KNN classification.
 5. Clusters motifs and determines group-specific radii (`R_m`) for each cluster.
 }
-\examples{
-\dontrun{
-# Example usage
-results <- list(Y0 = ..., Y1 = ..., V0_clean = ..., V1_clean = ..., 
-                D_clean = ..., diss = "d0_d1_L2", alpha = 0.5)
-clustered_results <- cluster_candidate_motifs(results, motif_overlap = 0.6, 
-                                               k_knn = 3, votes_knn_Rall = 0.5, 
-                                               votes_knn_Rm = 0.5, worker_number = 2)
-print(clustered_results)
-}
-}

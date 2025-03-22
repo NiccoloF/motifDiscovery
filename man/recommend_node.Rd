@@ -27,12 +27,3 @@ Recommend Node Function
 - In the case of a strictly increasing vector, it returns the index of the maximum growth rate.
 - For non-increasing vectors, it returns the index of the minimum value.
 }
-\examples{
-\dontrun{
-# Example usage of recommend_node function
-recommend_node(c(1, 2, 3, 4, 5))  # Returns 5 (index of max growth)
-recommend_node(c(5, 4, 3, 2, 1))  # Returns 5 (index of min value)
-recommend_node(c(1, 2, 2, 3, 1))  # Returns 5 (index of min value)
-}
-
-}

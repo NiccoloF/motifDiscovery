@@ -22,10 +22,12 @@
 #' The app provides an accessible platform for users to experiment with different motif definitions, noise structures, and curve characteristics. By interacting with the app, users can simulate functional data, visualize the results in real-time, and adjust the parameters accordingly to fine-tune the simulation process.
 #' 
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #' # Launch the motifSimulationApp with specified noise structure and motif details
 #' funMoDisco::motifSimulationApp(noise_str, mot_details)
 #' }
+#' 
+#' @return A shiny app representing the simulated curves.
 #' 
 #' @export
 motifSimulationApp <- function(noise_str,mot_details) {
@@ -180,7 +182,7 @@ motifSimulationApp <- function(noise_str,mot_details) {
     fluidRow(
       column(width = 12,
              wellPanel(
-               textInput("path", "Directory Path to Save Plots", value = getwd()),
+               textInput("path", "Directory Path to Save Plots", value = tempdir()),
                div(class = "input-row",
                    div(class = "input-group", numericInput("N", "Number of Curves (N)", value = 20, min = 1)),
                    div(class = "input-group", numericInput("len", "Curve Length (len)", value = 300, min = 1))

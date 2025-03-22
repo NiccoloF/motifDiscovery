@@ -16,18 +16,6 @@
 #' @return A matrix padded with `NA` values up to the specified number of rows. 
 #' If `dataMatrix` already has the desired number of rows or more, the original matrix is returned.
 #'
-#' @examples
-#' \dontrun{
-#' # Create a matrix with 3 rows and 2 columns
-#' mat <- matrix(1:6, nrow = 3, ncol = 2)
-#' 
-#' # Pad the matrix to 5 rows
-#' padded_mat <- padding(mat, maxLen = 5)
-#' 
-#' # Check the result
-#' print(padded_mat)
-#' }
-#'
 #' @export
 padding <- function(dataMatrix, maxLen) 
 {

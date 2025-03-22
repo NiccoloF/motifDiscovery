@@ -60,22 +60,3 @@ The `motifs_search_plot` function performs the following steps:
   \item Adds legends to the plots for clear identification of each motif.
 }
 }
-\examples{
-\dontrun{
-# Assuming `results` is the output from `motifs_search`
-# and it contains motifs across 2 dimensions
-
-# Basic usage plotting all motifs with a frequency threshold of 5
-motifs_search_plot(results, ylab = "Signal Intensity", freq_threshold = 5)
-
-# Plotting the top 10 motifs with a higher frequency threshold
-motifs_search_plot(results, ylab = "Signal Intensity", freq_threshold = 10, top_n = 10)
-
-# Plotting without overlaying the underlying curves
-motifs_search_plot(results, ylab = "Signal Intensity", plot_curves = FALSE)
-
-# Using a custom y-axis label
-motifs_search_plot(results, ylab = "Amplitude", freq_threshold = 3, top_n = 5)
-}
-
-}

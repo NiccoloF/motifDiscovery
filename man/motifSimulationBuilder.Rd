@@ -42,7 +42,7 @@ An object of class motifSimulation
 It represents the constructor of the S4 class 'motifSimulation'..
 }
 \examples{
-\dontrun{
+\donttest{
 mot_len <- 100
 motif_str <- rbind.data.frame(c(1, 1, 20),
                               c(2, 1, 2), 

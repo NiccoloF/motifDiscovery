@@ -89,37 +89,6 @@
 #'   \item **Output Compilation**: The selected motifs and their associated properties are compiled into a comprehensive list for further analysis or visualization.
 #' }
 #'
-#' @examples
-#' \dontrun{
-#' # Load necessary libraries
-#' library(parallel)
-#' library(dplyr)
-#' library(data.table)
-#' library(class)
-#' 
-#' # Assuming `cluster_results` is the output from `cluster_candidate_motifs`
-#' # and `window_data` is your dataset
-#' 
-#' # Perform motif search with default parameters
-#' search_results <- motifs_search(cluster_candidate_motifs_results = cluster_results)
-#' 
-#' # Perform motif search with custom frequency threshold and top_n
-#' search_results <- motifs_search(
-#'   cluster_candidate_motifs_results = cluster_results,
-#'   R_all = 0.5,
-#'   R_m = NULL,
-#'   different_R_m_finding = FALSE,
-#'   R_m_finding = NULL,
-#'   use_real_occurrences = TRUE,
-#'   length_diff = 0.2,
-#'   worker_number = 4
-#' )
-#' 
-#' # Accessing the results
-#' selected_motifs <- search_results$V0
-#' motif_frequencies <- search_results$V_frequencies
-#' }
-#'
 #' @import parallel
 #' @importFrom dplyr %>%
 #' @importFrom data.table as.data.table setnames

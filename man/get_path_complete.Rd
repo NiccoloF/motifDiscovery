@@ -33,16 +33,3 @@ variables and functions to each worker. It then applies the `find_recommended_pa
 in parallel to the leaves of the provided dendrogram, gathering results into a single list. 
 Finally, the cluster is stopped, and the results are returned.
 }
-\examples{
-\dontrun{
-# Example usage
-library(fastcluster)
-library(dplyr)
-
-# Assuming `adj_fMSR` is defined and `window_data` is prepared
-minidend <- get_minidend(adj_fMSR) # Get the dendrogram
-paths <- get_path_complete(minidend, window_data, min_card = 5, worker_number = 4)
-print(paths) # Output the computed paths
-}
-
-}

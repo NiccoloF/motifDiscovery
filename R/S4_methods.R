@@ -38,7 +38,7 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example 0: Special case with no motifs
 #' mot_len <- 100
 #' mot_details <- NULL  # or list()
@@ -165,7 +165,7 @@ setGeneric("generateCurves", function(object,noise_type = NULL, noise_str = NULL
 #' }
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example 0: Special case with no motifs
 #' mot_len <- 100
 #' mot_details <- NULL  # or list()
@@ -305,12 +305,12 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
           if(only_der) {
           coeff[pos_coeff_motifs] = unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
             sd_noise <- noise_str[[id]][z]
-            print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
+            message(paste("\033[34m --- Adding motif", id, "to curve", j, "with noise", sd_noise, "\033[0m"))
             object@mot_details[[id]]$coeffs + rnorm(length(object@mot_details[[id]]$coeffs),sd=sd_noise)}))
-          } else {
+          } else { 
             coeff[pos_coeff_motifs] = unlist(lapply(motifs_in_curves_i$motif_id, function(id) {
               sd_noise <- noise_str[[id]][z]
-              print(paste(" --- Adding motif", id, "to curve", j,"with noise ",sd_noise))
+              message(paste("\033[34m --- Adding motif", id, "to curve", j, "with noise", sd_noise, "\033[0m"))
               object@mot_details[[id]]$coeffs + rnorm(length(object@mot_details[[id]]$coeffs),sd=sd_noise)})) + shifted_coeff
           }
           # For each chosen coefficient add a uniform number and a gaussian noise
@@ -381,7 +381,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
     set.seed(seed_motif)
     curve_ids <- unique(unlist(lapply(object@mot_details,function(mot){mot$occurrences$curve})))
     for(j in curve_ids){
-      print(paste(" --- Adding motifs to curve", j))
+      message(paste("\033[34m --- Adding motifs to curve", j, "\033[0m"))
       temp_curve <- fd_curves[[j]]
       temp_pattern <- do.call(rbind,lapply(object@mot_details,function(mot_details){(mot_details$occurrences %>% filter(curve == j)) %>% dplyr::select(motif_id, start_break_pos)}))
       temp_len <- do.call(rbind,lapply(unique(apply(temp_pattern,1,function(row){row[1]})),function(k){data.frame("motif_id" = k,"len" = object@mot_details[[k]]$len)}))
@@ -428,7 +428,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example: Plotting motifs in generated curves
 #' # Assume 'builder' has been created and 'curves' have been generated using generateCurves
 #' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)
@@ -440,7 +440,7 @@ setMethod("generateCurves", "motifSimulation", function(object,noise_type = NULL
 #' # Generate and save the plots
 #' funMoDisco::plot_motifs(builder, curves, plots_name)
 #' }
-setGeneric("plot_motifs", function(object,curves,name,path=getwd()) 
+setGeneric("plot_motifs", function(object,curves,name,path) 
   standardGeneric("plot_motifs")
 )
 
@@ -464,7 +464,7 @@ setGeneric("plot_motifs", function(object,curves,name,path=getwd())
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example: Plotting motifs in generated curves
 #' # Assume 'builder' has been created and 'curves' have been generated using generateCurves
 #' builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)
@@ -477,17 +477,26 @@ setGeneric("plot_motifs", function(object,curves,name,path=getwd())
 #' funMoDisco::plot_motifs(builder, curves, plots_name)
 #' }
 setMethod("plot_motifs","motifSimulation",
-          function(object,curves,name,path=getwd()) {
+          function(object,curves,name,path) {
             
-  if (!grepl("\\.pdf$", name)) {
-    name <- paste0(name, ".pdf")
+  # Ensure the path is absolute
+  if (!grepl("^(/|[A-Za-z]:\\\\)", path)) {  
+    path <- file.path(getwd(), path)  # Convert to absolute path
   }
-  output_file <- file.path(path,name)
   
   # Create the directory if it does not exist
   if (!dir.exists(path)) {
-    dir.create(path)
+    dir.create(path, recursive = TRUE)
   }
+  
+  # Ensure the filename has a .pdf extension
+  if (!grepl("\\.pdf$", name)) {     
+    name <- paste0(name, ".pdf")   
+  }
+  
+  # Construct the output file path
+  output_file <- file.path(path, name)
+            
   # Open a PDF device with the correct path
   pdf(file = output_file, width = 8, height = 6) 
   for (k in seq_along(curves)) {
@@ -760,7 +769,7 @@ setGeneric("to_motifDiscovery", function(curves)
 #' @return A list containing all curves formatted to be suitable for input into the discoverMotifs function.
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 #' formatted_curves <- to_motifDiscovery(curves)
 #' }

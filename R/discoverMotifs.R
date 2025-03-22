@@ -130,7 +130,7 @@
 #'   Y0 = simulated200$Y0,
 #'   method = "ProbKMA",
 #'   stopCriterion = "max",
-#'   name = './results_ProbKMA_VectorData/',
+#'   name = tempdir(),
 #'   plot = TRUE,
 #'   probKMA_options = list(
 #'     Y1 = simulated200$Y1,
@@ -148,7 +148,7 @@
 #'   Y0 = simulated200$Y0,
 #'   method = "ProbKMA",
 #'   stopCriterion = "max",
-#'   name = './results_ProbKMA_VectorData/',
+#'   name = tempdir(),
 #'   plot = TRUE,
 #'   probKMA_options = list(
 #'     Y1 = simulated200$Y1,
@@ -167,7 +167,7 @@
 #'   Y0 = simulated200$Y0,
 #'   method = "funBIalign",
 #'   stopCriterion = 'Variance',
-#'   name = './results_FunBialign/',
+#'   name = tempdir(),
 #'   plot = TRUE,
 #'   funBIalign_options = list(
 #'     portion_len = 60,
@@ -189,7 +189,8 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                          funBIalign_options = list(portion_len = NULL,min_card = NULL,cut_off=NULL),
                          worker_number = NULL){
   
-  
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
   ### set parallel jobs #############################################################################
   core_number <- parallel::detectCores()
   # check worker number
@@ -578,12 +579,12 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         files=list.files(paste0(name,"K",K,"_c",c))
         if(paste0('random',i,'.RData') %in% files){
           load(paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
-          message("K",K,"_c",c,'_random',i,' loaded')
+          message(paste("\033[34mK", K, "_c", c, "_random", i, "loaded\033[0m"))
           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
         }else{
           iter=iter_max=1
-          message("K",K,"_c",c,'_random',i,' running')
+          message(paste("\033[34mK", K, "_c", c, "_random", i, "running\033[0m"))
           if(arguments$set_seed)
           {
             arguments$seed = small_seed
@@ -648,12 +649,12 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         files=list.files(paste0(name,"K",K,"_c",c))
         if(paste0('random',i,'.RData') %in% files){
           load(paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
-          message("K",K,"_c",c,'_random',i,' loaded')
+          message(paste("\033[34mK", K, "_c", c, "_random", i, "loaded\033[0m"))
           return(list(probKMA_results=probKMA_results,
                       time=time,silhouette=silhouette))
         }else{
           iter=iter_max=1
-          message("K",K,"_c",c,'_random',i,' running')
+          message(paste("\033[34mK", K, "_c", c, "_random", i, "running\033[0m"))
           if(arguments$set_seed)
           {
             arguments$seed = small_seed

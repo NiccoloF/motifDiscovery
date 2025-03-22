@@ -163,7 +163,7 @@ results <- funMoDisco::discoverMotifs(
   Y0 = simulated200$Y0,
   method = "ProbKMA",
   stopCriterion = "max",
-  name = './results_ProbKMA_VectorData/',
+  name = tempdir(),
   plot = TRUE,
   probKMA_options = list(
     Y1 = simulated200$Y1,
@@ -181,7 +181,7 @@ results <- funMoDisco::discoverMotifs(
   Y0 = simulated200$Y0,
   method = "ProbKMA",
   stopCriterion = "max",
-  name = './results_ProbKMA_VectorData/',
+  name = tempdir(),
   plot = TRUE,
   probKMA_options = list(
     Y1 = simulated200$Y1,
@@ -200,7 +200,7 @@ results_funbialign <- funMoDisco::discoverMotifs(
   Y0 = simulated200$Y0,
   method = "funBIalign",
   stopCriterion = 'Variance',
-  name = './results_FunBialign/',
+  name = tempdir(),
   plot = TRUE,
   funBIalign_options = list(
     portion_len = 60,

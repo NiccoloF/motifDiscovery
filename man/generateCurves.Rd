@@ -61,7 +61,7 @@ Additionally, `generateCurves` allows for the specification of vertical shifts t
 This function is integral to the `funMoDisco` package's motif simulation capabilities, providing users with the ability to create complex functional datasets tailored to their specific research or testing needs.
 }
 \examples{
-\dontrun{
+\donttest{
 # Example 0: Special case with no motifs
 mot_len <- 100
 mot_details <- NULL  # or list()

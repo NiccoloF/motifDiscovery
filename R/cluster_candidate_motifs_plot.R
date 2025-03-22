@@ -42,6 +42,9 @@
 #' @export
 cluster_candidate_motifs_plot <- function(cluster_candidate_motifs_results,ylab='',
                                           R_all=cluster_candidate_motifs_results$R_all,R_m=NULL,ask=TRUE){
+  oldpar <- par(no.readonly = TRUE)         
+  # Ensure the original settings are restored when the function exits
+  on.exit(par(oldpar))
   ### prepare input data ##################################################################################
   if(cluster_candidate_motifs_results$diss=='d0_L2'){
     alpha=0

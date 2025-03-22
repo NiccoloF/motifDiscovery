@@ -70,45 +70,6 @@ You can access and modify the `ProbKMA` object with the following methods:
 }
 }
 
-\examples{
-\dontrun{
-# Example usage
-# Seed for random initialization of P0 and S0
-seed <- 1
-
-# Set type of distance
-diss <- 'd0_d1_L2'  # options: 'd0_L2', 'd1_L2', 'd0_d1_L2'
-
-# Null matrices for random initialization
-P0 <- matrix()
-S0 <- matrix()
-
-# Define parameters for the algorithm
-params <- list(standardize = TRUE, K = 2, c = 61, c_max = 71,
-               iter_max = 1000, quantile = 0.25,
-               stopCriterion = 'max', tol = 1e-8,
-               iter4elong = 1, tol4elong = 1e-3, max_elong = 0.5,
-               trials_elong = 201, deltaJK_elong = 0.05, max_gap = 0,
-               iter4clean = 50, tol4clean = 1e-4,
-               quantile4clean = 1/2, return_options = TRUE,
-               m = 2, w = 1, alpha = 0.5, seed = seed, exe_print = TRUE,
-               set_seed = TRUE)
-
-# Check input data
-a <- initialChecks(simulated200$Y0, simulated200$Y1, P0, S0, params, diss, seed)
-
-# Get data and parameters
-params <- a$Parameters
-data <- a$FuncData
-
-# Create an object of the class ProbKMA
-prok <- new(ProbKMA, data$Y, data$V, params, data$P0, data$S0, "H1")
-
-# Run ProbKMA algorithm
-output <- prok$probKMA_run()
-}
-
-}
 \author{
 Niccolò Feresini and Riccardo Lazzarini
 }

@@ -50,17 +50,6 @@ The function systematically checks each curve in the provided list against the s
 to identify positions where the dissimilarity does not exceed the defined threshold \( R \). 
 It handles multidimensional curves and can selectively consider different components of the motifs and curves.
 }
-\examples{
-\dontrun{
-# Example usage
-v <- list(v0 = matrix(runif(100), ncol = 2), v1 = matrix(runif(100), ncol = 2))
-Y <- list(list(Y0 = matrix(runif(200), ncol = 2), Y1 = matrix(runif(200), ncol = 2)))
-result <- .find_occurrences(v = v, Y = Y, R = 0.5, alpha = 0.5, w = c(1, 1),
-                            c_k = 5, use0 = TRUE, use1 = TRUE)
-print(result)
-}
-
-}
 \author{
 Marzia Angela Cremona & Francesca Chiaromonte
 }

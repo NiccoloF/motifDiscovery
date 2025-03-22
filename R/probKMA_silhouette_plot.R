@@ -21,7 +21,9 @@
 #' @export
 probKMA_silhouette_plot <- function(silhouette_results,K,plot = TRUE){
   # Plot the adapted silhouette index on the results of probKMA.
-
+  oldpar <- par(no.readonly = TRUE)
+  # Ensure the original settings are restored when the function exits
+  on.exit(par(oldpar))
   ### plot silhouette ########################################################################################
     if(plot) {
     silhouette = silhouette_results[[1]]

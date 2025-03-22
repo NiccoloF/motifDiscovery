@@ -40,30 +40,6 @@ otherwise, it defaults to the classical `mapply`.
 This function is useful for switching between parallel and non-parallel execution 
 based on the availability of a cluster, allowing for more flexible and efficient code.
 }
-\examples{
-\dontrun{
-# Example usage
-library(parallel)
-cl <- makeCluster(4) # Create a cluster with 4 workers
-
-# Define a simple function to square numbers
-square_func <- function(x) {
-  return(x^2)
-}
-
-# Using .mapply_custom with a cluster
-result_parallel <- .mapply_custom(cl, square_func, 1:5, MoreArgs = list())
-print(result_parallel) # Prints squared values
-
-# Using .mapply_custom without a cluster
-result_serial <- .mapply_custom(NULL, square_func, 1:5, MoreArgs = list())
-print(result_serial) # Prints squared values
-
-# Stop the cluster after use
-stopCluster(cl)
-}
-
-}
 \author{
 Marzia Angela Cremona & Francesca Chiaromonte
 }

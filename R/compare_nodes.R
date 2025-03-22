@@ -7,14 +7,6 @@
 #'
 #' @return A logical value. The function returns `TRUE` if all elements of `node_1` are found in the accolites of `node_2`. It returns `FALSE` otherwise.
 #'
-#' @examples
-#' \dontrun{
-#'   # Example usage
-#'   node_1 <- c("A", "B", "C")
-#'   node_2 <- c("A", "B", "C", "D", "E")
-#'   result <- compare_nodes(node_1, node_2)
-#'   print(result)  # Returns TRUE if all elements of node_1 are in node_2's accolades
-#' }
 #' @export
 compare_nodes <- function(node_1, node_2){
   accolites_1    <- lapply(node_1, get_accolites, window_data, 50) %>% unlist()

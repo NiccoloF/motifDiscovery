@@ -17,12 +17,3 @@ A logical value. The function returns `TRUE` if all elements of `node_1` are fou
 \description{
 This function compares two nodes to determine if all elements of the first node (`node_1`) are present within the accolites of the second node (`node_2`). Accolites are defined as a set of elements retrieved from the `get_accolites` function, which operates on `node_1` within a specified window of data. The comparison is successful if all elements in `node_1` are found in the accolites of `node_2`.
 }
-\examples{
-\dontrun{
-  # Example usage
-  node_1 <- c("A", "B", "C")
-  node_2 <- c("A", "B", "C", "D", "E")
-  result <- compare_nodes(node_1, node_2)
-  print(result)  # Returns TRUE if all elements of node_1 are in node_2's accolades
-}
-}

@@ -30,19 +30,3 @@ The function returns a logical vector indicating which rows contain at least one
 \details{
 The function evaluates each row of the specified matrix (either \code{v[[1]]} or \code{v[[2]]}) to determine if there is at least one non-NA entry. This is particularly useful for assessing the effective domain of curves where some values may be missing.
 }
-\examples{
-\dontrun{
-# Define a list containing two matrices
-v_curve <- list(matrix(c(1, 2, NA, 4, NA, 6), ncol = 2), matrix(c(NA, NA, 3, 4, 5, 6), ncol = 2))
-
-# Calculate the domain length considering curve values
-domain_length_v0 <- .domain(v = v_curve, use0 = TRUE)
-
-# Calculate the domain length considering derivative values
-domain_length_v1 <- .domain(v = v_curve, use0 = FALSE)
-
-# Output the results
-print(domain_length_v0)  # Logical vector for v0
-print(domain_length_v1)  # Logical vector for v1
-}
-}

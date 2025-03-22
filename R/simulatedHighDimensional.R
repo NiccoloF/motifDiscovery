@@ -7,4 +7,4 @@
 #' a lot of missing values (large gaps).
 #' @name simulatedHighDimensional
 #' @usage data(simulatedHighDimensional)
-NULL
+"simulatedHighDimensional"

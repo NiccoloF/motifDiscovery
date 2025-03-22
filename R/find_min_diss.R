@@ -38,16 +38,6 @@
 #' The function returns both the optimal shift and the minimal dissimilarity, which can be used 
 #' to assess the similarity between the two sets of curves under the specified constraints.
 #' 
-#' @examples
-#' \dontrun{
-#' # Example usage
-#' y <- list(y0 = matrix(runif(100), ncol = 2), y1 = matrix(runif(100), ncol = 2))
-#' v <- list(v0 = matrix(runif(100), ncol = 2), v1 = matrix(runif(100), ncol = 2))
-#' result <- .find_min_diss(y = y, v = v, alpha = 0.5, w = c(1, 1),
-#'                          c_k = 5, d = 2, use0 = TRUE, use1 = TRUE)
-#' print(result)
-#' }
-#' 
 #' @author Marzia Angela Cremona & Francesca Chiaromonte
 #' @export
 .find_min_diss <- function(y,v,alpha,w,c_k,d,use0,use1,transform_y=FALSE,transform_v=FALSE){

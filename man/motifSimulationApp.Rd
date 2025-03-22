@@ -22,6 +22,9 @@ Each motif is characterized by its:
   \item \code{occurrences} The number of occurrences of each motif within the curves. These can be specified by exact positions within the curves or by providing a total count of occurrences, in which case the algorithm will randomly assign the positions.
 }}
 }
+\value{
+A shiny app representing the simulated curves.
+}
 \description{
 The `motifSimulationApp` is a Shiny-based graphical user interface (GUI) designed to simplify the execution of the `motifSimulation` functions. The app allows users to interact with all motif simulation features in an intuitive and user-friendly manner, offering a seamless experience for generating and analyzing synthetic functional data with embedded motifs. It consistently provides summary plots to enhance data visualization and facilitate analysis.
 }
@@ -29,7 +32,7 @@ The `motifSimulationApp` is a Shiny-based graphical user interface (GUI) designe
 The app provides an accessible platform for users to experiment with different motif definitions, noise structures, and curve characteristics. By interacting with the app, users can simulate functional data, visualize the results in real-time, and adjust the parameters accordingly to fine-tune the simulation process.
 }
 \examples{
-\dontrun{
+\donttest{
 # Launch the motifSimulationApp with specified noise structure and motif details
 funMoDisco::motifSimulationApp(noise_str, mot_details)
 }

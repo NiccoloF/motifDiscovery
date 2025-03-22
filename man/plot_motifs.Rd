@@ -4,7 +4,7 @@
 \alias{plot_motifs}
 \title{Plot Embedded Motifs in Functional Curves}
 \usage{
-plot_motifs(object, curves, name, path = getwd())
+plot_motifs(object, curves, name, path)
 }
 \arguments{
 \item{object}{An S4 object of class `motifSimulation` that has been previously constructed using the `motifSimulationBuilder` function. This object contains all necessary parameters and configurations used during curve and motif generation (mandatory).}
@@ -26,7 +26,7 @@ The function supports saving the generated plots to a specified directory, facil
 This plotting utility is an essential tool within the `funMoDisco` package, aiding users in the exploratory analysis of simulated functional data and the assessment of motif detection algorithms.
 }
 \examples{
-\dontrun{
+\donttest{
 # Example: Plotting motifs in generated curves
 # Assume 'builder' has been created and 'curves' have been generated using generateCurves
 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)

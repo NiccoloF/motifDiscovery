@@ -68,38 +68,6 @@
 #' The function is designed to handle multiple dimensions (`d`) and can accommodate both original and derivative data if provided. 
 #' It also supports the visualization of cleaned motifs, which are motifs that have been refined based on specific criteria to ensure quality and relevance.
 #'
-#' @examples
-#' \dontrun{
-#' # Load necessary libraries
-#' library(funMoDisco)
-#' 
-#' # Assume `results` is the output from the `probKMA` function
-#' # and it contains all necessary components.
-#' 
-#' # Basic plot with default parameters
-#' probKMA_plot(
-#'   probKMA_results = results,
-#'   plot = TRUE,
-#'   ylab = c("Amplitude", "Frequency"),
-#'   cleaned = FALSE
-#' )
-#' 
-#' # Plot only cleaned motifs with silhouette averages
-#' probKMA_plot(
-#'   probKMA_results = results,
-#'   plot = TRUE,
-#'   ylab = c("Amplitude", "Frequency"),
-#'   sil_avg = c(0.75, 0.80),
-#'   cleaned = TRUE
-#' )
-#' 
-#' # Disable plotting
-#' probKMA_plot(
-#'   probKMA_results = results,
-#'   plot = FALSE
-#' )
-#' }
-#'
 #' @export
 probKMA_plot <- function(probKMA_results,plot,ylab='',sil_avg=NULL,cleaned=FALSE, transformed = FALSE){
   d=ncol(probKMA_results$Y0[[1]])

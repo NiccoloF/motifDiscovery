@@ -6,5 +6,17 @@
 \alias{funMoDisco-package}
 \title{funMoDisco: Motif Discovery in Functional Data}
 \description{
-Tools for discovering motifs in functional data, efficiently implementing two complementary methodologies: ProbKMA and FunBIalign. ProbKMA (Cremona and Chiaromonte, 2023) is a probabilistic K-means algorithm that leverages local alignment and fuzzy clustering to identify recurring patterns (candidate functional motifs) across and within curves, allowing different portions of the same curve to belong to different clusters. It includes a family of distances and a normalization to discover various motif types and learns motif lengths in a data-driven manner. It can also be used for local clustering of misaligned data. FunBIalign (Di Iorio, Cremona, and Chiaromonte, 2023) applies hierarchical agglomerative clustering with a functional generalization of the Mean Squared Residue Score to identify motifs of a specified length in curves. This deterministic method includes a small set of user-tunable parameters. Both algorithms are suitable for single curves or sets of curves. The package also includes a flexible function to simulate functional data with embedded motifs, allowing users to generate benchmark datasets for validating and comparing motif discovery methods.
+Efficiently implementing two complementary methodologies for discovering motifs in functional data: ProbKMA and FunBIalign. Cremona and Chiaromonte (2023) "Probabilistic K-means with Local Alignment for Clustering and Motif Discovery in Functional Data" \url{https://doi.org/10.1080/10618600.2022.2156522} is a probabilistic K-means algorithm that leverages local alignment and fuzzy clustering to identify recurring patterns (candidate functional motifs) across and within curves, allowing different portions of the same curve to belong to different clusters. It includes a family of distances and a normalization to discover various motif types and learns motif lengths in a data-driven manner. It can also be used for local clustering of misaligned data. Di Iorio, Cremona, and Chiaromonte (2023) "funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based on Mean Squared Residue Scores" \url{https://arxiv.org/abs/2306.04254} applies hierarchical agglomerative clustering with a functional generalization of the Mean Squared Residue Score to identify motifs of a specified length in curves. This deterministic method includes a small set of user-tunable parameters. Both algorithms are suitable for single curves or sets of curves. The package also includes a flexible function to simulate functional data with embedded motifs, allowing users to generate benchmark datasets for validating and comparing motif discovery methods.
+}
+\author{
+\strong{Maintainer}: Jacopo Di Iorio \email{jacopo.di.iorio@emory.edu}
+
+Authors:
+\itemize{
+  \item Marzia Angela Cremona
+  \item Francesca Chiaromonte
+  \item Niccolò Feresini
+  \item Riccardo Lazzarini
+}
+
 }

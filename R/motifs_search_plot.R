@@ -46,24 +46,6 @@
 #'   \item Adds legends to the plots for clear identification of each motif.
 #' }
 #'
-#' @examples
-#' \dontrun{
-#' # Assuming `results` is the output from `motifs_search`
-#' # and it contains motifs across 2 dimensions
-#' 
-#' # Basic usage plotting all motifs with a frequency threshold of 5
-#' motifs_search_plot(results, ylab = "Signal Intensity", freq_threshold = 5)
-#' 
-#' # Plotting the top 10 motifs with a higher frequency threshold
-#' motifs_search_plot(results, ylab = "Signal Intensity", freq_threshold = 10, top_n = 10)
-#' 
-#' # Plotting without overlaying the underlying curves
-#' motifs_search_plot(results, ylab = "Signal Intensity", plot_curves = FALSE)
-#' 
-#' # Using a custom y-axis label
-#' motifs_search_plot(results, ylab = "Amplitude", freq_threshold = 3, top_n = 5)
-#' }
-#'
 #' @importFrom dplyr %>%
 #' @importFrom data.table as.data.table setnames
 #' @export
@@ -76,6 +58,9 @@ motifs_search_plot <- function(motifs_search_results,ylab='',freq_threshold=5,to
   
   ### check input ############################################################################################
   # check freq_threshold
+  oldpar <- par(no.readonly = TRUE)
+  # Ensure the original settings are restored when the function exits
+  on.exit(par(oldpar))
   if(max(motifs_search_results$V_frequencies)<freq_threshold)
     stop('There are no motifs with frequency at least equal to freq_threshold.')
   # check top_n

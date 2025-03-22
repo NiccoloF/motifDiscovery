@@ -12,4 +12,4 @@
 #' simulation section).
 #' @name simulated200
 #' @usage data(simulated200)
-NULL
+"simulated200"
