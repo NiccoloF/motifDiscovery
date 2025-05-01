@@ -16,7 +16,7 @@ A list containing all curves formatted to be suitable for input into the discove
 Transforms the result of generateCurves into a format suitable for discoverMotifs
 }
 \examples{
-\dontrun{
+\donttest{
 curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
 formatted_curves <- to_motifDiscovery(curves)
 }

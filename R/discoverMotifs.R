@@ -87,8 +87,7 @@
 #' \describe{
 #'   \item{\code{portion_len}}{An integer specifying the length of curve portions to align. This parameter controls the granularity of alignment, allowing the algorithm to focus on specific segments of the curves for motif discovery.}
 #'   \item{\code{min_card}}{An integer representing the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required for a motif to be considered valid. This ensures that only motifs with sufficient representation across the dataset are retained.}
-#'   \item{\code{cut_off}}{A double that specifies the number of top-ranked motifs to keep based on the ranking criteria, facilitating focused visualization of the most significant motifs.
-#'                         In particular, all motifs that rank below the cut_off are retained.}
+#'   \item{\code{cut_off}}{A double specifying the threshold of the ranking criterion. All motifs having a value of the ranking criterion below the cut_off are retained}
 #' }
 #'
 #' @param Y0 A list containing N vectors (for univariate curves) or N matrices (for multivariate curves) representing the functional data.
@@ -110,7 +109,7 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example 1: Discover motifs using ProbKMA
 #' 
 #' # Define dissimilarity measure and weight parameter
@@ -165,7 +164,7 @@
 #' # Example 2: Discover motifs using funBIalign
 #' results_funbialign <- funMoDisco::discoverMotifs(
 #'   Y0 = simulated200$Y0,
-#'   method = "funBIalign",
+#'   method = "FunBIalign",
 #'   stopCriterion = 'Variance',
 #'   name = tempdir(),
 #'   plot = TRUE,
@@ -188,9 +187,10 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                          probKMA_options = list(),
                          funBIalign_options = list(portion_len = NULL,min_card = NULL,cut_off=NULL),
                          worker_number = NULL){
-  
-  oldpar <- par(no.readonly = TRUE)
-  on.exit(par(oldpar))
+  if (plot == TRUE) {
+    oldpar <- par(no.readonly = TRUE)
+    on.exit(par(oldpar), add = TRUE)
+  }
   ### set parallel jobs #############################################################################
   core_number <- parallel::detectCores()
   # check worker number
@@ -1074,7 +1074,9 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
     vec_of_scores_ordered <- NULL
     if(!file.exists(paste0(name,'/resFunBi.rds')))
     {
-      dir.create(paste0(name),showWarnings=TRUE)
+      if (!dir.exists(name)) {
+        dir.create(name, showWarnings = TRUE)
+      }
   cppFunction('
   Rcpp::List createWindow(Rcpp::NumericMatrix& data,
                           unsigned int portion_len,
@@ -1318,6 +1320,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
     pb$update(0.9)
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
+
     if(plot)
     {
       pdf(paste0(name,"/plot_",stopCriterion,".pdf"),width=10,height=5)
@@ -1366,7 +1369,6 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         motifMean <- rowMeans(plot_me)
         title   <- paste0("Number of occurrences: ", dim(plot_me)[2],
                           " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
-        
         matplot(plot_me, ylab='', xlab='',type='l',
                 col=seq_len(length(temp_motif))+1,lwd=2,lty=5, main = title)
         lines(motifMean,col='black',lwd=5,lty=1)
@@ -1387,6 +1389,6 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                     vec_of_scores_ordered = vec_of_scores_ordered)
     return(resFunBi)
   } else {
-    stop('\'method\' not found. It must be choosen between \'probKMA\' and \'funBIalign\'')
+    stop('\'method\' not found. It must be choosen between \'ProbKMA\' and \'FunBIalign\'')
   }
 }

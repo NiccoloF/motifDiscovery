@@ -137,13 +137,12 @@ The following parameters are specific to the \code{funBIalign} algorithm:
 \describe{
   \item{\code{portion_len}}{An integer specifying the length of curve portions to align. This parameter controls the granularity of alignment, allowing the algorithm to focus on specific segments of the curves for motif discovery.}
   \item{\code{min_card}}{An integer representing the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required for a motif to be considered valid. This ensures that only motifs with sufficient representation across the dataset are retained.}
-  \item{\code{cut_off}}{A double that specifies the number of top-ranked motifs to keep based on the ranking criteria, facilitating focused visualization of the most significant motifs.
-                        In particular, all motifs that rank below the cut_off are retained.}
+  \item{\code{cut_off}}{A double specifying the threshold of the ranking criterion. All motifs having a value of the ranking criterion below the cut_off are retained}
 }
 }
 
 \examples{
-\dontrun{
+\donttest{
 # Example 1: Discover motifs using ProbKMA
 
 # Define dissimilarity measure and weight parameter
@@ -198,7 +197,7 @@ results <- funMoDisco::discoverMotifs(
 # Example 2: Discover motifs using funBIalign
 results_funbialign <- funMoDisco::discoverMotifs(
   Y0 = simulated200$Y0,
-  method = "funBIalign",
+  method = "FunBIalign",
   stopCriterion = 'Variance',
   name = tempdir(),
   plot = TRUE,

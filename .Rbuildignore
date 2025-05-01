@@ -1,20 +1,19 @@
 ^.git$
 ^.*\.Rproj$
-^\.Rproj\.user$
-^.*\.RData$
-^.*\.Rhistory$
-^\.DS_Store$
-^\.Rproj\.user$
-^\.Makevars\.swp$
-^..Rcheck$
-^.gitignore$
-^R/.DS_Store$
-^src/.DS_Store$
-^vignettes/.gitignore$
-^Meta$
-^doc$
-^README.md
-^.Rhistory
-^\.github$
-^cran-comments.md
-^CRAN-SUBMISSION$
+^\.Rproj\.user$              # Ignore RStudio user settings
+^.*\.RData$                  # Ignore saved R workspace data
+^.*\.Rhistory$               # Ignore R history files
+^\.DS_Store$                 # Ignore macOS system files
+^\.Makevars\.swp$            # Ignore temporary Makevars swap files
+^\.Rcheck$                   # Ignore R check directory
+^\.gitignore$                # Ignore .gitignore file itself
+^R/\.DS_Store$               # Ignore macOS system files inside R directory
+^src/\.DS_Store$             # Ignore macOS system files inside src directory
+^vignettes/\.gitignore$      # Ignore Git ignore file inside vignettes
+^Meta$                       # Ignore Meta folder (if exists)
+^doc$                        # Ignore doc folder (CRAN prefers vignettes)
+^README\.md$                 # Ignore README.md (CRAN doesn't need it)
+^cran-comments\.md$          # Ignore CRAN comments file
+^CRAN-SUBMISSION$            # Ignore CRAN submission notes
+^src/.*\.o$                  # Ignore compiled object files in src/
+^\.github/
