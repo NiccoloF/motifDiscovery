@@ -5,7 +5,6 @@
 #include "RcppArmadillo.h"
 #include <Rcpp.h>
 #include <Utilities.hpp>
-#include <ranges>
 #include "Parameters.hpp"
 
 // Abstract class for dissimilarities

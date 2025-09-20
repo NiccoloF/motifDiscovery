@@ -159,19 +159,43 @@ void MotifSobol::elongation(KMA::Mfield& V_new,
     }
   }
 
-  // filter centroid and shifts that are not in NA positions
-  auto not_NA_index = std::views::iota(0,v_elong_left_right_size)
-    | std::views::filter([&not_start_with_NA](int index_j){return(not_start_with_NA(index_j));});
+ #if HAS_RANGES
+// C++20 version using ranges
+auto not_NA_index = std::views::iota(0, v_elong_left_right_size)
+                  | std::views::filter([&not_start_with_NA](int index_j){
+                      return not_start_with_NA(index_j);
+                  });
+#else
+// C++17 fallback using simple loop: build a vector of valid indices
+std::vector<int> not_NA_index_vec;
+not_NA_index_vec.reserve(v_elong_left_right_size);
+for (int index_j = 0; index_j < v_elong_left_right_size; ++index_j) {
+    if (not_start_with_NA(index_j)) {
+        not_NA_index_vec.push_back(index_j);
+    }
+}
+#endif
 
-  KMA::Mfield filtered_v_elong(arma::accu(not_start_with_NA),Y.n_cols);
-  std::vector<arma::ivec> filtered_s_k(arma::accu(not_start_with_NA));
+// Allocate filtered containers
+KMA::Mfield filtered_v_elong(arma::accu(not_start_with_NA), Y.n_cols);
+std::vector<arma::ivec> filtered_s_k(arma::accu(not_start_with_NA));
 
-  int i = 0;
-  for(const auto & index : not_NA_index){
+int i = 0;
+
+#if HAS_RANGES
+for (const auto &index : not_NA_index) {
     filtered_v_elong.row(i) = v_elong_left_right.row(index);
     filtered_s_k[i] = s_k_elong_left_right[index];
-    i = i + 1;
-  }
+    ++i;
+}
+#else
+for (int idx : not_NA_index_vec) {
+    filtered_v_elong.row(i) = v_elong_left_right.row(idx);
+    filtered_s_k[i] = s_k_elong_left_right[idx];
+    ++i;
+}
+#endif
+
 
   const unsigned int s_k_elong_left_right_size = filtered_s_k.size();
 

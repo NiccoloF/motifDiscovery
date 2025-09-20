@@ -4,7 +4,6 @@
 #include "TypeTraits.hpp"
 #include <Rcpp.h>
 #include <numeric>
-#include <ranges>
 #include <algorithm>
 #include <variant>
 #include <memory>

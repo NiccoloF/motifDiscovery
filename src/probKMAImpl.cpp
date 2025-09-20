@@ -610,20 +610,50 @@ public:
           y_len = y0.n_rows;
           Y_in_motifs(l,0).set_size(v_dom.n_elem,d);
           Y_in_motifs(l,0).fill(arma::datum::nan);
-          auto filtered_j = std::views::iota(0,index_size)  
-            | std::views::filter([&y_len,&v_dom, &index](int j){return (index[j] <= y_len && v_dom(j));});
-          for(int j : filtered_j) 
-            Y_in_motifs(l,0).row(std::max(0,1-s) + j) =  y0.row(index[j] - 1);
+#if HAS_RANGES
+          // C++20 version using ranges
+          auto filtered_j = std::views::iota(0, index_size)
+            | std::views::filter([&y_len, &v_dom, &index](int j){
+              return index[j] <= y_len && v_dom(j);
+            });
+          
+          for (int j : filtered_j) {
+            Y_in_motifs(l,0).row(std::max(0,1-s) + j) = y0.row(index[j] - 1);
+          }
+          
+#else
+          // C++17 fallback using simple loop
+          for (int j = 0; j < index_size; ++j) {
+            if (index[j] <= y_len && v_dom(j)) {
+              Y_in_motifs(l,0).row(std::max(0,1-s) + j) = y0.row(index[j] - 1);
+            }
+          }
+#endif
           if (_isY0 and _isY1)
           {
             const KMA::matrix & y1 = _Y(curves_in_motif[j],1);
             y_len = y1.n_rows;
             Y_in_motifs(l,1).set_size(v_dom.n_elem,d);
             Y_in_motifs(l,1).fill(arma::datum::nan);
-            auto filtered_j = std::views::iota(0,index_size) 
-              | std::views::filter([&y_len,&v_dom, &index](int j){return (index[j] <= y_len && v_dom(j));});
-            for(int j : filtered_j)
-              Y_in_motifs(l,1).row(std::max(0,1-s) + j) =  y1.row(index[j] - 1);
+#if HAS_RANGES
+            // C++20 version using ranges
+            auto filtered_j = std::views::iota(0, index_size)
+              | std::views::filter([&y_len, &v_dom, &index](int j){
+                return index[j] <= y_len && v_dom(j);
+              });
+            
+            for (int j : filtered_j) {
+              Y_in_motifs(l,1).row(std::max(0,1-s) + j) = y1.row(index[j] - 1);
+            }
+            
+#else
+            // C++17 fallback using simple loop
+            for (int j = 0; j < index_size; ++j) {
+              if (index[j] <= y_len && v_dom(j)) {
+                Y_in_motifs(l,1).row(std::max(0,1-s) + j) = y1.row(index[j] - 1);
+              }
+            }
+#endif
           }
           l++;
         }
@@ -654,11 +684,23 @@ public:
 
       const arma::urowvec & equal_length = (YY_length_row0 == YY_length_row1);
 
-      auto filtered_j_swap = std::views::iota(0,YY_length_size) 
-           | std::views::filter([&swap](int j){return swap(j);});
+#if HAS_RANGES
+      // C++20 version using ranges
+      auto filtered_j_swap = std::views::iota(0, YY_length_size)
+        | std::views::filter([&swap](int j){ return swap(j); });
       
-      for (int j : filtered_j_swap)
-        std::swap(indeces_YY(0,j),indeces_YY(1,j));
+      for (int j : filtered_j_swap) {
+        std::swap(indeces_YY(0, j), indeces_YY(1, j));
+      }
+      
+#else
+      // C++17 fallback using simple loop
+      for (int j = 0; j < YY_length_size; ++j) {
+        if (swap(j)) {
+          std::swap(indeces_YY(0, j), indeces_YY(1, j));
+        }
+      }
+#endif
       
       KMA::vector SD(YY_length_size);
       KMA::vector min_diss;
