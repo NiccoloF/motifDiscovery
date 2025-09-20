@@ -18,6 +18,7 @@
 #' \item{silhouette_average}{A vector of average silhouette widths for each motif.}
 #'
 #' @import graphics
+#' @import grDevices
 #' @export
 probKMA_silhouette_plot <- function(silhouette_results,K,plot = TRUE){
   # Plot the adapted silhouette index on the results of probKMA.

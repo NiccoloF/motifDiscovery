@@ -87,7 +87,8 @@
 #' \describe{
 #'   \item{\code{portion_len}}{An integer specifying the length of curve portions to align. This parameter controls the granularity of alignment, allowing the algorithm to focus on specific segments of the curves for motif discovery.}
 #'   \item{\code{min_card}}{An integer representing the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required for a motif to be considered valid. This ensures that only motifs with sufficient representation across the dataset are retained.}
-#'   \item{\code{cut_off}}{A double specifying the threshold of the ranking criterion. All motifs having a value of the ranking criterion below the cut_off are retained}
+#'   \item{\code{cut_off}}{A double that specifies the number of top-ranked motifs to keep based on the ranking criteria, facilitating focused visualization of the most significant motifs.
+#'                         In particular, all motifs that rank below the cut_off are retained.}
 #' }
 #'
 #' @param Y0 A list containing N vectors (for univariate curves) or N matrices (for multivariate curves) representing the functional data.
@@ -119,7 +120,7 @@
 #' # Define number of motifs and their minimum lengths
 #' K <- c(2, 3)
 #' c <- c(61, 51)
-#' n_init <- 10
+#' n_init <- 3
 #' 
 #' # Load simulated data
 #' data("simulated200")
@@ -130,7 +131,7 @@
 #'   method = "ProbKMA",
 #'   stopCriterion = "max",
 #'   name = tempdir(),
-#'   plot = TRUE,
+#'   plot = FALSE,
 #'   probKMA_options = list(
 #'     Y1 = simulated200$Y1,
 #'     K = K,
@@ -139,41 +140,24 @@
 #'     diss = diss,
 #'     alpha = alpha
 #'   ),
-#'   worker_number = NULL
+#'   worker_number = 1
 #' )
-#' 
-#' # Modify silhouette threshold and re-run post-processing
-#' results <- funMoDisco::discoverMotifs(
-#'   Y0 = simulated200$Y0,
-#'   method = "ProbKMA",
-#'   stopCriterion = "max",
-#'   name = tempdir(),
-#'   plot = TRUE,
-#'   probKMA_options = list(
-#'     Y1 = simulated200$Y1,
-#'     K = K,
-#'     c = c,
-#'     n_init = n_init,
-#'     diss = diss,
-#'     alpha = alpha,
-#'     sil_threshold = 0.5
-#'   ),
-#'   worker_number = NULL
-#' )
-#' 
+#'
 #' # Example 2: Discover motifs using funBIalign
 #' results_funbialign <- funMoDisco::discoverMotifs(
 #'   Y0 = simulated200$Y0,
-#'   method = "FunBIalign",
-#'   stopCriterion = 'Variance',
-#'   name = tempdir(),
-#'   plot = TRUE,
+#'   method = "funBIalign",
+#'   stopCriterion = "fMSR",
+#'   name = getwd(),
+#'   plot = FALSE,
 #'   funBIalign_options = list(
 #'     portion_len = 60,
 #'     min_card = 3,
 #'     cut_off = 1.0
-#'   )
-#' )
+#'   ),
+#'   worker_number = 1
+#'   ) 
+#' 
 #' }
 #'
 #' @seealso 
@@ -182,15 +166,17 @@
 #' \strong{funBIalign}: 
 #' \href{https://arxiv.org/pdf/2306.04254}{Hierarchical Clustering with Mean Squared Residue Scores}.
 #'
+#' @importFrom grDevices pdf dev.off rainbow
+#' @importFrom progress progress_bar
+#' 
 #' @export
 discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                          probKMA_options = list(),
                          funBIalign_options = list(portion_len = NULL,min_card = NULL,cut_off=NULL),
                          worker_number = NULL){
-  if (plot == TRUE) {
-    oldpar <- par(no.readonly = TRUE)
-    on.exit(par(oldpar), add = TRUE)
-  }
+  
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
   ### set parallel jobs #############################################################################
   core_number <- parallel::detectCores()
   # check worker number
@@ -362,10 +348,10 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         stop('Y0 should be a list of vectors or matrices.')
     if((FALSE %in% lapply(Y0,is.matrix))&&(FALSE %in% lapply(Y0,is.vector)))
       stop('Y0 should be a list of vectors or matrices.')
-    N=length(Y0) # number of curves
+    N = length(Y0) # number of curves
     if(N!=1 && N<5)
       stop('More curves y_i(x) needed.')
-    Y0=lapply(Y0,as.matrix)
+    Y0 = lapply(Y0,as.matrix)
     # set return_options=TRUE
     if(!is.null(probKMA_options$return_options)){
       if(probKMA_options$return_options==FALSE){
@@ -396,6 +382,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         parallel::clusterExport(cl_find,c('name','names_var',
                                           'probKMA_plot','probKMA_silhouette_plot',
                                           '.mapply_custom','.diss_d0_d1_L2','.domain',
+                                          'initialChecks',
                                           '.select_domain','.find_min_diss',
                                           'probKMA_wrap','arguments'),envir=environment()) 
         parallel::clusterCall(cl_find, function() {
@@ -411,7 +398,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
     vector_seed = seq(1,length(i_c_K$Var1))
     if(n_init_motif > 0 && V_init_bool)
     {
-      V_init_unlist=unlist(unlist(V_init,recursive=FALSE),recursive=FALSE)
+      V_init_unlist = unlist(unlist(V_init,recursive=FALSE),recursive=FALSE)
       results=tryCatch({.mapply_custom(cl_find,function(K,c,i,v_init,small_seed){
         dir.create(paste0(name,"K",K,"_c",c),showWarnings=FALSE,recursive = TRUE)
         files=list.files(paste0(name,"K",K,"_c",c))
@@ -447,21 +434,30 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
           }
           if(plot) {
           transformed=probKMA_results$transformed
-          pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE, transformed = arguments$transformed)
-          dev.off()
+          # RANDOM PLOT
+          #pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
+          #probKMA_plot(probKMA_results,ylab=names_var,plot = plot,cleaned=FALSE, transformed = arguments$transformed)
+          #dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,ylab=names_var,sil_avg = silhouette_results[[4]],plot = plot,cleaned=TRUE, transformed = arguments$transformed) 
+          probKMA_plot(probKMA_results,
+                       ylab = names_var,
+                       sil_avg = silhouette_results[[4]],
+                       plot = plot,
+                       cleaned=TRUE,
+                       transformed = arguments$transformed) 
           dev.off()
-          pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-          silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
+          
+          # RANDOM SILHOUETTE PLOT
+          #pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
+          ##silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
           dev.off()
           } else {
             silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
           }
-          save(probKMA_results,time,silhouette,
-               file=paste0(name,"K",K,"_c",c,'/random',i,'.RData'))
-          return(list(probKMA_results=probKMA_results,
+          save(probKMA_results, time, silhouette,
+               file = paste0(name, "K", K, "_c", c, '/random', i, '.RData')
+               )
+          return(list(probKMA_results =probKMA_results,
                       time=time,silhouette=silhouette))
         }
       },i_c_K[,3],i_c_K[,2],i_c_K[,1],V_init_unlist,vector_seed,SIMPLIFY=FALSE)},error = function(e){
@@ -610,14 +606,14 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
               warning('Maximum number of iteration reached. Re-starting.')
           }
           if(plot) {
-          pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-          probKMA_plot(probKMA_results,
-                              plot = TRUE,
-                              ylab=names_var,
-                              sil_avg = silhouette_results[[4]],
-                              cleaned=FALSE,
-                              transformed = arguments$transformed)
-          dev.off()
+          # pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
+          # probKMA_plot(probKMA_results,
+          #                     plot = TRUE,
+          #                     ylab=names_var,
+          #                     sil_avg = silhouette_results[[4]],
+          #                     cleaned=FALSE,
+          #                     transformed = arguments$transformed)
+          # dev.off()
           pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
           probKMA_plot(probKMA_results,
                               plot = TRUE,
@@ -627,9 +623,9 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                               transformed = arguments$transformed)
           dev.off()
 
-          pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
+          #pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
           silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
-          dev.off()
+          #dev.off()
           } else {
             silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
           }
@@ -644,7 +640,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         stop(e$message)
       })
       } else {
-      results=tryCatch({.mapply_custom(cl_find, function(K,c,i,small_seed){ 
+      results = tryCatch({.mapply_custom(cl_find, function(K,c,i,small_seed){ 
         dir.create(paste0(name,"K",K,"_c",c),showWarnings=TRUE,recursive = TRUE)
         files=list.files(paste0(name,"K",K,"_c",c))
         if(paste0('random',i,'.RData') %in% files){
@@ -678,14 +674,14 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
               warning('Maximum number of iteration reached. Re-starting.')
           }
           if(plot) {
-            pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
-            probKMA_plot(probKMA_results,
-                         plot = TRUE,
-                         ylab=names_var,
-                         sil_avg = silhouette_results[[4]],
-                         cleaned=FALSE,
-                         transformed = arguments$transformed)
-            dev.off()
+            # pdf(paste0(name,"K",K,"_c",c,'/random',i,'.pdf'),width=20,height=10)
+            # probKMA_plot(probKMA_results,
+            #              plot = TRUE,
+            #              ylab=names_var,
+            #              sil_avg = silhouette_results[[4]],
+            #              cleaned=FALSE,
+            #              transformed = arguments$transformed)
+            # dev.off()
             pdf(paste0(name,"K",K,"_c",c,'/random',i,'clean.pdf'),width=20,height=10)
             probKMA_plot(probKMA_results,
                          plot = TRUE,
@@ -695,9 +691,9 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                          transformed = arguments$transformed)
             dev.off()
             
-            pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
-            silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = plot)
-            dev.off()
+            #pdf(paste0(name,"K",K,"_c",c,'/random',i,'silhouette.pdf'),width=7,height=10)
+            silhouette = probKMA_silhouette_plot(silhouette_results, K, plot = plot)
+            #dev.off()
           } else {
             silhouette = probKMA_silhouette_plot(silhouette_results,K,plot = FALSE)
           }
@@ -765,7 +761,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                                   times=unlist(lapply(results,function(results) results$time[3])))
                  })
     if(plot){
-      pdf(paste0(name,'times.pdf'),width=7,height=5)
+      #pdf(paste0(name,'times.pdf'),width=7,height=5)
       y_max=max(unlist(times))*1.2
       times_plot=vector('list',length(K))
       for(i in seq_along(K)){
@@ -790,7 +786,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         boxplot(times_plot[[i]],col=1+seq_along(c),names=paste0('c=',c),ylim=c(0,y_max),
                 xlab='',ylab='Times',main=paste0('K=',K[i]))
       }
-      dev.off()
+      #dev.off()
     }
     
     ### plot dissimilarities ####################################################################################
@@ -805,7 +801,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                                      })
                           })
                })
-      pdf(paste0(name,'dissimilarities.pdf'),width=7,height=5)
+      #pdf(paste0(name,'dissimilarities.pdf'),width=7,height=5)
       y_max=max(unlist(D))
       for(i in seq_along(K)){
         D_plot=matrix(unlist(D[[i]]),ncol=length(c))
@@ -822,7 +818,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
           mtext("Init",side=1,line=1)
         }
       }
-      dev.off()
+      #dev.off()
       D_clean=lapply(results,
                      function(results){
                        D_clean=lapply(results,
@@ -864,7 +860,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
           return(as.matrix(motif_length))
         },results,SIMPLIFY=FALSE)
       },results,SIMPLIFY=FALSE)
-      pdf(paste0(name,'lengths.pdf'),width=7,height=5)
+      #pdf(paste0(name,'lengths.pdf'),width=7,height=5)
       motif_length_plot=lapply(motif_length,
                                function(motif_length){
                                  lapply(motif_length,
@@ -888,7 +884,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         }
         legend('bottomleft',legend=paste0('c=',c),col=1+seq_along(c),pch=8)
       }
-      dev.off()
+      #dev.off()
       
       motif_clean_length=mapply(function(results){
         motif_length=mapply(function(results){
@@ -925,7 +921,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
       }
       dev.off()
       
-      pdf(paste0(name,'lengths_perc.pdf'),width=7,height=5)
+      #pdf(paste0(name,'lengths_perc.pdf'),width=7,height=5)
       motif_length_perc=mapply(function(results){
         motif_length=mapply(function(results){
           motif_length=as.matrix(Reduce(cbind,lapply(results,
@@ -958,7 +954,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         }
         legend('bottomleft',legend=paste0('c=',c),col=1+seq_along(c),pch=8)
       }
-      dev.off()
+      #dev.off()
       
       pdf(paste0(name,'lengths_clean_perc.pdf'),width=7,height=5)
       motif_clean_length_perc=mapply(function(results){
@@ -1041,17 +1037,20 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                 filter_candidate_motifs_results = filter_candidate_motifs_results,
                 cluster_candidate_motifs_results = cluster_candidate_motifs_results,
                 motifs_search_results = motifs_search_results))
-  }else if(method=="FunBIalign")
-  {
+  }else if(method=="funBIalign"){ # funBIalign --------
+    
     if(length(funBIalign_options) != 3) {
       stop('\'funBIalign_options\' must contain: \'portion_len\',\'min_card\',\'cut_off\'.')
     }
-    portion_len <- funBIalign_options$portion_len
-    min_card <- funBIalign_options$min_card
-    cut_off <- funBIalign_options$cut_off
+    
+    portion_len <- funBIalign_options$portion_len # portion_len
+    min_card <- funBIalign_options$min_card # minimum cardinality
+    cut_off <- funBIalign_options$cut_off # quality threshold
+    
     # check required input
     if(missing(portion_len) || is.null(portion_len))
       stop('portion_len attribute must be specified')
+    
     if(missing(min_card) || is.null(min_card))
       stop('min_card attribute must be specified')
     
@@ -1064,21 +1063,50 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
     pb$update(0.1)
     #compute maximum length
     maxLen <- max(sapply(Y0, nrow))
-    full_data <- sapply(Y0, padding, maxLen,simplify = FALSE)
+    # pad a Matrix to a Specified Number of Rows using the function padding (in "padding.R")
+    full_data <- sapply(Y0, padding, maxLen, simplify = FALSE)
     
     # transform list into a matrix where each curve is on a row
-    full_data <- t(sapply(full_data,cbind))
-
+    full_data <- t(sapply(full_data, cbind))
+    
+    # prepare output elements
     window_data <- NULL
     list_of_recommendations_ordered <- NULL
     vec_of_scores_ordered <- NULL
-    if(!file.exists(paste0(name,'/resFunBi.rds')))
-    {
-      if (!dir.exists(name)) {
-        dir.create(name, showWarnings = TRUE)
-      }
-  cppFunction('
-  Rcpp::List createWindow(Rcpp::NumericMatrix& data,
+    
+    # check if the resulting file exists.
+    rds_files <- list.files(path = paste0(name),
+                            pattern = "\\.rds$",
+                            full.names = TRUE)
+    
+    # create 
+    if(length(rds_files) > 1){
+      rds_files_stats <- lapply(rds_files,
+                                function(x){
+                                  len <- as.integer(sub(".*portion_len_(\\d+)_.*", "\\1", x))
+                                  card <- as.integer(sub(".*min_card_(\\d+)\\.rds$", "\\1", x))
+                                  c("len" = len, "card" = card)
+                                })
+      
+      rds_files_stats <- do.call(rbind,
+                                 rds_files_stats) %>% as.data.frame()
+    } else {
+      rds_files_stats <- data.frame("len"  = 0,
+                                    "card" = 0) # empty data frame
+    }
+    
+    
+    # if it does not exist then...
+    if(all(rds_files_stats$len == portion_len & rds_files_stats$card == min_card) == FALSE){
+      
+      # there are no files with the same portion_len
+      if(all(rds_files_stats$len != portion_len)){
+        # create new directory
+        dir.create(paste0(name),showWarnings=FALSE)
+      
+        # createWindow with RCpp
+    cppFunction('
+    Rcpp::List createWindow(Rcpp::NumericMatrix& data,
                           unsigned int portion_len,
                           unsigned int worker_number){
   
@@ -1123,15 +1151,16 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
   }
   return Rcpp::List::create(windowData,window_rownames);
 }',depends = "RcppArmadillo")
+  
     # step 1
-    window_data_list <- createWindow(full_data,portion_len,worker_number)
-    window_data <- window_data_list[[1]]
-    rownames(window_data) <- window_data_list[[2]]
+    window_data_list <- createWindow(full_data, portion_len, worker_number) 
+    window_data <- window_data_list[[1]] # data
+    rownames(window_data) <- window_data_list[[2]] # row names added
     pb$update(0.3)
-    # set it as a matrix and omit rows with NAs
-    window_data <- na.omit(window_data)
     
-    # compute numerosity 
+    # set it as a matrix and omit rows with NAs
+    window_data <- na.omit(window_data) 
+    
     numerosity <- rep(dim(full_data)[2] - portion_len + 1,times = dim(full_data)[1])
     removed_rows <- setdiff(window_data_list[[2]],rownames(window_data))
     curve_indices <- as.numeric(gsub("^(\\d+)_.*", "\\1", removed_rows))
@@ -1141,7 +1170,8 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
     rm(window_data_list)
     rm(removed_rows)
     rm(tab)
-    
+  
+    # createDistance function
   cppFunction('
   Rcpp::NumericMatrix createDistance(Rcpp::NumericMatrix& windowData,
                                      const arma::vec& numerosity,
@@ -1210,47 +1240,93 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
   }
   return Rcpp::wrap(result);
 }',depends = "RcppArmadillo")
-# step 2: compute fMRS-based dissimilarity matrix
-    D_fmsr <- createDistance(window_data,numerosity,worker_number)
+
+    ## STEP 2 -----
+    # step 2: compute fMRS-based dissimilarity matrix
+    D_fmsr <- createDistance(window_data, numerosity, worker_number) # compute
     pb$update(0.5)
-    rownames(D_fmsr) <- colnames(D_fmsr) <- rownames(window_data)
-    ## STEP 3 -----
+    rownames(D_fmsr) <- colnames(D_fmsr) <- rownames(window_data) # update rownames and colnames
+    
+    # STEP 3 -----
     # step 3: get the sub-trees (tree_s)
     minidend  <- get_minidend(as.dist(D_fmsr))
+    
+    # case where I am just changing the min_card
+    } else if(any(rds_files_stats$len == portion_len)) { # I can reuse the minidend
+        
+      file_id <- which(rds_files_stats$len == portion_len)[1]
+      resFunBiMeta <- readRDS(rds_files[file_id]) 
+      
+      minidend <- resFunBiMeta$minidend
+      window_data <- resFunBiMeta$window_data
+    }   
+    
     # step 3: identify seeds and corresponding families
-
-    all_paths   <- get_path_complete(minidend, window_data, min_card = min_card,worker_number = worker_number)
-    all_paths   <- all_paths[!(lapply(all_paths, is.null) %>% unlist())] 
+    # this part depends on min_card (it should be redone when min_card is changed)
+    all_paths <- get_path_complete(minidend,
+                                   window_data, 
+                                   min_card = min_card,
+                                   worker_number = worker_number)
+    all_paths <- all_paths[!(lapply(all_paths, is.null) %>% unlist())] 
     pb$update(0.65)
+    
     # step 3: get recommended nodes and their info (cardinality and score)
     # collect all recommended nodes (as an array of portion ids)
     all_recommended_labels <- lapply(all_paths, function(x){x$recommended_node_labels})
     list_of_recommendations <- lapply(rapply(
       all_recommended_labels, enquote, how='unlist'),
       eval)
+    
     # get recommended node cardinality
     vec_of_card <- lapply(list_of_recommendations, length) %>% unlist()
     
     # get vector of adjusted fMSR
     vec_of_scores <- lapply(all_paths, function(x){x$recommended_node_scores}) %>% unlist()
     
-    resFunBiMeta = list(window_data = window_data,
-                        list_of_recommendations = list_of_recommendations,
-                        vec_of_scores = vec_of_scores)
-    # save results 
-    saveRDS(resFunBiMeta,file = paste0(name,'/resFunBi.rds')) 
+    # get list of candidates
+    list_of_candidates <- lapply(list_of_recommendations,
+                                 function(x){
+                                   window_data[x,]
+                                 })
     
-    } else {
-      resFunBiMeta <- readRDS(paste0(name,'/resFunBi.rds'))
+    # create the saved (as an .rds) object
+    resFunBiMeta = list(window_data = window_data, # original window_data
+                        minidend = minidend, # minidend so that you can reuse it with different min_card
+                        list_of_recommendations = list_of_recommendations, # list of portion IDs for each motif
+                        vec_of_scores = vec_of_scores, # vec of scores for each motif
+                        vec_of_card = vec_of_card, # vec of cardinalities
+                        list_of_candidates = list_of_candidates) # list of candidate motifs (matrices)
+    
+    # save the COMPLETE results: unordered and unfiltered.
+    #saveRDS(resFunBiMeta,file = paste0(name,'/resFunBi.rds'))
+    saveRDS(resFunBiMeta,
+            file = paste0(name,
+            '/completeFunBIalign_portion_len_',
+            portion_len,
+            '_min_card_', min_card,
+            '.rds')) 
+    
+    # Now that the file is generated we can proceed with STEP 4: post-processing
+    } else if(any(rds_files_stats$len == portion_len & rds_files_stats$card == min_card) == TRUE){ # if the file DOES exist then I just do step 4
+      
+      # get the data with same portion_len and min_card
+      file_id <- which((rds_files_stats$len == portion_len) & (rds_files_stats$card == min_card))
+      resFunBiMeta <- readRDS(rds_files[file_id]) 
+      
+      # get all the info
       window_data <- resFunBiMeta$window_data
+      minidend <- resFunBiMeta$minidend
       list_of_recommendations <-  resFunBiMeta$list_of_recommendations
       vec_of_scores <- resFunBiMeta$vec_of_scores
+      vec_of_card <-  resFunBiMeta$vec_of_card
+      list_of_candidates <- resFunBiMeta$list_of_candidates
     }
     
     ## STEP 4 -----
     # STEP 4: post-processing and rearranging results using different criteria
     pb$update(0.8)
-    if (stopCriterion == "Variance") {
+    if (stopCriterion == "variance") { # "variance"
+      ### variance ----
       motif_var <- lapply(list_of_recommendations, 
                           function(x){
                             temp <- window_data[x,]
@@ -1259,14 +1335,29 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
                           }) %>% unlist()
       
       var_order <- motif_var %>% order(decreasing = TRUE)
+      
       vec_of_scores_ordered <- vec_of_scores[var_order]
+      vec_of_card_ordered <- vec_of_card[var_order]
+      list_of_candidates_ordered <- list_of_candidates[var_order]
       list_of_recommendations_ordered <- list_of_recommendations[var_order]
-    } else {
-      ### CRITERION: adjusted fMSR ----
+      
+    }else if(stopCriterion == "hybrid"){ # hybrid
+      ### hybrid: ranks sum -----
+      hy_order <- (rank(-vec_of_card) + rank(vec_of_scores)) %>% order()
+      
+      vec_of_scores_ordered <- vec_of_scores[hy_order]
+      vec_of_card_ordered <- vec_of_card[hy_order]
+      list_of_candidates_ordered <- list_of_candidates[hy_order]
+      list_of_recommendations_ordered <- list_of_recommendations[hy_order]
+      
+    }else if(stopCriterion == "fMSR"){ #fMSR (default)
+      ### adjusted fMSR -----
       best_order <- vec_of_scores %>% order()
+      
       vec_of_scores_ordered <- vec_of_scores[best_order]
-      # ordered list_of_recommendations
-      list_of_recommendations_ordered <- list_of_recommendations[best_order]  
+      vec_of_card_ordered <- vec_of_card[best_order]
+      list_of_candidates_ordered <- list_of_candidates[best_order]
+      list_of_recommendations_ordered <- list_of_recommendations[best_order]
     }
     
     #for every recommended motif, compute all its accolites
@@ -1304,26 +1395,41 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
   return del;
   
 }',depends="RcppArmadillo")
+    
     delete <- deleteV(list_of_recommendations_ordered,
                       all_accolites,
                       vec_of_scores_ordered)
-    # we delete the recommended nodes and we order the remaining ones
-    list_of_recommendations_ordered <- list_of_recommendations_ordered[-delete]
+    
+    # we delete the accolytes and we order the remaining ones
     vec_of_scores_ordered <- vec_of_scores_ordered[-delete]
+    vec_of_card_ordered <- vec_of_card_ordered[-delete]
+    list_of_candidates_ordered <- list_of_candidates_ordered[-delete]
+    list_of_recommendations_ordered <- list_of_recommendations_ordered[-delete]
+    
     if(!is.null(cut_off)) {
       valid_pos <- which(vec_of_scores_ordered < cut_off)
+      
       vec_of_scores_ordered <- vec_of_scores_ordered[valid_pos]
-      list_of_recommendations_ordered <- list_of_recommendations_ordered[valid_pos] 
+      vec_of_card_ordered <- vec_of_card_ordered[valid_pos]
+      list_of_candidates_ordered <- list_of_candidates_ordered[valid_pos] 
+      list_of_recommendations_ordered <- list_of_recommendations_ordered[valid_pos]
+      
       if(is.null(vec_of_scores_ordered))
         stop("the value of \'cut_off\' is to high. No motifs discovered. Provide a lower value")
     }
     pb$update(0.9)
     # Creating some plot ----
     ## Plot the data and highlight the motif occurrences in red -----
-
     if(plot)
     {
-      pdf(paste0(name,"/plot_",stopCriterion,".pdf"),width=10,height=5)
+      pdf(paste0(name,
+                 '/FunBIalign_portion_len_', portion_len,
+                 '_min_card_', min_card,
+                 '_plot_', stopCriterion,
+                 '.pdf'),
+          width=10,
+          height=5)
+      
       layout(matrix(1:2,ncol=2,byrow=TRUE),widths=c(8.5,1))
       for(q in 1:length(list_of_recommendations_ordered)){
         temp_motif <- list_of_recommendations_ordered[[q]]
@@ -1369,6 +1475,7 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
         motifMean <- rowMeans(plot_me)
         title   <- paste0("Number of occurrences: ", dim(plot_me)[2],
                           " - adj fMSR:  ", vec_of_scores_ordered[q] %>% round(3))
+        
         matplot(plot_me, ylab='', xlab='',type='l',
                 col=seq_len(length(temp_motif))+1,lwd=2,lty=5, main = title)
         lines(motifMean,col='black',lwd=5,lty=1)
@@ -1385,10 +1492,14 @@ discoverMotifs <- function(Y0,method,stopCriterion,name,plot,
       dev.off()
     }
     pb$update(1.0)
-    resFunBi = list(list_of_recommendations_ordered = list_of_recommendations_ordered,
-                    vec_of_scores_ordered = vec_of_scores_ordered)
+    resFunBi = list(window_data = window_data,
+                    list_of_recommendations_ordered = list_of_recommendations_ordered,
+                    vec_of_scores_ordered = vec_of_scores_ordered,
+                    vec_of_card_ordered = vec_of_card_ordered,
+                    list_of_candidates_ordered = list_of_candidates_ordered)
+    
     return(resFunBi)
   } else {
-    stop('\'method\' not found. It must be choosen between \'ProbKMA\' and \'FunBIalign\'')
+    stop('\'method\' not found. It must be choosen between \'probKMA\' and \'funBIalign\'')
   }
 }

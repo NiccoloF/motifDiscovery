@@ -100,6 +100,9 @@ generate_curve_vector <- function(fd_curve, step_by = 1, Lfdobj = 0){
 #'
 #' @return A numeric vector of the motif values with added noise.
 #'
+#' @importFrom utils tail
+#' @importFrom stats rnorm sd var
+#' @importFrom fda create.bspline.basis fd smooth.basis eval.fd
 #' @export
 add_error_to_motif <- function(or_y, noise_str, start_point, end_point,k){
   err_y <- or_y
@@ -202,7 +205,7 @@ generate_background_curve <- function(len, dist_knots, norder, weights, add_nois
 #'
 #' @export
 add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, mot_weights, noise_str,
-                      only_der,coeff_min_shift,coeff_max_shift){
+                      only_der, coeff_min_shift, coeff_max_shift){
   # create knots and generate the corresponding b-spline basis for every curve
   max_len <- max(mot_len[2])
   mot_breaks <- seq(from = 0,max_len,by = dist_knots)
@@ -223,7 +226,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
     end_break   <- start_break + floor(mot_len[mot_len[,1]==as.numeric(i),2] / dist_knots) + mot_order - 2 
     for (n in seq_along(start_break)) {
       base_curve_coeff[start_break[n]:end_break[n]] <- mot_coeff[[i]]
-      if(!only_der) {
+      if(only_der == TRUE) {
         base_curve_coeff[start_break[n]:end_break[n]] <- base_curve_coeff[start_break[n]:end_break[n]] + rep(runif(1,min=coeff_min_shift,max=coeff_max_shift),length(mot_coeff[[i]])) 
       }
     }
@@ -308,6 +311,7 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
 #' @param norder An integer specifying the order of the B-spline.
 #' @param coeff_min A numeric value indicating the minimum coefficient value for uniform or beta distributions.
 #' @param coeff_max A numeric value indicating the maximum coefficient value for uniform or beta distributions.
+#' @param motif_seed An integer value setting the seed for the random number generator used in motif generation. This ensures reproducibility of the motif embedding process. Default is `43213`.
 #'
 #' @return A modified motif structure containing the generated coefficients.
 #'
@@ -315,12 +319,16 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
 #' - For uniform distribution, coefficients are generated within the specified range defined by `coeff_min` and `coeff_max`.
 #' - For beta distribution, coefficients are scaled to the desired range using the specified minimum and maximum values.
 #'
+#' @importFrom stats runif rbeta
+#' 
 #' @export
-.generate_coefficients <- function(motif_i, distrib, dist_knots, norder, coeff_min, coeff_max) {
+.generate_coefficients <- function(motif_i, distrib, dist_knots, norder, coeff_min, coeff_max, motif_seed) {
   # Calculate the length of the coefficients vector
   l <- motif_i$len / dist_knots + norder - 1
+  # set seed
+  set.seed(motif_seed) # NEW UPDATE
   if(is.numeric(distrib)) {
-    motif_i$coeffs <- sample(distrib,size = l,replace = TRUE)
+    motif_i$coeffs <- sample(distrib, size = l,replace = TRUE)
   }
   else if (distrib == "unif") {
     # Generate coefficients from a uniform distribution
@@ -333,6 +341,25 @@ add_motif <- function(base_curve, mot_pattern, mot_len, dist_knots, mot_order, m
   }
   return(motif_i)
 }
+
+# PREVIOUS VERSION
+# .generate_coefficients <- function(motif_i, distrib, dist_knots, norder, coeff_min, coeff_max) {
+#   # Calculate the length of the coefficients vector
+#   l <- motif_i$len / dist_knots + norder - 1
+#   if(is.numeric(distrib)) {
+#     motif_i$coeffs <- sample(distrib, size = l,replace = TRUE)
+#   }
+#   else if (distrib == "unif") {
+#     # Generate coefficients from a uniform distribution
+#     motif_i$coeffs <- runif(l, min = coeff_min, max = coeff_max)
+#   } else if (distrib == "beta") {
+#     # Generate coefficients from a beta distribution and scale to the desired range
+#     motif_i$coeffs <- coeff_min + rbeta(l, shape1 = 0.45, shape2 = 0.45) * (coeff_max - coeff_min)
+#   } else {
+#     stop("Wrong 'distrib': ", distrib)
+#   }
+#   return(motif_i)
+# }
 
 
 #' Check Fits for Motifs

@@ -27,6 +27,10 @@
 #' 4. Determines a global radius (`R_all`) using KNN classification.
 #' 5. Clusters motifs and determines group-specific radii (`R_m`) for each cluster.
 #'
+#' @importFrom combinat combn
+#' @importFrom stats as.dist quantile density na.omit as.dendrogram
+#' @importFrom utils modifyList
+#' @import ggplot2
 #' @export
 cluster_candidate_motifs <- function(filter_candidate_motifs_results,motif_overlap=0.6,
                                      k_knn=3,votes_knn_Rall=0.5,votes_knn_Rm=0.5,worker_number=NULL){

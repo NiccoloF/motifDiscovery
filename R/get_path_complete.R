@@ -32,15 +32,26 @@ get_path_complete <- function(minidend, window_data, min_card,worker_number){
   clusterEvalQ(cl, {
     library(dplyr)
     library(data.table)
+    library(Rcpp) # ADDED
   })
   
-  # Export necessary variables and functions to the cluster
-  clusterExport(cl, c("find_recommended_path", "window_data", "min_card","partition_leaves", "get_nodes_xy")
-                ,envir = environment())
+  # Export necessary variables and functions to the cluster (partition_leaces and get_nodes_xy from dendextend)
+  clusterExport(cl, 
+                c("find_recommended_path",
+                  "window_data",
+                  "min_card",
+                  "partition_leaves",
+                  "get_nodes_xy",
+                  "get_parents", # ADDED
+                  "recommend_node"), # ADDED
+                envir = environment())
   
   # Use parLapply to run in parallel
-  all_paths <- parLapply(cl, minidend, find_recommended_path, 
-                         window_data = window_data, min_card = min_card)
+  all_paths <- parLapply(cl,
+                         minidend,
+                         find_recommended_path, 
+                         window_data = window_data,
+                         min_card = min_card)
   
   # Stop the cluster
   stopCluster(cl)

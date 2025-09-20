@@ -27,10 +27,12 @@
 #' 5. Calculates adjusted scores for nodes in the seed path using the C++ function \code{fMSR_adj}.
 #' 6. Recommends nodes based on calculated scores and returns a summary of results.
 #'
-#' @importFrom dplyr %>%
+#' @import dplyr
 #' @importFrom data.table setnames
 #' @importFrom Rcpp evalCpp
+#' @import dendextend
 #' @export
+#' 
 find_recommended_path <- function(minidend, window_data, min_card){
   
   # get leaves for each node
