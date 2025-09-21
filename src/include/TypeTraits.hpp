@@ -2,11 +2,15 @@
 #define __TYPE_TRAITS__
 #include "RcppArmadillo.h"
 
-#if __cpp_lib_ranges >= 201911L
-#include <ranges>
-#define HAS_RANGES 1
+#if __has_include(<version>)
+  #include <version>
+#endif
+
+#if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 201911L
+  #include <ranges>
+  #define HAS_RANGES 1
 #else
-#define HAS_RANGES 0
+  #define HAS_RANGES 0
 #endif
 
 namespace KMA

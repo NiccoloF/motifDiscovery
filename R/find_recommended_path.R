@@ -125,7 +125,7 @@ find_recommended_path <- function(minidend, window_data, min_card){
       [](double k){return k * k / (k * k - 1);})));
   }
   return score;
-}',depends="RcppArmadillo",includes="#include <ranges>",plugins="cpp20")
+}',depends="RcppArmadillo")
   
   # get the list of h-score adjusted for each node in the seed_path
   score_path_list <- lapply(seed_path, function(x){
