@@ -1,0 +1,477 @@
+Hmm ... looks like a package
+Converting parsed Rd's to LaTeX ....
+Creating pdf output from LaTeX ...
+
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(./Rd2.tex
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2024/06/29 v1.4n Standard LaTeX document class
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/bk10.clo)) (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/bm.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/alltt.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/jknapltx/mathrsfs.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/times.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/zi4.sty `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/keyval.tex))))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics/color.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/makeidx.sty)
+Writing index file Rd2.idx
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ptm.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
+No file Rd2.aux.
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+[1{/Users/jdiiori/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}]
+No file Rd2.toc.
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/jknapltx/ursfs.fd)
+Overfull \hbox (45.0378pt too wide) in paragraph at lines 55--56
+\T1/ptm/m/n/10 Lo-cal Align-ment for Clus-ter-ing and Mo-tif Dis-cov-ery in Func-tional Data" [][]doi:10.1080/10618600.2022.2156522[][]
+
+[2]
+[3]
+[4]
+[5]
+[6]
+[7]
+[8]
+[9]
+[10]
+[11]
+[12]
+[13]
+Overfull \hbox (30.22678pt too wide) in paragraph at lines 708--714
+[]\T1/ptm/m/n/10 This func-tion per-forms the fol-low-ing steps: 1. Sets up par-al-lel jobs based on the spec-i-fied `worker_number`.
+
+[14]
+[15]
+[16]
+[17]
+[18]
+[19]
+[20] (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
+[21{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}]
+[22]
+Overfull \hbox (86.02736pt too wide) in paragraph at lines 1075--1078
+\T1/ptm/m/n/10 valid be-fore fil-ter-ing the mo-tifs. If any pa-ram-e-ters are in-valid, de-fault val-ues from the []\T1/zi4/m/n/10 find_candidate_motifs_results
+
+[23]
+[24]
+[25]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1255--1255
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (15.75635pt too wide) in paragraph at lines 1258--1258
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str = noise_str)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1265--1265
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[26]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1287--1287
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (41.25328pt too wide) in paragraph at lines 1290--1290
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1297--1297
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[27]
+[28]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1414--1414
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+[29]
+Overfull \hbox (15.75635pt too wide) in paragraph at lines 1417--1417
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str = noise_str)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1424--1424
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1446--1446
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (41.25328pt too wide) in paragraph at lines 1449--1449
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1456--1456
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[30]
+[31]
+[32]
+[33]
+[34]
+[35]
+[36]
+[37]
+[38]
+Overfull \hbox (5.56699pt too wide) in paragraph at lines 1908--1909
+[]\T1/ptm/m/n/10 A ma-trix in-di-cat-ing pos-i-tive matches (e.g., pres-ence of mo-tifs in curves). 
+
+[39]
+Overfull \hbox (26.78737pt too wide) in paragraph at lines 1960--1962
+[]\T1/ptm/m/n/10 **Parallelization Setup**: De-ter-mines the num-ber of worker cores to use based on `worker_number`.
+
+Overfull \hbox (14.36786pt too wide) in paragraph at lines 1962--1964
+[]\T1/ptm/m/n/10 **Input Prepa-ra-tion**: De-pend-ing on the dis-sim-i-lar-ity met-ric (`d0_L2`, `d1_L2`, or `d0_d1_L2`),
+
+[40]
+Overfull \hbox (35.66568pt too wide) in paragraph at lines 1987--1988
+[]\T1/ptm/m/n/10 A list of ma-tri-ces cor-re-spond-ing to the orig-i-nal curves, as pro-vided in `clus-ter_candidate_motifs_results`. 
+
+Overfull \hbox (18.91823pt too wide) in paragraph at lines 2019--2022
+\T1/ptm/m/n/10 ments such as `V0`, `V1`, `V_frequencies`, `Y0`, `Y1`, `V_length`, `V_occurrences`,
+
+Overfull \hbox (5.0379pt too wide) in paragraph at lines 2027--2030
+\T1/ptm/m/n/10 in the plots. Only mo-tifs with a fre-quency equal to or greater than `freq_threshold`
+
+[41]
+[42]
+[43]
+[44]
+[45]
+[46]
+[47]
+[48]
+[49]
+[50]
+Overfull \hbox (7.04698pt too wide) in paragraph at lines 2542--2543
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether to re-turn ad-di-tional op-tions. De-fault is `TRUE`. 
+
+Overfull \hbox (1.40697pt too wide) in paragraph at lines 2576--2577
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether to print ex-e-cu-tion de-tails. De-fault is `FALSE`. 
+
+[51]
+[52]
+[53]
+No file Rd2.ind.
+
+[54] (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.aux)
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information) </Users/jdiiori/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (54 pages, 227838 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.17 [TeX Live 2024] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (49 entries accepted, 0 rejected).
+Sorting entries....done (277 comparisons).
+Generating output file Rd2.ind....done (89 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(./Rd2.tex
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2024/06/29 v1.4n Standard LaTeX document class
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/bk10.clo)) (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/bm.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/alltt.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/jknapltx/mathrsfs.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/times.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/zi4.sty `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/keyval.tex))))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics/color.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/makeidx.sty)
+Writing index file Rd2.idx
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ptm.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.aux) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.out) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.out) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+[1{/Users/jdiiori/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}] (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.toc (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/jknapltx/ursfs.fd)
+[2])
+Overfull \hbox (45.0378pt too wide) in paragraph at lines 55--56
+\T1/ptm/m/n/10 Lo-cal Align-ment for Clus-ter-ing and Mo-tif Dis-cov-ery in Func-tional Data" [][]doi:10.1080/10618600.2022.2156522[][]
+
+[3]
+[4]
+[5]
+[6]
+[7]
+[8]
+[9]
+[10]
+[11]
+[12]
+[13]
+[14]
+Overfull \hbox (30.22678pt too wide) in paragraph at lines 708--714
+[]\T1/ptm/m/n/10 This func-tion per-forms the fol-low-ing steps: 1. Sets up par-al-lel jobs based on the spec-i-fied `worker_number`.
+
+[15]
+[16]
+[17]
+[18]
+[19]
+[20]
+[21] (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
+[22{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}]
+[23]
+Overfull \hbox (86.02736pt too wide) in paragraph at lines 1075--1078
+\T1/ptm/m/n/10 valid be-fore fil-ter-ing the mo-tifs. If any pa-ram-e-ters are in-valid, de-fault val-ues from the []\T1/zi4/m/n/10 find_candidate_motifs_results
+
+[24]
+[25]
+[26]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1255--1255
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (15.75635pt too wide) in paragraph at lines 1258--1258
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str = noise_str)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1265--1265
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[27]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1287--1287
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (41.25328pt too wide) in paragraph at lines 1290--1290
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1297--1297
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[28]
+[29]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1414--1414
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+[30]
+Overfull \hbox (15.75635pt too wide) in paragraph at lines 1417--1417
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str = noise_str)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1424--1424
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1446--1446
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (41.25328pt too wide) in paragraph at lines 1449--1449
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1456--1456
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[31]
+[32]
+[33]
+[34]
+[35]
+[36]
+[37]
+[38]
+[39]
+Overfull \hbox (5.56699pt too wide) in paragraph at lines 1908--1909
+[]\T1/ptm/m/n/10 A ma-trix in-di-cat-ing pos-i-tive matches (e.g., pres-ence of mo-tifs in curves). 
+
+[40]
+Overfull \hbox (26.78737pt too wide) in paragraph at lines 1960--1962
+[]\T1/ptm/m/n/10 **Parallelization Setup**: De-ter-mines the num-ber of worker cores to use based on `worker_number`.
+
+Overfull \hbox (14.36786pt too wide) in paragraph at lines 1962--1964
+[]\T1/ptm/m/n/10 **Input Prepa-ra-tion**: De-pend-ing on the dis-sim-i-lar-ity met-ric (`d0_L2`, `d1_L2`, or `d0_d1_L2`),
+
+[41]
+Overfull \hbox (35.66568pt too wide) in paragraph at lines 1987--1988
+[]\T1/ptm/m/n/10 A list of ma-tri-ces cor-re-spond-ing to the orig-i-nal curves, as pro-vided in `clus-ter_candidate_motifs_results`. 
+
+Overfull \hbox (18.91823pt too wide) in paragraph at lines 2019--2022
+\T1/ptm/m/n/10 ments such as `V0`, `V1`, `V_frequencies`, `Y0`, `Y1`, `V_length`, `V_occurrences`,
+
+Overfull \hbox (5.0379pt too wide) in paragraph at lines 2027--2030
+\T1/ptm/m/n/10 in the plots. Only mo-tifs with a fre-quency equal to or greater than `freq_threshold`
+
+[42]
+[43]
+[44]
+[45]
+[46]
+[47]
+[48]
+[49]
+[50]
+[51]
+Overfull \hbox (7.04698pt too wide) in paragraph at lines 2542--2543
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether to re-turn ad-di-tional op-tions. De-fault is `TRUE`. 
+
+Overfull \hbox (1.40697pt too wide) in paragraph at lines 2576--2577
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether to print ex-e-cu-tion de-tails. De-fault is `FALSE`. 
+
+[52]
+[53]
+[54] (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.ind
+[55]
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 37.
+
+
+
+[56]) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+Package rerunfilecheck Warning: File `Rd2.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information) </Users/jdiiori/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (56 pages, 237113 bytes).
+Transcript written on Rd2.log.
+This is makeindex, version 2.17 [TeX Live 2024] (kpathsea + Thai support).
+Scanning input file Rd2.idx....done (49 entries accepted, 0 rejected).
+Sorting entries....done (277 comparisons).
+Generating output file Rd2.ind....done (89 lines written, 0 warnings).
+Output written in Rd2.ind.
+Transcript written in Rd2.ilg.
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex)
+ restricted \write18 enabled.
+entering extended mode
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(./Rd2.tex
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/book.cls
+Document Class: book 2024/06/29 v1.4n Standard LaTeX document class
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/bk10.clo)) (/Library/Frameworks/R.framework/Resources/share/texmf/tex/latex/Rd.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/ifthen.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/bm.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/alltt.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/jknapltx/mathrsfs.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/times.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/zi4.sty `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/xkeyval/xkeyval.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/xkvutils.tex (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/xkeyval/keyval.tex))))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics/color.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty)) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/base/makeidx.sty)
+Writing index file Rd2.idx
+(/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/t1ptm.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.aux) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.out) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.out) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/t1zi4.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/psnfss/ts1ptm.fd)
+[1{/Users/jdiiori/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc}{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-0.enc}] (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.toc (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd) (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/jknapltx/ursfs.fd)
+[2])
+Overfull \hbox (45.0378pt too wide) in paragraph at lines 55--56
+\T1/ptm/m/n/10 Lo-cal Align-ment for Clus-ter-ing and Mo-tif Dis-cov-ery in Func-tional Data" [][]doi:10.1080/10618600.2022.2156522[][]
+
+[3]
+[4]
+[5]
+[6]
+[7]
+[8]
+[9]
+[10]
+[11]
+[12]
+[13]
+[14]
+Overfull \hbox (30.22678pt too wide) in paragraph at lines 708--714
+[]\T1/ptm/m/n/10 This func-tion per-forms the fol-low-ing steps: 1. Sets up par-al-lel jobs based on the spec-i-fied `worker_number`.
+
+[15]
+[16]
+[17]
+[18]
+[19]
+[20]
+[21] (/Users/jdiiori/Library/TinyTeX/texmf-dist/tex/latex/inconsolata/ts1zi4.fd)
+[22{/Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/enc/dvips/inconsolata/i4-ts1.enc}]
+[23]
+Overfull \hbox (86.02736pt too wide) in paragraph at lines 1075--1078
+\T1/ptm/m/n/10 valid be-fore fil-ter-ing the mo-tifs. If any pa-ram-e-ters are in-valid, de-fault val-ues from the []\T1/zi4/m/n/10 find_candidate_motifs_results
+
+[24]
+[25]
+[26]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1255--1255
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (15.75635pt too wide) in paragraph at lines 1258--1258
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str = noise_str)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1265--1265
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[27]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1287--1287
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (41.25328pt too wide) in paragraph at lines 1290--1290
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1297--1297
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[28]
+[29]
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1414--1414
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+[30]
+Overfull \hbox (15.75635pt too wide) in paragraph at lines 1417--1417
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str = noise_str)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1424--1424
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (38.24715pt too wide) in paragraph at lines 1446--1446
+ []\T1/zi4/m/n/9 builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details, distribution = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 beta\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 )[] 
+
+Overfull \hbox (41.25328pt too wide) in paragraph at lines 1449--1449
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 pointwise\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+Overfull \hbox (23.25328pt too wide) in paragraph at lines 1456--1456
+ []\T1/zi4/m/n/9 curves <- funMoDisco::generateCurves(builder, noise_type = \TS1/zi4/m/n/9 '\T1/zi4/m/n/9 coeff\TS1/zi4/m/n/9 '\T1/zi4/m/n/9 , noise_str, only_der = FALSE)[] 
+
+[31]
+[32]
+[33]
+[34]
+[35]
+[36]
+[37]
+[38]
+[39]
+Overfull \hbox (5.56699pt too wide) in paragraph at lines 1908--1909
+[]\T1/ptm/m/n/10 A ma-trix in-di-cat-ing pos-i-tive matches (e.g., pres-ence of mo-tifs in curves). 
+
+[40]
+Overfull \hbox (26.78737pt too wide) in paragraph at lines 1960--1962
+[]\T1/ptm/m/n/10 **Parallelization Setup**: De-ter-mines the num-ber of worker cores to use based on `worker_number`.
+
+Overfull \hbox (14.36786pt too wide) in paragraph at lines 1962--1964
+[]\T1/ptm/m/n/10 **Input Prepa-ra-tion**: De-pend-ing on the dis-sim-i-lar-ity met-ric (`d0_L2`, `d1_L2`, or `d0_d1_L2`),
+
+[41]
+Overfull \hbox (35.66568pt too wide) in paragraph at lines 1987--1988
+[]\T1/ptm/m/n/10 A list of ma-tri-ces cor-re-spond-ing to the orig-i-nal curves, as pro-vided in `clus-ter_candidate_motifs_results`. 
+
+Overfull \hbox (18.91823pt too wide) in paragraph at lines 2019--2022
+\T1/ptm/m/n/10 ments such as `V0`, `V1`, `V_frequencies`, `Y0`, `Y1`, `V_length`, `V_occurrences`,
+
+Overfull \hbox (5.0379pt too wide) in paragraph at lines 2027--2030
+\T1/ptm/m/n/10 in the plots. Only mo-tifs with a fre-quency equal to or greater than `freq_threshold`
+
+[42]
+[43]
+[44]
+[45]
+[46]
+[47]
+[48]
+[49]
+[50]
+[51]
+Overfull \hbox (7.04698pt too wide) in paragraph at lines 2542--2543
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether to re-turn ad-di-tional op-tions. De-fault is `TRUE`. 
+
+Overfull \hbox (1.40697pt too wide) in paragraph at lines 2576--2577
+[]\T1/ptm/m/n/10 A log-i-cal value in-di-cat-ing whether to print ex-e-cu-tion de-tails. De-fault is `FALSE`. 
+
+[52]
+[53]
+[54] (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.ind
+[55]
+
+LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
+(Font)              using `T1/zi4/m/n' instead on input line 37.
+
+
+
+[56]) (/private/var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T/RtmpYnpKBZ/Rd2pdf17904fa86941/Rd2.aux)
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+ )
+(see the transcript file for additional information) </Users/jdiiori/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></Users/jdiiori/Library/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (56 pages, 237556 bytes).
+Transcript written on Rd2.log.
+Saving output to ‘funMoDisco-manual.pdf’ ...
+Done
+You may want to clean up by 'rm -Rf /var/folders/dy/q8jxb3s545d941jy4m6r3rd40000gq/T//RtmpYnpKBZ/Rd2pdf17904fa86941'

@@ -17,7 +17,8 @@ Transforms the result of generateCurves into a format suitable for discoverMotif
 }
 \examples{
 \donttest{
-curves <- funMoDisco::generateCurves(builder, noise_type = 'coeff', noise_str, only_der = FALSE)
+builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details = NULL)
+curves <- funMoDisco::generateCurves(builder)
 formatted_curves <- to_motifDiscovery(curves)
 }
 }

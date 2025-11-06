@@ -8,9 +8,8 @@
   object,
   noise_type = NULL,
   noise_str = NULL,
-  seed_background = 777,
-  seed_motif = 43213,
-  only_der = TRUE,
+  seed_background = NULL,
+  only_der = FALSE,
   coeff_min_shift = -10,
   coeff_max_shift = 10
 )
@@ -29,13 +28,11 @@ This parameter allows fine-grained control over the noise characteristics applie
 
 \item{seed_background}{An integer value setting the seed for the random number generator used in background curve generation. This ensures reproducibility of the background curves. Default is `777`.}
 
-\item{seed_motif}{An integer value setting the seed for the random number generator used in motif generation. This ensures reproducibility of the motif embedding process. Default is `43213`.}
+\item{only_der}{A logical value indicating whether to apply only derivative-based modifications to the motifs (`TRUE`) or to add a vertical shift in addition to derivative modifications (`FALSE`). Setting to `TRUE` introduces vertical shifts to each motif instance, allowing motifs to appear at different baseline levels within the curves. Default is `FALSE`.}
 
-\item{only_der}{A logical value indicating whether to apply only derivative-based modifications to the motifs (`TRUE`) or to add a vertical shift in addition to derivative modifications (`FALSE`). Setting to `FALSE` introduces vertical shifts to each motif instance, allowing motifs to appear at different baseline levels within the curves. Default is `TRUE`.}
+\item{coeff_min_shift}{A numeric value specifying the minimum vertical shift to be applied to motifs when `only_der` is set to `TRUE`. This parameter controls the lower bound of the vertical displacement of motifs. Default is `-10`.}
 
-\item{coeff_min_shift}{A numeric value specifying the minimum vertical shift to be applied to motifs when `only_der` is set to `FALSE`. This parameter controls the lower bound of the vertical displacement of motifs. Default is `-10`.}
-
-\item{coeff_max_shift}{A numeric value specifying the maximum vertical shift to be applied to motifs when `only_der` is set to `FALSE`. This parameter controls the upper bound of the vertical displacement of motifs. Default is `10`.}
+\item{coeff_max_shift}{A numeric value specifying the maximum vertical shift to be applied to motifs when `only_der` is set to `TRUE`. This parameter controls the upper bound of the vertical displacement of motifs. Default is `10`.}
 }
 \value{
 A list containing the following components:

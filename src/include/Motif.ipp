@@ -159,13 +159,13 @@ void MotifSobol::elongation(KMA::Mfield& V_new,
     }
   }
 
- #if HAS_RANGES
+// #if HAS_RANGES
 // C++20 version using ranges
-auto not_NA_index = std::views::iota(0, v_elong_left_right_size)
-                  | std::views::filter([&not_start_with_NA](int index_j){
-                      return not_start_with_NA(index_j);
-                  });
-#else
+//auto not_NA_index = std::views::iota(0, v_elong_left_right_size)
+//                  | std::views::filter([&not_start_with_NA](int index_j){
+//                      return not_start_with_NA(index_j);
+//                  });
+//#else
 // C++17 fallback using simple loop: build a vector of valid indices
 std::vector<int> not_NA_index_vec;
 not_NA_index_vec.reserve(v_elong_left_right_size);
@@ -174,7 +174,7 @@ for (int index_j = 0; index_j < v_elong_left_right_size; ++index_j) {
         not_NA_index_vec.push_back(index_j);
     }
 }
-#endif
+//#endif
 
 // Allocate filtered containers
 KMA::Mfield filtered_v_elong(arma::accu(not_start_with_NA), Y.n_cols);

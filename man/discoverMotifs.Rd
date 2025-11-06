@@ -137,7 +137,8 @@ The following parameters are specific to the \code{funBIalign} algorithm:
 \describe{
   \item{\code{portion_len}}{An integer specifying the length of curve portions to align. This parameter controls the granularity of alignment, allowing the algorithm to focus on specific segments of the curves for motif discovery.}
   \item{\code{min_card}}{An integer representing the minimum cardinality of motifs, i.e., the minimum number of motif occurrences required for a motif to be considered valid. This ensures that only motifs with sufficient representation across the dataset are retained.}
-  \item{\code{cut_off}}{A double specifying the threshold of the ranking criterion. All motifs having a value of the ranking criterion below the cut_off are retained}
+  \item{\code{cut_off}}{A double that specifies the number of top-ranked motifs to keep based on the ranking criteria, facilitating focused visualization of the most significant motifs.
+                        In particular, all motifs that rank below the cut_off are retained.}
 }
 }
 
@@ -152,7 +153,7 @@ alpha <- 0.5
 # Define number of motifs and their minimum lengths
 K <- c(2, 3)
 c <- c(61, 51)
-n_init <- 10
+n_init <- 3
 
 # Load simulated data
 data("simulated200")
@@ -163,7 +164,7 @@ results <- funMoDisco::discoverMotifs(
   method = "ProbKMA",
   stopCriterion = "max",
   name = tempdir(),
-  plot = TRUE,
+  plot = FALSE,
   probKMA_options = list(
     Y1 = simulated200$Y1,
     K = K,
@@ -172,41 +173,24 @@ results <- funMoDisco::discoverMotifs(
     diss = diss,
     alpha = alpha
   ),
-  worker_number = NULL
-)
-
-# Modify silhouette threshold and re-run post-processing
-results <- funMoDisco::discoverMotifs(
-  Y0 = simulated200$Y0,
-  method = "ProbKMA",
-  stopCriterion = "max",
-  name = tempdir(),
-  plot = TRUE,
-  probKMA_options = list(
-    Y1 = simulated200$Y1,
-    K = K,
-    c = c,
-    n_init = n_init,
-    diss = diss,
-    alpha = alpha,
-    sil_threshold = 0.5
-  ),
-  worker_number = NULL
+  worker_number = 1
 )
 
 # Example 2: Discover motifs using funBIalign
 results_funbialign <- funMoDisco::discoverMotifs(
   Y0 = simulated200$Y0,
-  method = "FunBIalign",
-  stopCriterion = 'Variance',
-  name = tempdir(),
-  plot = TRUE,
+  method = "funBIalign",
+  stopCriterion = "fMSR",
+  name = getwd(),
+  plot = FALSE,
   funBIalign_options = list(
     portion_len = 60,
     min_card = 3,
     cut_off = 1.0
-  )
-)
+  ),
+  worker_number = 1
+  ) 
+
 }
 
 }

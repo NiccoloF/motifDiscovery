@@ -1,0 +1,62 @@
+.check_fits             Check Fits
+.diss_d0_d1_L2          Dissimilarity Index for Multidimensional Curves
+.domain                 Domain Length Calculation for Curves
+.find_min_diss          Find Minimum Dissimilarity
+.find_occurrences       Find Occurrences of a Motif
+.generate_coefficients
+                        Generate Coefficients
+.mapply_custom          Custom mapply Function for Parallel Processing
+.resample               Resample Vector
+.select_domain          .select_domain
+.transform_list         Transform List Structure
+.transform_to_matrix    Transform to Matrix
+ProbKMA                 ProbKMA Class
+add_error_to_motif      Add Additive Error to Motif
+add_motif               Add Motif to Base Curve
+cluster_candidate_motifs
+                        Cluster Candidate Motifs
+cluster_candidate_motifs_plot
+                        cluster_candidate_motifs_plot
+compare_nodes           Compare Nodes
+discoverMotifs          Functional Motif Discovery
+filter_candidate_motifs
+                        Filter Candidate Motifs
+find_recommended_path   Find Recommended Path in a Tree Structure
+funMoDisco-package      funMoDisco: Motif Discovery in Functional Data
+generateCurves          Generate Functional Curves with Embedded Motifs
+generateCurves,motifSimulation-method
+                        Generate Functional Curves with Embedded Motifs
+generate_background_curve
+                        Generate Background Curve
+generate_curve_vector   Generate Curve Vector from FD Object
+get_accolites           Get Accolites for a Given Leaf Label
+get_minidend            Generate Minimum Dendrogram from Hierarchical
+                        Clustering
+get_parents             Get Parent Nodes from a Given Node
+get_path_complete       Get Complete Paths from a Dendrogram
+initialChecks           Initial Checks for ProbKMA
+motifSimulation-class   motifSimulationS4Class
+motifSimulationBuilder
+                        Create motifSimulation Object
+motifs_search           Motif Search in Curves
+motifs_search_plot      Plot Motif Search Results
+padding                 Pad a Matrix to a Specified Number of Rows
+plot_motifs             Plot Embedded Motifs in Functional Curves
+plot_motifs,motifSimulation-method
+                        Plot Embedded Motifs in Functional Curves
+probKMA_plot            Plot the Results of probKMA
+probKMA_silhouette_filter
+                        Filter Motifs from probKMA Results Based on
+                        Silhouette and Size Thresholds
+probKMA_silhouette_plot
+                        Plot Silhouette Index from probKMA Results
+probKMA_wrap            Wrapper for the Probabilistic K-means Algorithm
+                        (ProbKMA)
+recommend_node          Recommend Node from a Numeric Vector
+simulated200            Simulated data for local clustering
+simulatedHighDimensional
+                        High Dimensional simulated data for local
+                        clustering
+to_motifDiscovery       to_motifDiscovery
+to_motifDiscovery,list-method
+                        to_motifDiscovery

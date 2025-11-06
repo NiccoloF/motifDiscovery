@@ -96,22 +96,14 @@ concept IsArmaVector = std::is_same_v<T, KMA::uvector> ||
     do {
       k = 0;
       
-#if HAS_RANGES
-      // C++20 version using ranges
-      auto filter_index = std::views::iota(0, n)
-        | std::views::filter([&v](int i){ return v(i); });
-      
-      for (auto i : filter_index) {
-        result(k++, l) = y(i);
-      }
-#else
+
       // C++17 fallback using simple loop
       for (int i = 0; i < n; ++i) {
         if (v(i)) {
           result(k++, l) = y(i);
         }
       }
-#endif
+
       
       l++;
     } while (std::prev_permutation(v.begin(), v.end()));

@@ -17,3 +17,5 @@
 ^CRAN-SUBMISSION$            # Ignore CRAN submission notes
 ^src/.*\.o$                  # Ignore compiled object files in src/
 ^\.github/
+^CRAN-SUBMISSION$
+^cran-comments\.md$

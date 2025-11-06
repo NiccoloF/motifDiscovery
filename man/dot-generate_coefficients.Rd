@@ -10,7 +10,8 @@
   dist_knots,
   norder,
   coeff_min,
-  coeff_max
+  coeff_max,
+  motif_seed
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ Accepted values are "unif", "beta", or a numeric vector.}
 \item{coeff_min}{A numeric value indicating the minimum coefficient value for uniform or beta distributions.}
 
 \item{coeff_max}{A numeric value indicating the maximum coefficient value for uniform or beta distributions.}
+
+\item{motif_seed}{An integer value setting the seed for the random number generator used in motif generation. This ensures reproducibility of the motif embedding process. Default is `43213`.}
 }
 \value{
 A modified motif structure containing the generated coefficients.

@@ -13,7 +13,8 @@ motifSimulationBuilder(
   coeff_max = 15,
   dist_knots = 10,
   min_dist_motifs = NULL,
-  distribution = "unif"
+  distribution = "beta",
+  motif_seed = NULL
 )
 }
 \arguments{
@@ -33,7 +34,9 @@ motifSimulationBuilder(
 
 \item{min_dist_motifs}{An integer specifying the minimum distance between two consecutive motifs embedded in the same curve (default = 'norder' * 'dist_knots').}
 
-\item{distribution}{A character string specifying the distribution from which the coefficients of the background curves are generated. You can choose between a uniform distribution or a beta distribution. Alternatively, you can pass a vector representing the empirical distribution from which you wish to sample (default = "unif").}
+\item{distribution}{A character string specifying the distribution from which the coefficients of the background curves are generated. You can choose between a uniform distribution or a beta distribution. Alternatively, you can pass a vector representing the empirical distribution from which you wish to sample (default = "beta").}
+
+\item{motif_seed}{Set the seed for motif b-spline coefficients generation (default = NULL, i.e., random)}
 }
 \value{
 An object of class motifSimulation
@@ -70,7 +73,7 @@ mot_details <- list(mot1,mot2)
 noise_str <- list(rbind(rep(2, 100)),
                   rbind(rep(0.0, 100)))
 
-builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300,mot_details,
+builder <- funMoDisco::motifSimulationBuilder(N = 20,len = 300, mot_details,
                                         distribution = 'beta')
 }
 }

@@ -1,0 +1,32 @@
+citHeader("Please cite the following papers when using this package:")
+
+# Citation for ProbKMA paper
+bibentry(
+  bibtype = "Article",
+  title = "Probabilistic K-means with Local Alignment for Clustering and Motif Discovery in Functional Data",
+  author = c(person("Marzia A.", "Cremona"), person("Francesca", "Chiaromonte")),
+  journal = "Journal of Computational and Graphical Statistics",
+  volume = "32",
+  number = "3",
+  pages = "1119-1130",
+  year = "2023",
+  publisher = "Taylor & Francis",
+  doi = "10.1080/10618600.2022.2156522",
+  url = "https://doi.org/10.1080/10618600.2022.2156522",
+  textVersion = "Cremona and Chiaromonte, 2023. Probabilistic K-means with Local Alignment for Clustering and Motif Discovery in Functional Data. Journal of Computational and Graphical Statistics, 32(3), 1119-1130. Taylor & Francis. DOI: 10.1080/10618600.2022.2156522."
+)
+
+# Citation for funBIalign paper
+bibentry(
+  bibtype = "Misc",
+  title = "funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based on Mean Squared Residue Scores",
+  author = c(person("Jacopo", "Di Iorio"), person("Marzia A.", "Cremona"), person("Francesca", "Chiaromonte")),
+  year = "2023",
+  eprint = "2306.04254",
+  archivePrefix = "arXiv",
+  primaryClass = "stat.ME",
+  url = "https://arxiv.org/abs/2306.04254",
+  textVersion = "Di Iorio et al, 2023. funBIalign: A Hierarchical Algorithm for Functional Motif Discovery Based on Mean Squared Residue Scores. arXiv preprint arXiv:2306.04254. Available at https://arxiv.org/abs/2306.04254."
+)
+
+citFooter("Thank you for citing our work!")

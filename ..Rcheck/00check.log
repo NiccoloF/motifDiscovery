@@ -1,0 +1,534 @@
+* using log directory ‘/Users/jdiiori/Documents/GitHub/motifDiscovery/..Rcheck’
+* using R version 4.4.1 (2024-06-14)
+* using platform: aarch64-apple-darwin20
+* R was compiled by
+    Apple clang version 14.0.0 (clang-1400.0.29.202)
+    GNU Fortran (GCC) 12.2.0
+* running under: macOS 15.6
+* using session charset: UTF-8
+* using option ‘--as-cran’
+* checking for file ‘./DESCRIPTION’ ... OK
+* checking extension type ... Package
+* this is package ‘funMoDisco’ version ‘1.0.0’
+* package encoding: UTF-8
+* checking CRAN incoming feasibility ... [3s/12s] WARNING
+Maintainer: ‘Jacopo Di Iorio <jacopo.di.iorio@emory.edu>’
+
+Insufficient package version (submitted: 1.0.0, existing: 1.0.0)
+
+Package has a VignetteBuilder field but no prebuilt vignette index.
+
+The Date field is over a month old.
+
+This build time stamp is over a month old.
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... WARNING
+Subdirectory ‘funMoDisco/src’ contains apparent object files/libraries
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/DissimilarityH1.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/DissimilarityL2.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/MotifH1.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/MotifL2.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/MotifSobol.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/Parameters.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/PerformanceH1.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/PerformanceL2.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/RcppExports.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/SobolDiss.o
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/funMoDisco.so
+  /Users/jdiiori/Documents/GitHub/motifDiscovery/src/probKMAImpl.o
+Object files/libraries should not be included in a source package.
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... NOTE
+Found the following hidden files and directories:
+  .DS_Store
+  .Rhistory
+  .gitignore
+  R/.DS_Store
+  ..Rcheck
+  .git
+  .github
+These were most likely included in error. See section ‘Package
+structure’ in the ‘Writing R Extensions’ manual.
+
+CRAN-pack does not know about
+  .DS_Store
+  R/.DS_Store
+  ..Rcheck
+  .git
+  .github
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘funMoDisco’ can be installed ... OK
+* used C++ compiler: ‘Apple clang version 17.0.0 (clang-1700.0.13.3)’
+* used SDK: ‘MacOSX15.4.sdk’
+* checking C++ specification ... OK
+  Not all R platforms support C++20
+* checking installed package size ... NOTE
+  installed size is  5.6Mb
+  sub-directories of 1Mb or more:
+    data   4.4Mb
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... NOTE
+Files ‘README.md’ or ‘NEWS.md’ cannot be checked without ‘pandoc’ being installed.
+Non-standard files/directories found at top level:
+  ‘Meta’ ‘funMoDisco.Rproj’
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... WARNING
+Found the following directory with the name of a check directory:
+  ./..Rcheck
+Most likely, these were included erroneously.
+Found the following directory with the name of a version control directory:
+  ./.git
+These should not be in a package tarball.
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking use of S3 registration ... OK
+* checking dependencies in R code ... NOTE
+Namespaces in Imports field not imported from:
+  ‘shinyWidgets’ ‘shinybusy’ ‘shinyjs’ ‘zoo’
+  All declared Imports should be used.
+Package in Depends field not imported from: ‘shiny’
+  These packages need to be imported from (in the NAMESPACE file)
+  for when this namespace is loaded but not attached.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... OK
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd line widths ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking LazyData ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... NOTE
+Found the following Makefile(s) without a final LF:
+  src/Makevars
+Some ‘make’ programs ignore lines not ending in LF.
+* checking compilation flags in Makevars ... WARNING
+Variables overriding user/site settings:
+  CXXFLAGS: -o /dev/null -std=c++20
+* checking for GNU extensions in Makefiles ... WARNING
+Found the following file(s) containing GNU extensions:
+  src/Makevars
+Portable Makefiles do not use GNU extensions such as +=, :=, $(shell),
+$(wildcard), ifeq ... endif, .NOTPARALLEL See section ‘Writing portable
+packages’ in the ‘Writing R Extensions’ manual.
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
+* checking use of PKG_*FLAGS in Makefiles ... OK
+* checking use of SHLIB_OPENMP_*FLAGS in Makefiles ... OK
+* checking pragmas in C/C++ headers and code ... OK
+* checking compilation flags used ... OK
+* checking compiled code ... OK
+* checking files in ‘vignettes’ ... WARNING
+Files in the 'vignettes' directory but no files in 'inst/doc':
+  ‘funMoDisco_vignette.Rmd’ ‘funMoDisco_vignette.pdf’
+  ‘funMoDisco_vignette.pdf.asis’ ‘index.Rmd’
+* checking examples ... OK
+* checking examples with --run-donttest ... [9s/15s] OK
+* checking for unstated dependencies in ‘tests’ ... OK
+* checking tests ... OK
+  Running ‘tinytest.R’
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes ... WARNING
+Directory 'inst/doc' does not exist.
+Package vignette without corresponding single PDF/HTML:
+  ‘funMoDisco_vignette.pdf.asis’
+* checking re-building of vignette outputs ... OK
+* checking PDF version of manual ... OK
+* checking HTML version of manual ... NOTE
+Found the following HTML validation problems:
+ProbKMA.html:15:44 (ProbKMA.Rd:6): Error: <main> is not recognized!
+ProbKMA.html:15:44 (ProbKMA.Rd:6): Warning: discarding unexpected <main>
+ProbKMA.html:130:1 (ProbKMA.Rd:74): Warning: discarding unexpected </main>
+ProbKMA.html:4:1 (ProbKMA.Rd:6): Warning: <link> inserting "type" attribute
+ProbKMA.html:12:1 (ProbKMA.Rd:6): Warning: <script> proprietary attribute "onload"
+ProbKMA.html:12:1 (ProbKMA.Rd:6): Warning: <script> inserting "type" attribute
+ProbKMA.html:17:1 (ProbKMA.Rd:6): Warning: <table> lacks "summary" attribute
+add_error_to_motif.html:15:44 (add_error_to_motif.Rd:5): Error: <main> is not recognized!
+add_error_to_motif.html:15:44 (add_error_to_motif.Rd:5): Warning: discarding unexpected <main>
+add_error_to_motif.html:70:1 (add_error_to_motif.Rd:21): Warning: discarding unexpected </main>
+add_error_to_motif.html:4:1 (add_error_to_motif.Rd:5): Warning: <link> inserting "type" attribute
+add_error_to_motif.html:12:1 (add_error_to_motif.Rd:5): Warning: <script> proprietary attribute "onload"
+add_error_to_motif.html:12:1 (add_error_to_motif.Rd:5): Warning: <script> inserting "type" attribute
+add_error_to_motif.html:17:1 (add_error_to_motif.Rd:5): Warning: <table> lacks "summary" attribute
+add_error_to_motif.html:35:1 (add_error_to_motif.Rd:10): Warning: <table> lacks "summary" attribute
+add_motif.html:15:44 (add_motif.Rd:5): Error: <main> is not recognized!
+add_motif.html:15:44 (add_motif.Rd:5): Warning: discarding unexpected <main>
+add_motif.html:102:1 (add_motif.Rd:42): Warning: discarding unexpected </main>
+add_motif.html:4:1 (add_motif.Rd:5): Warning: <link> inserting "type" attribute
+add_motif.html:12:1 (add_motif.Rd:5): Warning: <script> proprietary attribute "onload"
+add_motif.html:12:1 (add_motif.Rd:5): Warning: <script> inserting "type" attribute
+add_motif.html:17:1 (add_motif.Rd:5): Warning: <table> lacks "summary" attribute
+add_motif.html:47:1 (add_motif.Rd:21): Warning: <table> lacks "summary" attribute
+cluster_candidate_motifs.html:15:44 (cluster_candidate_motifs.Rd:5): Error: <main> is not recognized!
+cluster_candidate_motifs.html:15:44 (cluster_candidate_motifs.Rd:5): Warning: discarding unexpected <main>
+cluster_candidate_motifs.html:95:1 (cluster_candidate_motifs.Rd:39): Warning: discarding unexpected </main>
+cluster_candidate_motifs.html:4:1 (cluster_candidate_motifs.Rd:5): Warning: <link> inserting "type" attribute
+cluster_candidate_motifs.html:12:1 (cluster_candidate_motifs.Rd:5): Warning: <script> proprietary attribute "onload"
+cluster_candidate_motifs.html:12:1 (cluster_candidate_motifs.Rd:5): Warning: <script> inserting "type" attribute
+cluster_candidate_motifs.html:17:1 (cluster_candidate_motifs.Rd:5): Warning: <table> lacks "summary" attribute
+cluster_candidate_motifs.html:42:1 (cluster_candidate_motifs.Rd:17): Warning: <table> lacks "summary" attribute
+cluster_candidate_motifs_plot.html:15:44 (cluster_candidate_motifs_plot.Rd:5): Error: <main> is not recognized!
+cluster_candidate_motifs_plot.html:15:44 (cluster_candidate_motifs_plot.Rd:5): Warning: discarding unexpected <main>
+cluster_candidate_motifs_plot.html:99:1 (cluster_candidate_motifs_plot.Rd:56): Warning: discarding unexpected </main>
+cluster_candidate_motifs_plot.html:4:1 (cluster_candidate_motifs_plot.Rd:5): Warning: <link> inserting "type" attribute
+cluster_candidate_motifs_plot.html:12:1 (cluster_candidate_motifs_plot.Rd:5): Warning: <script> proprietary attribute "onload"
+cluster_candidate_motifs_plot.html:12:1 (cluster_candidate_motifs_plot.Rd:5): Warning: <script> inserting "type" attribute
+cluster_candidate_motifs_plot.html:17:1 (cluster_candidate_motifs_plot.Rd:5): Warning: <table> lacks "summary" attribute
+cluster_candidate_motifs_plot.html:44:1 (cluster_candidate_motifs_plot.Rd:16): Warning: <table> lacks "summary" attribute
+compare_nodes.html:15:44 (compare_nodes.Rd:5): Error: <main> is not recognized!
+compare_nodes.html:15:44 (compare_nodes.Rd:5): Warning: discarding unexpected <main>
+compare_nodes.html:52:1 (compare_nodes.Rd:15): Warning: discarding unexpected </main>
+compare_nodes.html:4:1 (compare_nodes.Rd:5): Warning: <link> inserting "type" attribute
+compare_nodes.html:12:1 (compare_nodes.Rd:5): Warning: <script> proprietary attribute "onload"
+compare_nodes.html:12:1 (compare_nodes.Rd:5): Warning: <script> inserting "type" attribute
+compare_nodes.html:17:1 (compare_nodes.Rd:5): Warning: <table> lacks "summary" attribute
+compare_nodes.html:35:1 (compare_nodes.Rd:10): Warning: <table> lacks "summary" attribute
+discoverMotifs.html:15:44 (discoverMotifs.Rd:5): Error: <main> is not recognized!
+discoverMotifs.html:15:44 (discoverMotifs.Rd:5): Warning: discarding unexpected <main>
+discoverMotifs.html:311:1 (discoverMotifs.Rd:195): Warning: discarding unexpected </main>
+discoverMotifs.html:4:1 (discoverMotifs.Rd:5): Warning: <link> inserting "type" attribute
+discoverMotifs.html:12:1 (discoverMotifs.Rd:5): Warning: <script> proprietary attribute "onload"
+discoverMotifs.html:12:1 (discoverMotifs.Rd:5): Warning: <script> inserting "type" attribute
+discoverMotifs.html:17:1 (discoverMotifs.Rd:5): Warning: <table> lacks "summary" attribute
+discoverMotifs.html:55:1 (discoverMotifs.Rd:19): Warning: <table> lacks "summary" attribute
+dot-check_fits.html:15:44 (dot-check_fits.Rd:5): Error: <main> is not recognized!
+dot-check_fits.html:15:44 (dot-check_fits.Rd:5): Warning: discarding unexpected <main>
+dot-check_fits.html:63:1 (dot-check_fits.Rd:17): Warning: discarding unexpected </main>
+dot-check_fits.html:4:1 (dot-check_fits.Rd:5): Warning: <link> inserting "type" attribute
+dot-check_fits.html:12:1 (dot-check_fits.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-check_fits.html:12:1 (dot-check_fits.Rd:5): Warning: <script> inserting "type" attribute
+dot-check_fits.html:17:1 (dot-check_fits.Rd:5): Warning: <table> lacks "summary" attribute
+dot-check_fits.html:36:1 (dot-check_fits.Rd:10): Warning: <table> lacks "summary" attribute
+dot-diss_d0_d1_L2.html:15:44 (dot-diss_d0_d1_L2.Rd:5): Error: <main> is not recognized!
+dot-diss_d0_d1_L2.html:15:44 (dot-diss_d0_d1_L2.Rd:5): Warning: discarding unexpected <main>
+dot-diss_d0_d1_L2.html:125:1 (dot-diss_d0_d1_L2.Rd:38): Warning: discarding unexpected </main>
+dot-diss_d0_d1_L2.html:4:1 (dot-diss_d0_d1_L2.Rd:5): Warning: <link> inserting "type" attribute
+dot-diss_d0_d1_L2.html:12:1 (dot-diss_d0_d1_L2.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-diss_d0_d1_L2.html:12:1 (dot-diss_d0_d1_L2.Rd:5): Warning: <script> inserting "type" attribute
+dot-diss_d0_d1_L2.html:17:1 (dot-diss_d0_d1_L2.Rd:5): Warning: <table> lacks "summary" attribute
+dot-diss_d0_d1_L2.html:36:1 (dot-diss_d0_d1_L2.Rd:10): Warning: <table> lacks "summary" attribute
+dot-domain.html:15:44 (dot-domain.Rd:5): Error: <main> is not recognized!
+dot-domain.html:15:44 (dot-domain.Rd:5): Warning: discarding unexpected <main>
+dot-domain.html:79:1 (dot-domain.Rd:24): Warning: discarding unexpected </main>
+dot-domain.html:4:1 (dot-domain.Rd:5): Warning: <link> inserting "type" attribute
+dot-domain.html:12:1 (dot-domain.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-domain.html:12:1 (dot-domain.Rd:5): Warning: <script> inserting "type" attribute
+dot-domain.html:17:1 (dot-domain.Rd:5): Warning: <table> lacks "summary" attribute
+dot-domain.html:36:1 (dot-domain.Rd:10): Warning: <table> lacks "summary" attribute
+dot-find_min_diss.html:15:44 (dot-find_min_diss.Rd:5): Error: <main> is not recognized!
+dot-find_min_diss.html:15:44 (dot-find_min_diss.Rd:5): Warning: discarding unexpected <main>
+dot-find_min_diss.html:126:1 (dot-find_min_diss.Rd:70): Warning: discarding unexpected </main>
+dot-find_min_diss.html:4:1 (dot-find_min_diss.Rd:5): Warning: <link> inserting "type" attribute
+dot-find_min_diss.html:12:1 (dot-find_min_diss.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-find_min_diss.html:12:1 (dot-find_min_diss.Rd:5): Warning: <script> inserting "type" attribute
+dot-find_min_diss.html:17:1 (dot-find_min_diss.Rd:5): Warning: <table> lacks "summary" attribute
+dot-find_min_diss.html:47:1 (dot-find_min_diss.Rd:21): Warning: <table> lacks "summary" attribute
+dot-find_occurrences.html:15:44 (dot-find_occurrences.Rd:5): Error: <main> is not recognized!
+dot-find_occurrences.html:15:44 (dot-find_occurrences.Rd:5): Warning: discarding unexpected <main>
+dot-find_occurrences.html:108:1 (dot-find_occurrences.Rd:54): Warning: discarding unexpected </main>
+dot-find_occurrences.html:4:1 (dot-find_occurrences.Rd:5): Warning: <link> inserting "type" attribute
+dot-find_occurrences.html:12:1 (dot-find_occurrences.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-find_occurrences.html:12:1 (dot-find_occurrences.Rd:5): Warning: <script> inserting "type" attribute
+dot-find_occurrences.html:17:1 (dot-find_occurrences.Rd:5): Warning: <table> lacks "summary" attribute
+dot-find_occurrences.html:36:1 (dot-find_occurrences.Rd:10): Warning: <table> lacks "summary" attribute
+dot-generate_coefficients.html:15:44 (dot-generate_coefficients.Rd:5): Error: <main> is not recognized!
+dot-generate_coefficients.html:15:44 (dot-generate_coefficients.Rd:5): Warning: discarding unexpected <main>
+dot-generate_coefficients.html:91:1 (dot-generate_coefficients.Rd:34): Warning: discarding unexpected </main>
+dot-generate_coefficients.html:4:1 (dot-generate_coefficients.Rd:5): Warning: <link> inserting "type" attribute
+dot-generate_coefficients.html:12:1 (dot-generate_coefficients.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-generate_coefficients.html:12:1 (dot-generate_coefficients.Rd:5): Warning: <script> inserting "type" attribute
+dot-generate_coefficients.html:17:1 (dot-generate_coefficients.Rd:5): Warning: <table> lacks "summary" attribute
+dot-generate_coefficients.html:44:1 (dot-generate_coefficients.Rd:18): Warning: <table> lacks "summary" attribute
+dot-mapply_custom.html:15:44 (dot-mapply_custom.Rd:5): Error: <main> is not recognized!
+dot-mapply_custom.html:15:44 (dot-mapply_custom.Rd:5): Warning: discarding unexpected <main>
+dot-mapply_custom.html:92:1 (dot-mapply_custom.Rd:44): Warning: discarding unexpected </main>
+dot-mapply_custom.html:4:1 (dot-mapply_custom.Rd:5): Warning: <link> inserting "type" attribute
+dot-mapply_custom.html:12:1 (dot-mapply_custom.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-mapply_custom.html:12:1 (dot-mapply_custom.Rd:5): Warning: <script> inserting "type" attribute
+dot-mapply_custom.html:17:1 (dot-mapply_custom.Rd:5): Warning: <table> lacks "summary" attribute
+dot-mapply_custom.html:45:1 (dot-mapply_custom.Rd:17): Warning: <table> lacks "summary" attribute
+dot-mapply_custom.html:54:14 (dot-mapply_custom.Rd:21): Warning: <code> attribute "id" has invalid value "..."
+dot-resample.html:15:44 (dot-resample.Rd:5): Error: <main> is not recognized!
+dot-resample.html:15:44 (dot-resample.Rd:5): Warning: discarding unexpected <main>
+dot-resample.html:58:1 (dot-resample.Rd:15): Warning: discarding unexpected </main>
+dot-resample.html:4:1 (dot-resample.Rd:5): Warning: <link> inserting "type" attribute
+dot-resample.html:12:1 (dot-resample.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-resample.html:12:1 (dot-resample.Rd:5): Warning: <script> inserting "type" attribute
+dot-resample.html:17:1 (dot-resample.Rd:5): Warning: <table> lacks "summary" attribute
+dot-resample.html:35:1 (dot-resample.Rd:10): Warning: <table> lacks "summary" attribute
+dot-resample.html:40:14 (dot-resample.Rd:12): Warning: <code> attribute "id" has invalid value "..."
+dot-select_domain.html:15:44 (dot-select_domain.Rd:5): Error: <main> is not recognized!
+dot-select_domain.html:15:44 (dot-select_domain.Rd:5): Warning: discarding unexpected <main>
+dot-select_domain.html:82:1 (dot-select_domain.Rd:33): Warning: discarding unexpected </main>
+dot-select_domain.html:4:1 (dot-select_domain.Rd:5): Warning: <link> inserting "type" attribute
+dot-select_domain.html:12:1 (dot-select_domain.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-select_domain.html:12:1 (dot-select_domain.Rd:5): Warning: <script> inserting "type" attribute
+dot-select_domain.html:17:1 (dot-select_domain.Rd:5): Warning: <table> lacks "summary" attribute
+dot-select_domain.html:36:1 (dot-select_domain.Rd:10): Warning: <table> lacks "summary" attribute
+dot-transform_list.html:15:44 (dot-transform_list.Rd:5): Error: <main> is not recognized!
+dot-transform_list.html:15:44 (dot-transform_list.Rd:5): Warning: discarding unexpected <main>
+dot-transform_list.html:59:1 (dot-transform_list.Rd:15): Warning: discarding unexpected </main>
+dot-transform_list.html:4:1 (dot-transform_list.Rd:5): Warning: <link> inserting "type" attribute
+dot-transform_list.html:12:1 (dot-transform_list.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-transform_list.html:12:1 (dot-transform_list.Rd:5): Warning: <script> inserting "type" attribute
+dot-transform_list.html:17:1 (dot-transform_list.Rd:5): Warning: <table> lacks "summary" attribute
+dot-transform_list.html:36:1 (dot-transform_list.Rd:10): Warning: <table> lacks "summary" attribute
+dot-transform_to_matrix.html:15:44 (dot-transform_to_matrix.Rd:5): Error: <main> is not recognized!
+dot-transform_to_matrix.html:15:44 (dot-transform_to_matrix.Rd:5): Warning: discarding unexpected <main>
+dot-transform_to_matrix.html:57:1 (dot-transform_to_matrix.Rd:13): Warning: discarding unexpected </main>
+dot-transform_to_matrix.html:4:1 (dot-transform_to_matrix.Rd:5): Warning: <link> inserting "type" attribute
+dot-transform_to_matrix.html:12:1 (dot-transform_to_matrix.Rd:5): Warning: <script> proprietary attribute "onload"
+dot-transform_to_matrix.html:12:1 (dot-transform_to_matrix.Rd:5): Warning: <script> inserting "type" attribute
+dot-transform_to_matrix.html:17:1 (dot-transform_to_matrix.Rd:5): Warning: <table> lacks "summary" attribute
+dot-transform_to_matrix.html:36:1 (dot-transform_to_matrix.Rd:10): Warning: <table> lacks "summary" attribute
+filter_candidate_motifs.html:15:44 (filter_candidate_motifs.Rd:5): Error: <main> is not recognized!
+filter_candidate_motifs.html:15:44 (filter_candidate_motifs.Rd:5): Warning: discarding unexpected <main>
+filter_candidate_motifs.html:130:1 (filter_candidate_motifs.Rd:41): Warning: discarding unexpected </main>
+filter_candidate_motifs.html:4:1 (filter_candidate_motifs.Rd:5): Warning: <link> inserting "type" attribute
+filter_candidate_motifs.html:12:1 (filter_candidate_motifs.Rd:5): Warning: <script> proprietary attribute "onload"
+filter_candidate_motifs.html:12:1 (filter_candidate_motifs.Rd:5): Warning: <script> inserting "type" attribute
+filter_candidate_motifs.html:17:1 (filter_candidate_motifs.Rd:5): Warning: <table> lacks "summary" attribute
+filter_candidate_motifs.html:43:1 (filter_candidate_motifs.Rd:16): Warning: <table> lacks "summary" attribute
+filter_candidate_motifs.html:87:1 (filter_candidate_motifs.Rd:32): Warning: <table> lacks "summary" attribute
+find_recommended_path.html:15:44 (find_recommended_path.Rd:5): Error: <main> is not recognized!
+find_recommended_path.html:15:44 (find_recommended_path.Rd:5): Warning: discarding unexpected <main>
+find_recommended_path.html:77:1 (find_recommended_path.Rd:25): Warning: discarding unexpected </main>
+find_recommended_path.html:4:1 (find_recommended_path.Rd:5): Warning: <link> inserting "type" attribute
+find_recommended_path.html:12:1 (find_recommended_path.Rd:5): Warning: <script> proprietary attribute "onload"
+find_recommended_path.html:12:1 (find_recommended_path.Rd:5): Warning: <script> inserting "type" attribute
+find_recommended_path.html:17:1 (find_recommended_path.Rd:5): Warning: <table> lacks "summary" attribute
+find_recommended_path.html:36:1 (find_recommended_path.Rd:10): Warning: <table> lacks "summary" attribute
+funMoDisco-package.html:15:44 (funMoDisco-package.Rd:7): Error: <main> is not recognized!
+funMoDisco-package.html:15:44 (funMoDisco-package.Rd:7): Warning: discarding unexpected <main>
+funMoDisco-package.html:49:1 (funMoDisco-package.Rd:21): Warning: discarding unexpected </main>
+funMoDisco-package.html:4:1 (funMoDisco-package.Rd:7): Warning: <link> inserting "type" attribute
+funMoDisco-package.html:12:1 (funMoDisco-package.Rd:7): Warning: <script> proprietary attribute "onload"
+funMoDisco-package.html:12:1 (funMoDisco-package.Rd:7): Warning: <script> inserting "type" attribute
+funMoDisco-package.html:17:1 (funMoDisco-package.Rd:7): Warning: <table> lacks "summary" attribute
+generateCurves-motifSimulation-method.html:15:44 (generateCurves-motifSimulation-method.Rd:5): Error: <main> is not recognized!
+generateCurves-motifSimulation-method.html:15:44 (generateCurves-motifSimulation-method.Rd:5): Warning: discarding unexpected <main>
+generateCurves-motifSimulation-method.html:211:1 (generateCurves-motifSimulation-method.Rd:141): Warning: discarding unexpected </main>
+generateCurves-motifSimulation-method.html:4:1 (generateCurves-motifSimulation-method.Rd:5): Warning: <link> inserting "type" attribute
+generateCurves-motifSimulation-method.html:12:1 (generateCurves-motifSimulation-method.Rd:5): Warning: <script> proprietary attribute "onload"
+generateCurves-motifSimulation-method.html:12:1 (generateCurves-motifSimulation-method.Rd:5): Warning: <script> inserting "type" attribute
+generateCurves-motifSimulation-method.html:17:1 (generateCurves-motifSimulation-method.Rd:5): Warning: <table> lacks "summary" attribute
+generateCurves-motifSimulation-method.html:59:1 (generateCurves-motifSimulation-method.Rd:18): Warning: <table> lacks "summary" attribute
+generateCurves.html:15:44 (generateCurves.Rd:5): Error: <main> is not recognized!
+generateCurves.html:15:44 (generateCurves.Rd:5): Warning: discarding unexpected <main>
+generateCurves.html:210:1 (generateCurves.Rd:141): Warning: discarding unexpected </main>
+generateCurves.html:4:1 (generateCurves.Rd:5): Warning: <link> inserting "type" attribute
+generateCurves.html:12:1 (generateCurves.Rd:5): Warning: <script> proprietary attribute "onload"
+generateCurves.html:12:1 (generateCurves.Rd:5): Warning: <script> inserting "type" attribute
+generateCurves.html:17:1 (generateCurves.Rd:5): Warning: <table> lacks "summary" attribute
+generateCurves.html:58:1 (generateCurves.Rd:18): Warning: <table> lacks "summary" attribute
+generate_background_curve.html:15:44 (generate_background_curve.Rd:5): Error: <main> is not recognized!
+generate_background_curve.html:15:44 (generate_background_curve.Rd:5): Warning: discarding unexpected <main>
+generate_background_curve.html:71:1 (generate_background_curve.Rd:21): Warning: discarding unexpected </main>
+generate_background_curve.html:4:1 (generate_background_curve.Rd:5): Warning: <link> inserting "type" attribute
+generate_background_curve.html:12:1 (generate_background_curve.Rd:5): Warning: <script> proprietary attribute "onload"
+generate_background_curve.html:12:1 (generate_background_curve.Rd:5): Warning: <script> inserting "type" attribute
+generate_background_curve.html:17:1 (generate_background_curve.Rd:5): Warning: <table> lacks "summary" attribute
+generate_background_curve.html:36:1 (generate_background_curve.Rd:10): Warning: <table> lacks "summary" attribute
+generate_curve_vector.html:15:44 (generate_curve_vector.Rd:5): Error: <main> is not recognized!
+generate_curve_vector.html:15:44 (generate_curve_vector.Rd:5): Warning: discarding unexpected <main>
+generate_curve_vector.html:62:1 (generate_curve_vector.Rd:17): Warning: discarding unexpected </main>
+generate_curve_vector.html:4:1 (generate_curve_vector.Rd:5): Warning: <link> inserting "type" attribute
+generate_curve_vector.html:12:1 (generate_curve_vector.Rd:5): Warning: <script> proprietary attribute "onload"
+generate_curve_vector.html:12:1 (generate_curve_vector.Rd:5): Warning: <script> inserting "type" attribute
+generate_curve_vector.html:17:1 (generate_curve_vector.Rd:5): Warning: <table> lacks "summary" attribute
+generate_curve_vector.html:35:1 (generate_curve_vector.Rd:10): Warning: <table> lacks "summary" attribute
+get_accolites.html:15:44 (get_accolites.Rd:5): Error: <main> is not recognized!
+get_accolites.html:15:44 (get_accolites.Rd:5): Warning: discarding unexpected <main>
+get_accolites.html:77:1 (get_accolites.Rd:23): Warning: discarding unexpected </main>
+get_accolites.html:4:1 (get_accolites.Rd:5): Warning: <link> inserting "type" attribute
+get_accolites.html:12:1 (get_accolites.Rd:5): Warning: <script> proprietary attribute "onload"
+get_accolites.html:12:1 (get_accolites.Rd:5): Warning: <script> inserting "type" attribute
+get_accolites.html:17:1 (get_accolites.Rd:5): Warning: <table> lacks "summary" attribute
+get_accolites.html:37:1 (get_accolites.Rd:10): Warning: <table> lacks "summary" attribute
+get_minidend.html:15:44 (get_minidend.Rd:5): Error: <main> is not recognized!
+get_minidend.html:15:44 (get_minidend.Rd:5): Warning: discarding unexpected <main>
+get_minidend.html:63:1 (get_minidend.Rd:15): Warning: discarding unexpected </main>
+get_minidend.html:4:1 (get_minidend.Rd:5): Warning: <link> inserting "type" attribute
+get_minidend.html:12:1 (get_minidend.Rd:5): Warning: <script> proprietary attribute "onload"
+get_minidend.html:12:1 (get_minidend.Rd:5): Warning: <script> inserting "type" attribute
+get_minidend.html:17:1 (get_minidend.Rd:5): Warning: <table> lacks "summary" attribute
+get_minidend.html:37:1 (get_minidend.Rd:10): Warning: <table> lacks "summary" attribute
+get_parents.html:15:44 (get_parents.Rd:5): Error: <main> is not recognized!
+get_parents.html:15:44 (get_parents.Rd:5): Warning: discarding unexpected <main>
+get_parents.html:64:1 (get_parents.Rd:17): Warning: discarding unexpected </main>
+get_parents.html:4:1 (get_parents.Rd:5): Warning: <link> inserting "type" attribute
+get_parents.html:12:1 (get_parents.Rd:5): Warning: <script> proprietary attribute "onload"
+get_parents.html:12:1 (get_parents.Rd:5): Warning: <script> inserting "type" attribute
+get_parents.html:17:1 (get_parents.Rd:5): Warning: <table> lacks "summary" attribute
+get_parents.html:37:1 (get_parents.Rd:10): Warning: <table> lacks "summary" attribute
+get_path_complete.html:15:44 (get_path_complete.Rd:5): Error: <main> is not recognized!
+get_path_complete.html:15:44 (get_path_complete.Rd:5): Warning: discarding unexpected <main>
+get_path_complete.html:75:1 (get_path_complete.Rd:23): Warning: discarding unexpected </main>
+get_path_complete.html:4:1 (get_path_complete.Rd:5): Warning: <link> inserting "type" attribute
+get_path_complete.html:12:1 (get_path_complete.Rd:5): Warning: <script> proprietary attribute "onload"
+get_path_complete.html:12:1 (get_path_complete.Rd:5): Warning: <script> inserting "type" attribute
+get_path_complete.html:17:1 (get_path_complete.Rd:5): Warning: <table> lacks "summary" attribute
+get_path_complete.html:37:1 (get_path_complete.Rd:10): Warning: <table> lacks "summary" attribute
+initialChecks.html:15:44 (initialChecks.Rd:5): Error: <main> is not recognized!
+initialChecks.html:15:44 (initialChecks.Rd:5): Warning: discarding unexpected <main>
+initialChecks.html:166:1 (initialChecks.Rd:56): Warning: discarding unexpected </main>
+initialChecks.html:4:1 (initialChecks.Rd:5): Warning: <link> inserting "type" attribute
+initialChecks.html:12:1 (initialChecks.Rd:5): Warning: <script> proprietary attribute "onload"
+initialChecks.html:12:1 (initialChecks.Rd:5): Warning: <script> inserting "type" attribute
+initialChecks.html:17:1 (initialChecks.Rd:5): Warning: <table> lacks "summary" attribute
+initialChecks.html:37:1 (initialChecks.Rd:10): Warning: <table> lacks "summary" attribute
+initialChecks.html:155:1 (initialChecks.Rd:55): Warning: <table> lacks "summary" attribute
+motifSimulation-class.html:15:44 (motifSimulation-class.Rd:6): Error: <main> is not recognized!
+motifSimulation-class.html:15:44 (motifSimulation-class.Rd:6): Warning: discarding unexpected <main>
+motifSimulation-class.html:64:1 (motifSimulation-class.Rd:42): Warning: discarding unexpected </main>
+motifSimulation-class.html:4:1 (motifSimulation-class.Rd:6): Warning: <link> inserting "type" attribute
+motifSimulation-class.html:12:1 (motifSimulation-class.Rd:6): Warning: <script> proprietary attribute "onload"
+motifSimulation-class.html:12:1 (motifSimulation-class.Rd:6): Warning: <script> inserting "type" attribute
+motifSimulation-class.html:17:1 (motifSimulation-class.Rd:6): Warning: <table> lacks "summary" attribute
+motifSimulationBuilder.html:15:44 (motifSimulationBuilder.Rd:5): Error: <main> is not recognized!
+motifSimulationBuilder.html:15:44 (motifSimulationBuilder.Rd:5): Warning: discarding unexpected <main>
+motifSimulationBuilder.html:131:1 (motifSimulationBuilder.Rd:78): Warning: discarding unexpected </main>
+motifSimulationBuilder.html:4:1 (motifSimulationBuilder.Rd:5): Warning: <link> inserting "type" attribute
+motifSimulationBuilder.html:12:1 (motifSimulationBuilder.Rd:5): Warning: <script> proprietary attribute "onload"
+motifSimulationBuilder.html:12:1 (motifSimulationBuilder.Rd:5): Warning: <script> inserting "type" attribute
+motifSimulationBuilder.html:17:1 (motifSimulationBuilder.Rd:5): Warning: <table> lacks "summary" attribute
+motifSimulationBuilder.html:46:1 (motifSimulationBuilder.Rd:21): Warning: <table> lacks "summary" attribute
+motifs_search.html:15:44 (motifs_search.Rd:5): Error: <main> is not recognized!
+motifs_search.html:15:44 (motifs_search.Rd:5): Warning: discarding unexpected <main>
+motifs_search.html:198:1 (motifs_search.Rd:83): Warning: discarding unexpected </main>
+motifs_search.html:4:1 (motifs_search.Rd:5): Warning: <link> inserting "type" attribute
+motifs_search.html:12:1 (motifs_search.Rd:5): Warning: <script> proprietary attribute "onload"
+motifs_search.html:12:1 (motifs_search.Rd:5): Warning: <script> inserting "type" attribute
+motifs_search.html:17:1 (motifs_search.Rd:5): Warning: <table> lacks "summary" attribute
+motifs_search.html:48:1 (motifs_search.Rd:19): Warning: <table> lacks "summary" attribute
+motifs_search_plot.html:15:44 (motifs_search_plot.Rd:5): Error: <main> is not recognized!
+motifs_search_plot.html:15:44 (motifs_search_plot.Rd:5): Warning: discarding unexpected <main>
+motifs_search_plot.html:117:1 (motifs_search_plot.Rd:42): Warning: discarding unexpected </main>
+motifs_search_plot.html:4:1 (motifs_search_plot.Rd:5): Warning: <link> inserting "type" attribute
+motifs_search_plot.html:12:1 (motifs_search_plot.Rd:5): Warning: <script> proprietary attribute "onload"
+motifs_search_plot.html:12:1 (motifs_search_plot.Rd:5): Warning: <script> inserting "type" attribute
+motifs_search_plot.html:17:1 (motifs_search_plot.Rd:5): Warning: <table> lacks "summary" attribute
+motifs_search_plot.html:46:1 (motifs_search_plot.Rd:17): Warning: <table> lacks "summary" attribute
+padding.html:15:44 (padding.Rd:5): Error: <main> is not recognized!
+padding.html:15:44 (padding.Rd:5): Warning: discarding unexpected <main>
+padding.html:63:1 (padding.Rd:16): Warning: discarding unexpected </main>
+padding.html:4:1 (padding.Rd:5): Warning: <link> inserting "type" attribute
+padding.html:12:1 (padding.Rd:5): Warning: <script> proprietary attribute "onload"
+padding.html:12:1 (padding.Rd:5): Warning: <script> inserting "type" attribute
+padding.html:17:1 (padding.Rd:5): Warning: <table> lacks "summary" attribute
+padding.html:37:1 (padding.Rd:10): Warning: <table> lacks "summary" attribute
+plot_motifs-motifSimulation-method.html:15:44 (plot_motifs-motifSimulation-method.Rd:5): Error: <main> is not recognized!
+plot_motifs-motifSimulation-method.html:15:44 (plot_motifs-motifSimulation-method.Rd:5): Warning: discarding unexpected <main>
+plot_motifs-motifSimulation-method.html:83:1 (plot_motifs-motifSimulation-method.Rd:41): Warning: discarding unexpected </main>
+plot_motifs-motifSimulation-method.html:4:1 (plot_motifs-motifSimulation-method.Rd:5): Warning: <link> inserting "type" attribute
+plot_motifs-motifSimulation-method.html:12:1 (plot_motifs-motifSimulation-method.Rd:5): Warning: <script> proprietary attribute "onload"
+plot_motifs-motifSimulation-method.html:12:1 (plot_motifs-motifSimulation-method.Rd:5): Warning: <script> inserting "type" attribute
+plot_motifs-motifSimulation-method.html:17:1 (plot_motifs-motifSimulation-method.Rd:5): Warning: <table> lacks "summary" attribute
+plot_motifs-motifSimulation-method.html:40:1 (plot_motifs-motifSimulation-method.Rd:10): Warning: <table> lacks "summary" attribute
+plot_motifs.html:15:44 (plot_motifs.Rd:5): Error: <main> is not recognized!
+plot_motifs.html:15:44 (plot_motifs.Rd:5): Warning: discarding unexpected <main>
+plot_motifs.html:83:1 (plot_motifs.Rd:42): Warning: discarding unexpected </main>
+plot_motifs.html:4:1 (plot_motifs.Rd:5): Warning: <link> inserting "type" attribute
+plot_motifs.html:12:1 (plot_motifs.Rd:5): Warning: <script> proprietary attribute "onload"
+plot_motifs.html:12:1 (plot_motifs.Rd:5): Warning: <script> inserting "type" attribute
+plot_motifs.html:17:1 (plot_motifs.Rd:5): Warning: <table> lacks "summary" attribute
+plot_motifs.html:39:1 (plot_motifs.Rd:10): Warning: <table> lacks "summary" attribute
+probKMA_plot.html:15:44 (probKMA_plot.Rd:5): Error: <main> is not recognized!
+probKMA_plot.html:15:44 (probKMA_plot.Rd:5): Warning: discarding unexpected <main>
+probKMA_plot.html:177:1 (probKMA_plot.Rd:52): Warning: discarding unexpected </main>
+probKMA_plot.html:4:1 (probKMA_plot.Rd:5): Warning: <link> inserting "type" attribute
+probKMA_plot.html:12:1 (probKMA_plot.Rd:5): Warning: <script> proprietary attribute "onload"
+probKMA_plot.html:12:1 (probKMA_plot.Rd:5): Warning: <script> inserting "type" attribute
+probKMA_plot.html:17:1 (probKMA_plot.Rd:5): Warning: <table> lacks "summary" attribute
+probKMA_plot.html:46:1 (probKMA_plot.Rd:17): Warning: <table> lacks "summary" attribute
+probKMA_silhouette_filter.html:15:44 (probKMA_silhouette_filter.Rd:5): Error: <main> is not recognized!
+probKMA_silhouette_filter.html:15:44 (probKMA_silhouette_filter.Rd:5): Warning: discarding unexpected <main>
+probKMA_silhouette_filter.html:99:1 (probKMA_silhouette_filter.Rd:32): Warning: discarding unexpected </main>
+probKMA_silhouette_filter.html:4:1 (probKMA_silhouette_filter.Rd:5): Warning: <link> inserting "type" attribute
+probKMA_silhouette_filter.html:12:1 (probKMA_silhouette_filter.Rd:5): Warning: <script> proprietary attribute "onload"
+probKMA_silhouette_filter.html:12:1 (probKMA_silhouette_filter.Rd:5): Warning: <script> inserting "type" attribute
+probKMA_silhouette_filter.html:17:1 (probKMA_silhouette_filter.Rd:5): Warning: <table> lacks "summary" attribute
+probKMA_silhouette_filter.html:40:1 (probKMA_silhouette_filter.Rd:15): Warning: <table> lacks "summary" attribute
+probKMA_silhouette_filter.html:64:1 (probKMA_silhouette_filter.Rd:25): Warning: <table> lacks "summary" attribute
+probKMA_silhouette_plot.html:15:44 (probKMA_silhouette_plot.Rd:5): Error: <main> is not recognized!
+probKMA_silhouette_plot.html:15:44 (probKMA_silhouette_plot.Rd:5): Warning: discarding unexpected <main>
+probKMA_silhouette_plot.html:79:1 (probKMA_silhouette_plot.Rd:26): Warning: discarding unexpected </main>
+probKMA_silhouette_plot.html:4:1 (probKMA_silhouette_plot.Rd:5): Warning: <link> inserting "type" attribute
+probKMA_silhouette_plot.html:12:1 (probKMA_silhouette_plot.Rd:5): Warning: <script> proprietary attribute "onload"
+probKMA_silhouette_plot.html:12:1 (probKMA_silhouette_plot.Rd:5): Warning: <script> inserting "type" attribute
+probKMA_silhouette_plot.html:17:1 (probKMA_silhouette_plot.Rd:5): Warning: <table> lacks "summary" attribute
+probKMA_silhouette_plot.html:35:1 (probKMA_silhouette_plot.Rd:10): Warning: <table> lacks "summary" attribute
+probKMA_silhouette_plot.html:60:1 (probKMA_silhouette_plot.Rd:23): Warning: <table> lacks "summary" attribute
+probKMA_wrap.html:15:44 (probKMA_wrap.Rd:5): Error: <main> is not recognized!
+probKMA_wrap.html:15:44 (probKMA_wrap.Rd:5): Warning: discarding unexpected <main>
+probKMA_wrap.html:220:1 (probKMA_wrap.Rd:113): Warning: discarding unexpected </main>
+probKMA_wrap.html:4:1 (probKMA_wrap.Rd:5): Warning: <link> inserting "type" attribute
+probKMA_wrap.html:12:1 (probKMA_wrap.Rd:5): Warning: <script> proprietary attribute "onload"
+probKMA_wrap.html:12:1 (probKMA_wrap.Rd:5): Warning: <script> inserting "type" attribute
+probKMA_wrap.html:17:1 (probKMA_wrap.Rd:5): Warning: <table> lacks "summary" attribute
+probKMA_wrap.html:69:1 (probKMA_wrap.Rd:44): Warning: <table> lacks "summary" attribute
+probKMA_wrap.html:209:1 (probKMA_wrap.Rd:112): Warning: <table> lacks "summary" attribute
+recommend_node.html:15:44 (recommend_node.Rd:5): Error: <main> is not recognized!
+recommend_node.html:15:44 (recommend_node.Rd:5): Warning: discarding unexpected <main>
+recommend_node.html:62:1 (recommend_node.Rd:13): Warning: discarding unexpected </main>
+recommend_node.html:4:1 (recommend_node.Rd:5): Warning: <link> inserting "type" attribute
+recommend_node.html:12:1 (recommend_node.Rd:5): Warning: <script> proprietary attribute "onload"
+recommend_node.html:12:1 (recommend_node.Rd:5): Warning: <script> inserting "type" attribute
+recommend_node.html:17:1 (recommend_node.Rd:5): Warning: <table> lacks "summary" attribute
+recommend_node.html:37:1 (recommend_node.Rd:10): Warning: <table> lacks "summary" attribute
+simulated200.html:15:44 (simulated200.Rd:6): Error: <main> is not recognized!
+simulated200.html:15:44 (simulated200.Rd:6): Warning: discarding unexpected <main>
+simulated200.html:46:1 (simulated200.Rd:8): Warning: discarding unexpected </main>
+simulated200.html:4:1 (simulated200.Rd:6): Warning: <link> inserting "type" attribute
+simulated200.html:12:1 (simulated200.Rd:6): Warning: <script> proprietary attribute "onload"
+simulated200.html:12:1 (simulated200.Rd:6): Warning: <script> inserting "type" attribute
+simulated200.html:17:1 (simulated200.Rd:6): Warning: <table> lacks "summary" attribute
+simulatedHighDimensional.html:15:44 (simulatedHighDimensional.Rd:6): Error: <main> is not recognized!
+simulatedHighDimensional.html:15:44 (simulatedHighDimensional.Rd:6): Warning: discarding unexpected <main>
+simulatedHighDimensional.html:41:1 (simulatedHighDimensional.Rd:8): Warning: discarding unexpected </main>
+simulatedHighDimensional.html:4:1 (simulatedHighDimensional.Rd:6): Warning: <link> inserting "type" attribute
+simulatedHighDimensional.html:12:1 (simulatedHighDimensional.Rd:6): Warning: <script> proprietary attribute "onload"
+simulatedHighDimensional.html:12:1 (simulatedHighDimensional.Rd:6): Warning: <script> inserting "type" attribute
+simulatedHighDimensional.html:17:1 (simulatedHighDimensional.Rd:6): Warning: <table> lacks "summary" attribute
+to_motifDiscovery-list-method.html:15:44 (to_motifDiscovery-list-method.Rd:5): Error: <main> is not recognized!
+to_motifDiscovery-list-method.html:15:44 (to_motifDiscovery-list-method.Rd:5): Warning: discarding unexpected <main>
+to_motifDiscovery-list-method.html:59:1 (to_motifDiscovery-list-method.Rd:23): Warning: discarding unexpected </main>
+to_motifDiscovery-list-method.html:4:1 (to_motifDiscovery-list-method.Rd:5): Warning: <link> inserting "type" attribute
+to_motifDiscovery-list-method.html:12:1 (to_motifDiscovery-list-method.Rd:5): Warning: <script> proprietary attribute "onload"
+to_motifDiscovery-list-method.html:12:1 (to_motifDiscovery-list-method.Rd:5): Warning: <script> inserting "type" attribute
+to_motifDiscovery-list-method.html:17:1 (to_motifDiscovery-list-method.Rd:5): Warning: <table> lacks "summary" attribute
+to_motifDiscovery-list-method.html:36:1 (to_motifDiscovery-list-method.Rd:10): Warning: <table> lacks "summary" attribute
+to_motifDiscovery.html:15:44 (to_motifDiscovery.Rd:5): Error: <main> is not recognized!
+to_motifDiscovery.html:15:44 (to_motifDiscovery.Rd:5): Warning: discarding unexpected <main>
+to_motifDiscovery.html:62:1 (to_motifDiscovery.Rd:27): Warning: discarding unexpected </main>
+to_motifDiscovery.html:4:1 (to_motifDiscovery.Rd:5): Warning: <link> inserting "type" attribute
+to_motifDiscovery.html:12:1 (to_motifDiscovery.Rd:5): Warning: <script> proprietary attribute "onload"
+to_motifDiscovery.html:12:1 (to_motifDiscovery.Rd:5): Warning: <script> inserting "type" attribute
+to_motifDiscovery.html:17:1 (to_motifDiscovery.Rd:5): Warning: <table> lacks "summary" attribute
+to_motifDiscovery.html:35:1 (to_motifDiscovery.Rd:10): Warning: <table> lacks "summary" attribute
+Skipping checking math rendering: package 'V8' unavailable
+* checking for non-standard things in the check directory ... NOTE
+Found the following files/directories:
+  ‘completeFunBIalign_portion_len_60_min_card_3.rds’
+* checking for detritus in the temp directory ... OK
+* DONE
+Status: 7 WARNINGs, 7 NOTEs

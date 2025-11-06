@@ -29,13 +29,15 @@ This plotting utility is an essential tool within the `funMoDisco` package, aidi
 \donttest{
 # Example: Plotting motifs in generated curves
 # Assume 'builder' has been created and 'curves' have been generated using generateCurves
-builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details)
-curves <- funMoDisco::generateCurves(builder, noise_type = 'pointwise', noise_str = noise_str)
+
+mot_details <- NULL
+builder <- funMoDisco::motifSimulationBuilder(N = 20, len = 300, mot_details = mot_details)
+curves <- funMoDisco::generateCurves(builder)
 
 # Specify the directory to save plots
 plots_name <- "plots_1"  
 
 # Generate and save the plots
-funMoDisco::plot_motifs(builder, curves, plots_name)
+funMoDisco::plot_motifs(builder, curves, plots_name, path = tempdir())
 }
 }
